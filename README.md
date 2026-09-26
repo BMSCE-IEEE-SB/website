@@ -1,6 +1,27 @@
 # BMSCE IEEE Student Branch Website
 
-Official website for the **IEEE Student Branch at B.M.S. College of Engineering (Branch 06261, Region 10)**. Built with Next.js 15 (App Router), Tailwind CSS v4, and Supabase for the 2026 Annual Membership Drive.
+Official website for the **IEEE Student Branch at B.M.S. College of Engineering (Branch 06261, Region 10)**. Built with Next.js 16 (App Router), Tailwind CSS v4, and Supabase for the 2026 Annual Membership Drive.
+
+The public landing page (chapters, events, gallery, team, partnerships) and the membership registration flow live in one site. Every "Become a member" button leads to `/membership/register`.
+
+### Demo mode vs live mode
+- **Demo mode** runs when `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` are not set. Everything is stored in the browser's localStorage with sample admin data, any login works, and a blue "Demo mode" note appears on the forms.
+- **Live mode** runs as soon as both variables are set. Demo shortcuts disappear, real Supabase Auth is required, and admin rights come only from the `admins` table.
+
+### Main pages
+| Page | What it is |
+|---|---|
+| `/` | Landing page |
+| `/chapters/[slug]` | One page per chapter (`cs`, `pes`, `pels-ies`, `ras`, `wie`, `ssit`) |
+| `/gallery` | Full photo gallery |
+| `/membership` | "Become a member": benefits, price calculator, FAQ |
+| `/membership/register` → `/profile` → `/chapters` → `/checkout` | The four registration steps |
+| `/login` | Member portal sign in |
+| `/account` | Member portal: digital card, status tracker, applications |
+| `/admin/login` | Executive dashboard |
+
+### Where to edit site content
+All landing-page text, chapters, events, gallery photos, testimonials, FAQs and ExeCom members are in `src/data/site.ts`. Events marked as upcoming or past are worked out from their dates automatically. The testimonials and events there are **placeholders** and should be replaced with real ones. Chapter prices for payment come from the `chapters` table in live mode.
 
 ---
 
@@ -62,8 +83,8 @@ Interactive Bento grid showcasing:
 
 ### 1. Clone & Install Dependencies
 ```bash
-git clone https://github.com/Kiba6644/SB_Website.git
-cd SB_Website
+git clone https://github.com/BMSCE-IEEE-SB/website.git
+cd website
 npm install
 ```
 
@@ -91,8 +112,9 @@ The application includes built-in offline/demo sessions, allowing complete testi
 
 When connecting your live Supabase project:
 1. Execute the DDL in `supabase/schema.sql` inside your Supabase SQL Editor.
-2. Create a storage bucket named `public-assets` with public/authenticated read access for payment screenshots.
-3. Update `.env.local`:
+2. Create a storage bucket named `public-assets` with **Public turned OFF**. Payment screenshots are private and admins view them through signed URLs. The storage policies are in `schema.sql`.
+3. Add each executive to the `admins` table (see the last line of `schema.sql`).
+4. Update `.env.local`:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://<your-project>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
@@ -106,7 +128,7 @@ SMTP_PASS=your-app-password
 ---
 
 ## 📦 Tech Stack
-- **Framework**: Next.js 15 (App Router, Turbopack)
+- **Framework**: Next.js 16 (App Router, Turbopack)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS v4
 - **Icons**: Lucide React

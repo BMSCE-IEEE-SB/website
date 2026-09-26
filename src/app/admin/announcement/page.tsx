@@ -1,214 +1,121 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
-import { getAdminUser, getAnnouncement, saveAnnouncement, Announcement } from '@/lib/auth';
-import { Loader2, Megaphone, ArrowLeft, CheckCircle2, Eye, Link as LinkIcon, ToggleLeft, ToggleRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { isDemoMode, supabase } from '@/lib/supabase';
+import { DEFAULT_ANNOUNCEMENT, getAdminUser, loadAnnouncement, saveLocalAnnouncement, type Announcement } from '@/lib/auth';
+import { Alert, Field, Input, PageLoader, Spinner } from '@/components/ui/form';
+import { cn, errorMessage } from '@/lib/utils';
 
 export default function AdminAnnouncementPage() {
   const router = useRouter();
+  const demo = isDemoMode();
   const [message, setMessage] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [savedSuccess, setSavedSuccess] = useState(false);
+  const [status, setStatus] = useState<{ tone: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
-    async function init() {
-      const admin = await getAdminUser();
+    (async () => {
+      const admin = await getAdminUser().catch(() => null);
       if (!admin) {
-        router.push('/admin/login');
+        router.replace('/admin/login');
         return;
       }
-
-      try {
-        const { data } = await supabase
-          .from('announcement')
-          .select('*')
-          .limit(1)
-          .single();
-
-        if (data) {
-          setMessage(data.message || '');
-          setLinkUrl(data.link_url || '');
-          setIsActive(data.is_active ?? true);
-          setIsLoading(false);
-          return;
-        }
-      } catch (e) {}
-
-      // Fallback
-      const ann = getAnnouncement();
-      setMessage(ann.message);
-      setLinkUrl(ann.link_url || '');
-      setIsActive(ann.is_active);
+      const a = (await loadAnnouncement().catch(() => null)) ?? DEFAULT_ANNOUNCEMENT;
+      setMessage(a.message);
+      setLinkUrl(a.link_url ?? '');
+      setIsActive(a.is_active);
       setIsLoading(false);
-    }
-    init();
+    })();
   }, [router]);
 
-  const handleSave = async (e: React.FormEvent) => {
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    setIsSaving(true);
-    setSavedSuccess(false);
-
-    const payload: Announcement = {
-      message,
-      link_url: linkUrl,
-      is_active: isActive,
-      updated_at: new Date().toISOString(),
-    };
-
-    saveAnnouncement(payload);
-
-    try {
-      await supabase
-        .from('announcement')
-        .upsert([{ id: 1, ...payload }]);
-    } catch (e) {
-      console.warn('Supabase announcement table not yet initialized; saved locally');
+    const url = linkUrl.trim();
+    if (url && !url.startsWith('/') && !/^https:\/\//.test(url)) {
+      setStatus({ tone: 'error', text: 'Links must start with / (a page on this site) or https://.' });
+      return;
     }
-
-    setIsSaving(false);
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-orange" />
-      </div>
-    );
+    setIsSaving(true);
+    setStatus(null);
+    const payload: Announcement = { message: message.trim(), link_url: url || undefined, is_active: isActive, updated_at: new Date().toISOString() };
+    try {
+      if (demo) {
+        saveLocalAnnouncement(payload);
+      } else {
+        const { error } = await supabase.from('announcement').upsert({ id: 1, ...payload, link_url: payload.link_url ?? null });
+        if (error) throw error;
+      }
+      setStatus({ tone: 'success', text: 'Saved. Visitors will see the change on their next page load.' });
+    } catch (err) {
+      setStatus({ tone: 'error', text: errorMessage(err, 'Could not save the announcement.') });
+    } finally {
+      setIsSaving(false);
+    }
   }
 
+  if (isLoading) return <PageLoader />;
+
   return (
-    <div className="container mx-auto px-4 py-12 max-w-3xl">
-      <div className="mb-6">
-        <Link
-          href="/admin/orders"
-          className="text-xs text-text-muted hover:text-white flex items-center gap-1.5 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Verifications</span>
-        </Link>
-      </div>
+    <div className="container-page max-w-3xl py-10 sm:py-12">
+      <Link href="/admin/orders" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink">
+        <ArrowLeft className="h-4 w-4" /> Back to verifications
+      </Link>
+      <h1 className="mt-4 text-2xl font-bold sm:text-3xl">Announcement banner</h1>
+      <p className="mt-2 text-sm text-muted">The banner appears at the very top of every page.</p>
 
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 rounded-xl bg-primary-orange/20 border border-primary-orange/40 flex items-center justify-center text-primary-orange">
-          <Megaphone className="w-5 h-5" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-extrabold text-white">Announcement Banner Manager</h1>
-          <p className="text-xs text-text-muted mt-0.5">
-            Configure the global notification banner displayed across the top of the branch website.
-          </p>
-        </div>
-      </div>
-
-      {/* Live Preview Box */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-wider text-text-muted">
-          <Eye className="w-3.5 h-3.5 text-sky-blue" />
-          <span>Live Site Preview</span>
-        </div>
+      <div className="mt-8">
+        <p className="mb-2 text-xs font-semibold tracking-wide text-muted uppercase">Preview</p>
         {isActive ? (
-          <div className="bg-primary-navy/40 border border-sky-blue/30 rounded-xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-2">
-              <span className="bg-primary-orange text-white font-bold text-[10px] px-2 py-0.5 rounded">
-                ANNOUNCEMENT
-              </span>
-              <span className="text-white font-medium">{message || 'Your announcement text here...'}</span>
-            </div>
+          <div className="rounded-2xl bg-night px-4 py-3 text-center text-[13px] text-white/85">
+            {message || 'Your announcement text'}
             {linkUrl && (
-              <span className="text-sky-blue font-semibold underline text-xs shrink-0">
-                Learn More &rarr;
+              <span className="ml-2 inline-flex items-center gap-1 font-semibold text-white">
+                Learn more <ArrowRight className="h-3.5 w-3.5" />
               </span>
             )}
           </div>
         ) : (
-          <div className="bg-bg-dark border border-deep-navy/40 rounded-xl p-3 text-xs text-center text-text-muted italic">
-            Banner is currently toggled OFF (hidden on public site)
-          </div>
+          <div className="rounded-2xl bg-white px-4 py-3 text-center text-sm text-muted italic">The banner is hidden.</div>
         )}
       </div>
 
-      {/* Editor Form */}
-      <div className="bg-surface-dark border border-deep-navy/40 p-8 rounded-2xl shadow-xl">
-        <form onSubmit={handleSave} className="space-y-6">
-          
-          {/* Active Toggle */}
-          <div className="flex items-center justify-between p-4 bg-bg-dark border border-deep-navy/40 rounded-xl">
-            <div>
-              <p className="text-sm font-semibold text-white">Banner Status</p>
-              <p className="text-xs text-text-muted">Toggle whether visitors can see this banner on the site.</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsActive(!isActive)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                isActive
-                  ? 'bg-green-500/20 text-green-400 border border-green-500/40'
-                  : 'bg-red-500/20 text-red-400 border border-red-500/40'
-              }`}
-            >
-              {isActive ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-              <span>{isActive ? 'ENABLED' : 'DISABLED'}</span>
-            </button>
+      <form onSubmit={handleSave} className="panel mt-8 space-y-6 p-6 sm:p-8">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="font-medium text-ink">Show banner</p>
+            <p className="text-sm text-muted">Turn this off to hide it without losing the text.</p>
           </div>
-
-          {/* Message Text */}
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Banner Message Text <span className="text-primary-orange">*</span>
-            </label>
-            <textarea
-              required
-              rows={3}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="e.g. BMSCE IEEE Membership Drive is now open! Early bird chapter access included."
-              className="w-full bg-bg-dark border border-deep-navy/50 rounded-xl p-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary-orange"
-            />
-          </div>
-
-          {/* Link URL */}
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted">
-              Call-to-Action Link URL <span className="text-xs text-text-muted/60">(Optional)</span>
-            </label>
-            <div className="relative">
-              <LinkIcon className="w-4 h-4 text-text-muted absolute left-3.5 top-3" />
-              <input
-                type="text"
-                value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
-                placeholder="/membership/register or https://..."
-                className="w-full bg-bg-dark border border-deep-navy/50 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary-orange"
-              />
-            </div>
-          </div>
-
-          {savedSuccess && (
-            <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400 text-xs flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-              <span>Announcement banner saved and published successfully!</span>
-            </div>
-          )}
-
           <button
-            type="submit"
-            disabled={isSaving}
-            className="w-full bg-primary-orange hover:bg-orange-accent text-white font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary-orange/20 disabled:opacity-60"
+            type="button"
+            role="switch"
+            aria-checked={isActive}
+            onClick={() => setIsActive((v) => !v)}
+            className={cn('relative h-7 w-12 shrink-0 rounded-full transition-colors', isActive ? 'bg-emerald-500' : 'bg-line')}
           >
-            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-            <span>{isSaving ? 'Saving Changes...' : 'Save & Publish Banner'}</span>
+            <span className={cn('absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform', isActive && 'translate-x-5')} />
+            <span className="sr-only">Show banner</span>
           </button>
-        </form>
-      </div>
+        </div>
+
+        <Field label="Message" htmlFor="message" required hint={`${message.length}/160 characters`}>
+          <textarea id="message" required rows={3} maxLength={160} value={message} onChange={(e) => setMessage(e.target.value)} className="input resize-none" />
+        </Field>
+        <Field label="Link" htmlFor="link" optional hint="A page on this site (e.g. /membership) or a full https:// address.">
+          <Input id="link" value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)} placeholder="/membership" />
+        </Field>
+
+        {status && <Alert tone={status.tone}>{status.text}</Alert>}
+
+        <button type="submit" disabled={isSaving} className="btn btn-primary btn-lg w-full">
+          {isSaving && <Spinner />} Save and publish
+        </button>
+      </form>
     </div>
   );
 }

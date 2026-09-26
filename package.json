@@ -11,11 +11,13 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.117.1",
     "lucide-react": "^1.48.0",
+    "motion": "^13.4.4",
     "next": "16.3.6",
     "nodemailer": "^10.0.10",
     "qrcode.react": "^4.2.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "yet-another-react-lightbox": "^3.32.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

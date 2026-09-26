@@ -1,372 +1,374 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
-import { getCurrentUser, getLocalProfile, getLocalOrders, clearUserSession, resubmitLocalOrderProof } from '@/lib/auth';
-import { Loader2, Clock, CheckCircle2, XCircle, LogOut, ArrowRight, UserCheck, ShieldAlert, UploadCloud, RefreshCw } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { ArrowRight, ArrowUpRight, CalendarDays, Check, Clock, Layers, LogOut, Pencil, Plus, RefreshCw, X } from 'lucide-react';
+import { isDemoMode, supabase } from '@/lib/supabase';
+import {
+  clearUserSession,
+  getCurrentUser,
+  getLocalOrdersForUser,
+  getLocalProfile,
+  resubmitLocalOrderProof,
+  type Order,
+  type SessionUser,
+  type UserProfile,
+} from '@/lib/auth';
+import { uploadScreenshot } from '@/lib/orders';
+import { Alert, Field, FileDrop, Input, Modal, PageLoader, Spinner, StatusBadge } from '@/components/ui/form';
+import { cn, errorMessage, formatDateTime, imageToDataUrl, validateScreenshot } from '@/lib/utils';
+import MembershipCard from '@/components/site/MembershipCard';
+import Tilt from '@/components/site/Tilt';
+import { chapterCode } from '@/data/site';
+import { confetti } from '@/lib/confetti';
+
+type OrderRow = Order & { order_items?: { chapters: { name: string } | null }[] };
 
 export default function AccountPage() {
   const router = useRouter();
-  const [profile, setProfile] = useState<any>(null);
-  const [orders, setOrders] = useState<any[]>([]);
+  const demo = isDemoMode();
+  const [user, setUser] = useState<SessionUser | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [justSubmitted, setJustSubmitted] = useState(false);
 
-  // Resubmit Modal State
-  const [resubmittingOrder, setResubmittingOrder] = useState<any | null>(null);
+  const [resubmitting, setResubmitting] = useState<Order | null>(null);
   const [newFile, setNewFile] = useState<File | null>(null);
   const [newUtr, setNewUtr] = useState('');
   const [isResubmitting, setIsResubmitting] = useState(false);
-  const [resubmitSuccess, setResubmitSuccess] = useState(false);
+  const [resubmitError, setResubmitError] = useState('');
 
-  const loadAccount = async () => {
-    setIsLoading(true);
-    const activeUser = await getCurrentUser();
-    if (!activeUser) {
-      router.push('/membership/register');
+  const load = useCallback(async () => {
+    const active = await getCurrentUser().catch(() => null);
+    if (!active) {
+      router.replace('/login');
       return;
     }
-
-    let userProfile = null;
-    let userOrders: any[] = [];
-
-    try {
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', activeUser.id)
-        .single();
-      if (profileData) userProfile = profileData;
-
-      const { data: ordersData } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('user_id', activeUser.id)
-        .order('created_at', { ascending: false });
-      if (ordersData && ordersData.length > 0) userOrders = ordersData;
-    } catch (err) {}
-
-    if (!userProfile) {
-      const localP = getLocalProfile();
-      if (localP) {
-        userProfile = localP;
-      } else {
-        userProfile = {
-          full_name: 'IEEE Student Member',
-          usn: '1BM23CS012',
-          email: activeUser.email || 'test@bmsce.ac.in',
-          department: 'Computer Science (CSE)',
-          year_of_study: '2',
-        };
-      }
+    setUser(active);
+    setLoadError('');
+    // Only ever switch the banner on: effects can run twice in development.
+    if (new URLSearchParams(window.location.search).has('submitted')) {
+      setJustSubmitted(true);
+      window.history.replaceState(null, '', '/account');
+      setTimeout(confetti, 300);
     }
 
-    if (userOrders.length === 0) {
-      const localO = getLocalOrders();
-      if (localO && localO.length > 0) {
-        userOrders = localO;
-      }
+    if (demo) {
+      setProfile(getLocalProfile(active.id));
+      setOrders(getLocalOrdersForUser(active.id));
+    } else {
+      const [profileRes, ordersRes] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', active.id).maybeSingle(),
+        supabase.from('orders').select('*, order_items(chapters(name))').eq('user_id', active.id).order('created_at', { ascending: false }),
+      ]);
+      if (ordersRes.error) setLoadError('We could not load your applications. Please refresh the page.');
+      setProfile(profileRes.data ?? null);
+      setOrders(
+        ((ordersRes.data ?? []) as OrderRow[]).map((o) => ({
+          ...o,
+          chapters: (o.order_items ?? []).map((i) => i.chapters?.name).filter((n): n is string => Boolean(n)),
+        })),
+      );
     }
-
-    setProfile(userProfile);
-    setOrders(userOrders);
     setIsLoading(false);
-  };
+  }, [router, demo]);
+
+  // Celebrate once when an application becomes verified.
+  useEffect(() => {
+    const v = orders.find((o) => o.status === 'verified');
+    if (!v) return;
+    const key = `bmsce_celebrated_${v.id}`;
+    if (localStorage.getItem(key)) return;
+    localStorage.setItem(key, '1');
+    setTimeout(confetti, 400);
+  }, [orders]);
 
   useEffect(() => {
-    loadAccount();
-  }, [router]);
+    // load() only sets state after its first await, so this does not cascade renders.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load();
+  }, [load]);
 
-  const handleSignOut = () => {
-    clearUserSession();
+  const signOut = async () => {
+    await clearUserSession();
     router.push('/');
   };
 
-  // Handle proof resubmission
-  const handleConfirmResubmit = async (e: React.FormEvent) => {
+  const openResubmit = (o: Order) => {
+    setResubmitting(o);
+    setNewFile(null);
+    setNewUtr(o.utr_reference ?? '');
+    setResubmitError('');
+  };
+
+  const closeResubmit = useCallback(() => setResubmitting(null), []);
+
+  async function handleResubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!newFile || !resubmittingOrder) return;
+    if (!resubmitting || !user) return;
+    const fileError = validateScreenshot(newFile);
+    if (fileError) return setResubmitError(fileError);
+    const cleanUtr = newUtr.replace(/\s/g, '');
+    if (!/^\d{12}$/.test(cleanUtr)) return setResubmitError('Enter the 12-digit UPI reference (UTR).');
+
     setIsResubmitting(true);
-
+    setResubmitError('');
     try {
-      let previewUrl = '';
-      try {
-        const fileExt = newFile.name.split('.').pop();
-        const fileName = `${resubmittingOrder.user_id}/${resubmittingOrder.order_reference}_resubmit.${fileExt}`;
-        const { error: uploadErr } = await supabase.storage
-          .from('public-assets')
-          .upload(fileName, newFile, { upsert: true });
-
-        if (!uploadErr) {
-          previewUrl = supabase.storage.from('public-assets').getPublicUrl(fileName).data.publicUrl;
-        }
-      } catch (e) {}
-
-      if (!previewUrl) {
-        previewUrl = URL.createObjectURL(newFile);
-      }
-
-      // Update Supabase if connected
-      try {
-        await supabase
+      if (demo) {
+        resubmitLocalOrderProof(resubmitting.id, await imageToDataUrl(newFile!), cleanUtr);
+      } else {
+        const path = await uploadScreenshot(user.id, resubmitting.order_reference, newFile!, `_resubmit-${Date.now()}`);
+        const { error } = await supabase
           .from('orders')
-          .update({
-            status: 'pending',
-            payment_screenshot_url: previewUrl,
-            utr_reference: newUtr || resubmittingOrder.utr_reference,
-            rejection_reason: null,
-          })
-          .eq('id', resubmittingOrder.id);
-      } catch (e) {}
-
-      // Update local storage
-      resubmitLocalOrderProof(resubmittingOrder.id, previewUrl, newUtr);
-
-      setResubmitSuccess(true);
-      setTimeout(() => {
-        setResubmittingOrder(null);
-        setNewFile(null);
-        setNewUtr('');
-        setResubmitSuccess(false);
-        loadAccount();
-      }, 1500);
-
-    } catch (err: any) {
-      alert('Resubmission failed: ' + err.message);
+          .update({ status: 'pending', payment_screenshot_url: path, utr_reference: cleanUtr, rejection_reason: null })
+          .eq('id', resubmitting.id)
+          .eq('user_id', user.id);
+        if (error) throw error;
+      }
+      setResubmitting(null);
+      await load();
+    } catch (err) {
+      setResubmitError(errorMessage(err, 'Resubmission failed. Please try again.'));
     } finally {
       setIsResubmitting(false);
     }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-orange" />
-      </div>
-    );
   }
 
+  if (isLoading) return <PageLoader />;
+
+  const latest = orders[0];
+  const trackerSteps = [
+    { label: 'Submitted', done: Boolean(latest), detail: latest ? formatDateTime(latest.created_at) : 'Not yet' },
+    {
+      label: latest?.status === 'rejected' ? 'Needs attention' : 'Under review',
+      done: latest?.status === 'verified' || latest?.status === 'rejected',
+      detail: latest?.status === 'pending' ? 'Usually 2–3 working days' : latest?.status === 'rejected' ? 'See feedback below' : latest?.status === 'verified' ? 'Payment matched' : '—',
+      bad: latest?.status === 'rejected',
+    },
+    { label: 'Verified member', done: latest?.status === 'verified', detail: latest?.verified_at ? formatDateTime(latest.verified_at) : 'Welcome email follows' },
+  ];
+  const cardChapters = (latest?.chapters ?? []).map(chapterCode).slice(0, 4);
+
   return (
-    <div className="container mx-auto px-4 py-16">
-      <div className="max-w-4xl mx-auto">
-        
-        {/* Top Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 pb-6 border-b border-deep-navy/40">
-          <div>
-            <h1 className="text-3xl font-extrabold text-white">Membership Dashboard</h1>
-            <p className="text-sm text-text-muted mt-1">Review your registration details and track verification progress.</p>
+    <div className="relative">
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-96 bg-gradient-to-b from-brand-sky/10 to-transparent" />
+      <div className="container-page py-10 sm:py-14">
+        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-muted">Member portal</p>
+            <h1 className="display mt-2 truncate text-4xl text-ink sm:text-5xl">{profile?.full_name ? `Hi, ${profile.full_name.split(' ')[0]}` : 'Hi there'}</h1>
+            <p className="mt-2 truncate text-sm text-muted">{user?.email}</p>
           </div>
-          <button
-            onClick={handleSignOut}
-            className="flex items-center gap-2 text-xs font-semibold px-3 py-2 bg-surface-dark border border-deep-navy/50 rounded-lg text-text-muted hover:text-white hover:border-red-500/50 transition-colors"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            Sign Out
+          <button type="button" onClick={signOut} className="btn btn-ghost self-start bg-white sm:self-auto">
+            <LogOut className="h-4 w-4" /> Sign out
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
-          {/* Profile Sidebar */}
-          <div className="bg-surface-dark p-6 rounded-2xl border border-deep-navy/40 h-fit space-y-4 shadow-xl">
-            <div className="flex items-center gap-2 pb-3 border-b border-deep-navy/40">
-              <UserCheck className="w-5 h-5 text-sky-blue" />
-              <h2 className="text-base font-bold text-white">Student Profile</h2>
-            </div>
+        {justSubmitted && (
+          <Alert tone="success" className="mt-8">
+            Registration submitted. The branch team will verify your payment and email you once your membership is confirmed.
+          </Alert>
+        )}
+        {loadError && <Alert tone="error" className="mt-8">{loadError}</Alert>}
 
-            <div className="space-y-3.5 text-xs">
-              <div>
-                <p className="text-text-muted uppercase tracking-wider text-[10px] font-bold">Full Name</p>
-                <p className="font-semibold text-white mt-0.5">{profile?.full_name || 'Not provided'}</p>
-              </div>
-              <div>
-                <p className="text-text-muted uppercase tracking-wider text-[10px] font-bold">USN</p>
-                <p className="font-mono font-semibold text-sky-blue mt-0.5">{profile?.usn || '—'}</p>
-              </div>
-              <div>
-                <p className="text-text-muted uppercase tracking-wider text-[10px] font-bold">Email</p>
-                <p className="font-semibold text-white mt-0.5 truncate">{profile?.email}</p>
-              </div>
-              <div>
-                <p className="text-text-muted uppercase tracking-wider text-[10px] font-bold">Department & Year</p>
-                <p className="font-semibold text-white mt-0.5">{profile?.department} &bull; Year {profile?.year_of_study}</p>
-              </div>
-              {profile?.phone && (
-                <div>
-                  <p className="text-text-muted uppercase tracking-wider text-[10px] font-bold">Phone</p>
-                  <p className="font-semibold text-white mt-0.5">{profile.phone}</p>
-                </div>
-              )}
-            </div>
-
-            <div className="pt-2">
-              <Link
-                href="/membership/profile"
-                className="text-xs text-sky-blue hover:text-white flex items-center gap-1 font-medium transition-colors"
-              >
-                <span>Edit Profile Details</span>
-                <ArrowRight className="w-3 h-3" />
-              </Link>
-            </div>
+        {/* Card + tracker */}
+        <div className="mt-10 grid items-stretch gap-6 lg:grid-cols-[440px_1fr]">
+          <div className="panel flex flex-col justify-between gap-6 p-6">
+            <Tilt className="rounded-[22px]" max={10}>
+              <MembershipCard
+                data={{
+                  name: profile?.full_name,
+                  usn: profile?.usn,
+                  department: profile?.department,
+                  year: profile?.year_of_study,
+                  chapters: cardChapters,
+                  status: latest ? latest.status : 'draft',
+                  reference: latest?.order_reference,
+                }}
+              />
+            </Tilt>
+            <p className="text-center text-sm text-muted">
+              {latest?.status === 'verified' ? 'Your membership is active. Show this card at branch events.' : 'Your card activates once your payment is verified.'}
+            </p>
           </div>
 
-          {/* Orders / Status */}
-          <div className="md:col-span-2 space-y-6">
-            <h2 className="text-lg font-bold text-white">Application & Payment Status</h2>
-            
-            {orders.length === 0 ? (
-              <div className="bg-surface-dark p-8 rounded-2xl border border-deep-navy/40 text-center shadow-xl">
-                <p className="text-text-muted text-sm mb-5">You haven't submitted any membership orders yet.</p>
-                <Link
-                  href="/membership/chapters"
-                  className="inline-flex items-center gap-2 bg-primary-orange hover:bg-orange-accent text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-md shadow-primary-orange/20"
-                >
-                  <span>Select Chapters & Pay</span>
-                  <ArrowRight className="w-4 h-4" />
+          <div className="panel p-6 sm:p-8">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-lg font-bold">Application status</h2>
+              {latest && <StatusBadge status={latest.status} />}
+            </div>
+            {latest ? (
+              <>
+                <ol className="mt-8 grid gap-6 sm:grid-cols-3 sm:gap-0">
+                  {trackerSteps.map((st, i) => (
+                    <li key={st.label} className="relative flex gap-4 sm:flex-col sm:gap-3 sm:pr-6">
+                      {i < trackerSteps.length - 1 && (
+                        <span aria-hidden className={cn('absolute top-10 bottom-[-24px] left-[19px] w-0.5 sm:top-[19px] sm:right-0 sm:bottom-auto sm:left-12 sm:h-0.5 sm:w-auto', trackerSteps[i + 1].done || (i === 0 && st.done) ? 'bg-brand-navy' : 'bg-line')} />
+                      )}
+                      <span
+                        className={cn(
+                          'relative z-10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full ring-4 ring-white',
+                          st.bad ? 'bg-red-500 text-white' : st.done ? 'bg-brand-navy text-white' : 'bg-paper text-muted',
+                          !st.done && i === 1 && latest.status === 'pending' && 'bg-amber-100 text-amber-700',
+                        )}
+                      >
+                        {st.bad ? <X className="h-4 w-4" /> : st.done ? <Check className="h-4 w-4" strokeWidth={3} /> : i === 1 ? <Clock className="h-4 w-4 animate-pulse" /> : i + 1}
+                      </span>
+                      <div>
+                        <p className="font-semibold text-ink">{st.label}</p>
+                        <p className="mt-0.5 text-sm text-muted">{st.detail}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+                {latest.status === 'rejected' && (
+                  <div className="mt-8 rounded-2xl bg-red-50 p-5 text-sm">
+                    <p className="font-semibold text-red-800">Feedback from the branch team</p>
+                    <p className="mt-1 text-red-700">{latest.rejection_reason || 'The screenshot was unclear or the transaction could not be matched.'}</p>
+                    <button type="button" onClick={() => openResubmit(latest)} className="btn btn-primary mt-4">
+                      <RefreshCw className="h-4 w-4" /> Resubmit proof
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="mt-6 rounded-2xl bg-paper p-6">
+                <p className="text-ink-soft">You haven&apos;t submitted a membership application yet. Pick up where you left off.</p>
+                <Link href={profile ? '/membership/chapters' : '/membership/profile'} className="btn btn-primary mt-5">
+                  Continue registration <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
-            ) : (
-              orders.map(order => (
-                <div key={order.id} className="bg-surface-dark p-6 rounded-2xl border border-deep-navy/40 shadow-xl space-y-4">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                    <div>
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-text-muted">Order Reference</span>
-                      <p className="font-mono text-sky-blue font-bold text-base">{order.order_reference}</p>
-                    </div>
-
-                    {/* Status Badge */}
-                    {order.status === 'pending' && (
-                      <span className="inline-flex items-center gap-1.5 bg-yellow-500/15 border border-yellow-500/30 text-yellow-400 px-3 py-1 rounded-full text-xs font-semibold">
-                        <Clock className="w-3.5 h-3.5 animate-pulse" /> Pending Verification
-                      </span>
-                    )}
-                    {order.status === 'verified' && (
-                      <span className="inline-flex items-center gap-1.5 bg-green-500/15 border border-green-500/30 text-green-400 px-3 py-1 rounded-full text-xs font-semibold">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Verified Member
-                      </span>
-                    )}
-                    {order.status === 'rejected' && (
-                      <span className="inline-flex items-center gap-1.5 bg-red-500/15 border border-red-500/30 text-red-400 px-3 py-1 rounded-full text-xs font-semibold">
-                        <XCircle className="w-3.5 h-3.5" /> Action Required (Rejected)
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 bg-bg-dark/80 p-3.5 rounded-xl border border-deep-navy/30 text-xs">
-                    <div>
-                      <p className="text-text-muted">Total Paid</p>
-                      <p className="font-bold text-white text-base mt-0.5">₹{order.total_amount}</p>
-                    </div>
-                    <div>
-                      <p className="text-text-muted">UTR / Transaction Ref</p>
-                      <p className="font-mono text-text-body mt-0.5 truncate">{order.utr_reference || 'N/A'}</p>
-                    </div>
-                  </div>
-
-                  {order.status === 'pending' && (
-                    <div className="bg-primary-navy/15 border border-primary-navy/30 p-3.5 rounded-xl text-xs text-text-muted leading-relaxed">
-                      Your payment screenshot has been uploaded and queued for branch admin review. Once verified against bank records, an automated confirmation receipt will be sent to your email.
-                    </div>
-                  )}
-
-                  {order.status === 'rejected' && (
-                    <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-xs space-y-3">
-                      <div className="flex items-center gap-1.5 text-red-400 font-semibold">
-                        <ShieldAlert className="w-4 h-4 shrink-0" />
-                        <span>Executive Feedback:</span>
-                      </div>
-                      <p className="text-white font-medium bg-bg-dark/60 p-2.5 rounded-lg border border-red-500/20">
-                        {order.rejection_reason || 'Screenshot illegible or transaction not matched.'}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setResubmittingOrder(order);
-                          setNewUtr(order.utr_reference || '');
-                        }}
-                        className="bg-primary-orange hover:bg-orange-accent text-white font-bold px-4 py-2 rounded-lg text-xs transition-colors flex items-center gap-1.5 shadow-md shadow-primary-orange/20"
-                      >
-                        <RefreshCw className="w-3.5 h-3.5" />
-                        <span>Resubmit Clear Payment Proof &rarr;</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))
             )}
           </div>
+        </div>
+
+        {/* Quick links */}
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          {[
+            { href: '/membership', icon: Plus, title: 'Add chapters', text: 'Start a new application with more chapters.' },
+            { href: '/#events', icon: CalendarDays, title: 'Upcoming events', text: 'Hackathons, workshops and talks this term.' },
+            { href: '/#chapters', icon: Layers, title: 'Explore chapters', text: 'See what each community is working on.' },
+          ].map((q) => (
+            <Link key={q.title} href={q.href} className="group panel flex items-start gap-4 p-5 transition-transform hover:-translate-y-1">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-paper text-brand-orange transition-colors group-hover:bg-brand-orange group-hover:text-white">
+                <q.icon className="h-5 w-5" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center justify-between font-semibold text-ink">
+                  {q.title} <ArrowUpRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </span>
+                <span className="mt-0.5 block text-sm text-muted">{q.text}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-10 grid items-start gap-6 lg:grid-cols-[320px_1fr]">
+          <aside className="panel p-6">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold">Profile</h2>
+              <Link href="/membership/profile" className="inline-flex items-center gap-1 text-sm font-semibold text-brand-navy hover:text-brand-orange">
+                <Pencil className="h-3.5 w-3.5" /> Edit
+              </Link>
+            </div>
+            {profile ? (
+              <dl className="mt-5 space-y-4 text-sm">
+                {[
+                  ['Name', profile.full_name],
+                  ['USN', profile.usn],
+                  ['Department', profile.department],
+                  ['Year', profile.year_of_study],
+                  ['Phone', profile.phone],
+                  ['IEEE member ID', profile.ieee_member_id],
+                ]
+                  .filter(([, v]) => v)
+                  .map(([k, v]) => (
+                    <div key={k}>
+                      <dt className="text-xs text-muted">{k}</dt>
+                      <dd className="mt-0.5 font-medium text-ink">{v}</dd>
+                    </div>
+                  ))}
+              </dl>
+            ) : (
+              <p className="mt-4 text-sm text-muted">
+                You haven&apos;t added your details yet.{' '}
+                <Link href="/membership/profile" className="font-semibold text-brand-navy underline">Add them now</Link>
+              </p>
+            )}
+          </aside>
+
+          <section>
+            <h2 className="text-lg font-bold">All applications</h2>
+            {orders.length === 0 ? (
+              <p className="mt-4 text-sm text-muted">Nothing here yet.</p>
+            ) : (
+              <ul className="mt-4 space-y-4">
+                {orders.map((o) => (
+                  <li key={o.id} className="panel p-6">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="font-mono text-sm font-semibold text-brand-navy">{o.order_reference}</p>
+                        <p className="mt-0.5 text-xs text-muted">Submitted {formatDateTime(o.created_at)}</p>
+                      </div>
+                      <StatusBadge status={o.status} />
+                    </div>
+                    <dl className="mt-5 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+                      <div>
+                        <dt className="text-xs text-muted">Amount</dt>
+                        <dd className="mt-0.5 display text-xl">₹{o.total_amount}</dd>
+                      </div>
+                      <div className="min-w-0">
+                        <dt className="text-xs text-muted">UTR</dt>
+                        <dd className="mt-0.5 truncate font-mono">{o.utr_reference || '—'}</dd>
+                      </div>
+                      <div className="col-span-2 sm:col-span-1">
+                        <dt className="text-xs text-muted">Chapters</dt>
+                        <dd className="mt-0.5">{o.chapters?.length ? o.chapters.join(', ') : 'Base membership only'}</dd>
+                      </div>
+                    </dl>
+                    {o.status === 'pending' && (
+                      <p className="mt-5 rounded-2xl bg-paper px-4 py-3 text-sm text-ink-soft">Your payment is queued for review. You will get an email once it is verified.</p>
+                    )}
+                    {o.status === 'verified' && (
+                      <p className="mt-5 rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">Welcome to BMSCE IEEE. Your IEEE.org credentials will be shared once headquarters provisions them.</p>
+                    )}
+                    {o.status === 'rejected' && o !== latest && (
+                      <button type="button" onClick={() => openResubmit(o)} className="btn btn-primary mt-5">
+                        <RefreshCw className="h-4 w-4" /> Resubmit proof
+                      </button>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </div>
       </div>
 
-      {/* Resubmit Proof Modal */}
-      {resubmittingOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-surface-dark border border-deep-navy/40 rounded-2xl max-w-md w-full p-6 shadow-2xl">
-            <h3 className="font-bold text-white text-lg mb-1">Resubmit Payment Screenshot</h3>
-            <p className="text-xs text-text-muted mb-4">
-              Updating Order <span className="font-mono text-sky-blue font-semibold">{resubmittingOrder.order_reference}</span> (₹{resubmittingOrder.total_amount})
-            </p>
-
-            {resubmitSuccess ? (
-              <div className="p-4 bg-green-500/20 border border-green-500/40 rounded-xl text-center text-xs text-green-300">
-                <CheckCircle2 className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                <span>New payment screenshot uploaded! Status flipped to Pending for review.</span>
-              </div>
-            ) : (
-              <form onSubmit={handleConfirmResubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="block text-xs font-semibold text-text-muted">
-                    New Clear Screenshot <span className="text-primary-orange">*</span>
-                  </label>
-                  <div className="border-2 border-dashed border-deep-navy/50 rounded-xl p-5 text-center hover:border-primary-orange transition-colors cursor-pointer bg-bg-dark relative">
-                    <input 
-                      required 
-                      type="file" 
-                      accept="image/*"
-                      onChange={(e) => setNewFile(e.target.files?.[0] || null)}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
-                    <div className="pointer-events-none flex flex-col items-center">
-                      <UploadCloud className="w-6 h-6 text-sky-blue mb-1.5" />
-                      <span className="text-xs font-medium text-white">{newFile ? newFile.name : 'Select clean screenshot'}</span>
-                      {!newFile && <span className="text-[10px] text-text-muted mt-0.5">PNG or JPG up to 5MB</span>}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-semibold text-text-muted">Correct UTR / Reference Number</label>
-                  <input
-                    type="text"
-                    value={newUtr}
-                    onChange={(e) => setNewUtr(e.target.value)}
-                    placeholder="12-digit transaction number"
-                    className="w-full bg-bg-dark border border-deep-navy/50 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:ring-1 focus:ring-primary-orange"
-                  />
-                </div>
-
-                <div className="flex justify-end gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setResubmittingOrder(null)}
-                    className="px-3.5 py-2 bg-bg-dark border border-deep-navy/50 rounded-lg text-xs font-medium text-text-muted hover:text-white"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isResubmitting || !newFile}
-                    className="px-4 py-2 bg-primary-orange hover:bg-orange-accent text-white font-bold rounded-lg text-xs flex items-center gap-1.5 disabled:opacity-50"
-                  >
-                    {isResubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                    <span>{isResubmitting ? 'Submitting...' : 'Upload & Resubmit'}</span>
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
+      {resubmitting && (
+        <Modal title="Resubmit payment proof" onClose={closeResubmit}>
+          <p className="-mt-2 mb-5 text-sm text-muted">
+            Order <span className="font-mono font-semibold text-brand-navy">{resubmitting.order_reference}</span> · ₹{resubmitting.total_amount}. No new payment is needed.
+          </p>
+          <form onSubmit={handleResubmit} className="space-y-5">
+            <Field label="New screenshot" htmlFor="resubmit-file" required>
+              <FileDrop id="resubmit-file" file={newFile} onChange={setNewFile} label="Choose a clear screenshot" />
+            </Field>
+            <Field label="UPI reference (UTR)" htmlFor="resubmit-utr" required>
+              <Input id="resubmit-utr" inputMode="numeric" value={newUtr} onChange={(e) => setNewUtr(e.target.value)} placeholder="423456789012" maxLength={14} />
+            </Field>
+            {resubmitError && <Alert tone="error">{resubmitError}</Alert>}
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button type="button" onClick={closeResubmit} className="btn btn-ghost">Cancel</button>
+              <button type="submit" disabled={isResubmitting} className="btn btn-primary">
+                {isResubmitting && <Spinner />} Submit for review
+              </button>
+            </div>
+          </form>
+        </Modal>
       )}
     </div>
   );

@@ -1,51 +1,48 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import type { Metadata, Viewport } from 'next';
+import { Archivo, Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-import Link from 'next/link';
-import AnnouncementBar from '@/components/AnnouncementBar';
-import Navbar from '@/components/Navbar';
+import AnnouncementBar from '@/components/site/AnnouncementBar';
+import Header from '@/components/site/Header';
+import Footer from '@/components/site/Footer';
+import ScrollProgress from '@/components/site/ScrollProgress';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
+const archivo = Archivo({ subsets: ['latin'], variable: '--font-archivo', display: 'swap', axes: ['wdth'] });
+const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono-jb', display: 'swap', weight: ['500'] });
 
 export const metadata: Metadata = {
-  title: 'BMSCE IEEE Student Branch',
-  description: 'Official student branch of IEEE at B.M.S. College of Engineering, Bengaluru.',
+  title: {
+    default: 'BMSCE IEEE Student Branch',
+    template: '%s | BMSCE IEEE',
+  },
+  description:
+    'The official IEEE Student Branch of B.M.S. College of Engineering, Bengaluru. Chapters, events, and IEEE membership registration.',
+  icons: { icon: '/brand/emblem.png' },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export const viewport: Viewport = {
+  themeColor: '#f6f4ef',
+  width: 'device-width',
+  initialScale: 1,
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="scroll-smooth dark">
-      <body className={`${inter.className} bg-bg-dark text-text-body antialiased min-h-screen flex flex-col`}>
-        {/* Dynamic Announcement Banner */}
+    <html lang="en" className={`${inter.variable} ${archivo.variable} ${mono.variable}`}>
+      <body className="flex min-h-screen flex-col">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-sm focus:text-white"
+        >
+          Skip to content
+        </a>
+        <ScrollProgress />
         <AnnouncementBar />
-
-        {/* Global Responsive Navigation Header */}
-        <Navbar />
-
-        <main className="flex-grow">
+        <Header />
+        <main id="main" className="flex-1">
           {children}
         </main>
-
-        <footer className="bg-surface-dark border-t border-deep-navy/30 py-8 mt-20">
-          <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-text-muted text-xs">
-            <p>&copy; {new Date().getFullYear()} BMSCE IEEE Student Branch (Branch 06261). All rights reserved.</p>
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-              <span>&bull;</span>
-              <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-              <span>&bull;</span>
-              <Link href="/refund" className="hover:text-white transition-colors">Refund Policy</Link>
-              <span>&bull;</span>
-              <Link href="/account" className="hover:text-white transition-colors">Member Portal</Link>
-              <span>&bull;</span>
-              <Link href="/admin/login" className="hover:text-sky-blue transition-colors font-medium">Executive Admin</Link>
-            </div>
-          </div>
-        </footer>
+        <Footer />
       </body>
     </html>
   );

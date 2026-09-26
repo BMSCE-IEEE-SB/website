@@ -254,3 +254,223 @@ export async function loadAnnouncement(): Promise<Announcement | null> {
   const { data } = await supabase.from('announcement').select('*').eq('id', 1).maybeSingle();
   return data ?? null;
 }
+
+// ---------------------------------------------------------------------------
+// Settings & Pricing (Membership Drive Configuration & Chapter Prices)
+// ---------------------------------------------------------------------------
+
+export interface MembershipSettings {
+  base_fee: number;
+  payee_vpa: string;
+  payee_name: string;
+  drive_year: number;
+  is_drive_open: boolean;
+}
+
+export interface ChapterSetting {
+  id: string;
+  name: string;
+  code: string;
+  slug?: string;
+  price: number;
+  description?: string;
+  is_active: boolean;
+  display_order?: number;
+}
+
+const SETTINGS_KEY = 'bmsce_settings';
+const CHAPTERS_KEY = 'bmsce_admin_chapters';
+
+export const DEFAULT_SETTINGS: MembershipSettings = {
+  base_fee: 1810,
+  payee_vpa: 'bmsceieee@okhdfcbank',
+  payee_name: 'BMSCE IEEE Student Branch',
+  drive_year: 2026,
+  is_drive_open: true,
+};
+
+export const DEFAULT_CHAPTER_SETTINGS: ChapterSetting[] = [
+  { id: 'cs', name: 'IEEE Computer Society', code: 'CS', slug: 'cs', price: 100, is_active: true, display_order: 1 },
+  { id: 'pes', name: 'IEEE Power & Energy Society', code: 'PES', slug: 'pes', price: 100, is_active: true, display_order: 2 },
+  { id: 'pels-ies', name: 'IEEE Power & Industrial Electronics Joint Chapter', code: 'PELS/IES', slug: 'pels-ies', price: 100, is_active: true, display_order: 3 },
+  { id: 'ras', name: 'IEEE Robotics & Automation Society', code: 'RAS', slug: 'ras', price: 100, is_active: true, display_order: 4 },
+  { id: 'wie', name: 'IEEE Women in Engineering', code: 'WIE', slug: 'wie', price: 50, is_active: true, display_order: 5 },
+  { id: 'ssit', name: 'IEEE Social Implications of Technology', code: 'SSIT', slug: 'ssit', price: 50, is_active: true, display_order: 6 },
+];
+
+export async function loadAdminSettings(): Promise<MembershipSettings> {
+  if (isDemoMode()) return readJson(SETTINGS_KEY, DEFAULT_SETTINGS);
+  const { data } = await supabase.from('membership_config').select('base_fee, payee_vpa, payee_name, drive_year, is_drive_open').eq('id', 1).maybeSingle();
+  if (!data) return DEFAULT_SETTINGS;
+  return {
+    base_fee: Number(data.base_fee),
+    payee_vpa: data.payee_vpa,
+    payee_name: data.payee_name,
+    drive_year: data.drive_year ?? 2026,
+    is_drive_open: data.is_drive_open ?? true,
+  };
+}
+
+export async function saveAdminSettings(settings: MembershipSettings) {
+  if (isDemoMode()) {
+    writeJson(SETTINGS_KEY, settings);
+    return;
+  }
+  const { error } = await supabase.from('membership_config').upsert({ id: 1, ...settings });
+  if (error) throw error;
+}
+
+export async function loadAdminChapters(): Promise<ChapterSetting[]> {
+  if (isDemoMode()) return readJson(CHAPTERS_KEY, DEFAULT_CHAPTER_SETTINGS);
+  const { data, error } = await supabase.from('chapters').select('id, name, code, slug, price, description, is_active, display_order').order('display_order', { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map((c) => ({
+    ...c,
+    price: Number(c.price),
+    is_active: c.is_active ?? true,
+  }));
+}
+
+export async function saveAdminChapter(chapter: ChapterSetting) {
+  if (isDemoMode()) {
+    const prev = await loadAdminChapters();
+    const next = prev.map((c) => (c.id === chapter.id ? chapter : c));
+    writeJson(CHAPTERS_KEY, next);
+    return;
+  }
+  const { error } = await supabase.from('chapters').update({
+    name: chapter.name,
+    price: chapter.price,
+    is_active: chapter.is_active,
+  }).eq('id', chapter.id);
+  if (error) throw error;
+}
+
+// ---------------------------------------------------------------------------
+// Dynamic Events Management
+// ---------------------------------------------------------------------------
+
+export interface AdminEvent {
+  id: string;
+  title: string;
+  category: 'workshop' | 'hackathon' | 'summit' | 'talk';
+  chapter: string;
+  date: string;
+  time?: string;
+  venue: string;
+  image: string;
+  description: string;
+  registration_url?: string;
+  is_featured?: boolean;
+}
+
+const EVENTS_KEY = 'bmsce_admin_events';
+
+export async function loadAdminEvents(): Promise<AdminEvent[]> {
+  if (isDemoMode()) {
+    return readJson(EVENTS_KEY, [
+      {
+        id: 'ieee-day-2026',
+        title: 'IEEE Day Celebrations 2026',
+        category: 'summit',
+        chapter: 'branch',
+        date: '2026-10-06',
+        time: '10:00',
+        venue: 'BMSCE Main Auditorium',
+        image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=900&h=600&fit=crop&auto=format&q=70',
+        description: 'A day of technical talks, member recognition and demos celebrating IEEE members around the world.',
+        registration_url: '#',
+        is_featured: true,
+      },
+      {
+        id: 'xtreme-2026',
+        title: 'IEEEXtreme 20.0',
+        category: 'hackathon',
+        chapter: 'cs',
+        date: '2026-10-24',
+        time: '05:30',
+        venue: 'CSE Labs, PJA Block',
+        image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=900&h=600&fit=crop&auto=format&q=70',
+        description: 'The global 24-hour IEEE programming competition, hosted on campus for BMSCE teams.',
+        registration_url: '#',
+        is_featured: true,
+      },
+    ]);
+  }
+  const { data, error } = await supabase.from('events').select('*').order('date', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as AdminEvent[];
+}
+
+export async function saveAdminEvent(event: AdminEvent) {
+  if (isDemoMode()) {
+    const list = await loadAdminEvents();
+    const existing = list.findIndex((e) => e.id === event.id);
+    if (existing >= 0) list[existing] = event;
+    else list.unshift(event);
+    writeJson(EVENTS_KEY, list);
+    return;
+  }
+  const { error } = await supabase.from('events').upsert(event);
+  if (error) throw error;
+}
+
+export async function deleteAdminEvent(eventId: string) {
+  if (isDemoMode()) {
+    const list = await loadAdminEvents();
+    writeJson(EVENTS_KEY, list.filter((e) => e.id !== eventId));
+    return;
+  }
+  const { error } = await supabase.from('events').delete().eq('id', eventId);
+  if (error) throw error;
+}
+
+// ---------------------------------------------------------------------------
+// Admin Team Management (Whitelist & Active Admins)
+// ---------------------------------------------------------------------------
+
+export interface AdminWhitelistEntry {
+  email: string;
+  role: string;
+  created_at?: string;
+}
+
+const WHITELIST_KEY = 'bmsce_admin_whitelist';
+
+export async function loadAdminWhitelist(): Promise<AdminWhitelistEntry[]> {
+  if (isDemoMode()) {
+    return readJson(WHITELIST_KEY, [
+      { email: 'ratikagrawal.ec24@bmsce.ac.in', role: 'chair', created_at: new Date().toISOString() },
+      { email: 'bms.ieeesb@gmail.com', role: 'admin', created_at: new Date().toISOString() },
+    ]);
+  }
+  const { data, error } = await supabase.from('admin_whitelist').select('*').order('created_at', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as AdminWhitelistEntry[];
+}
+
+export async function addAdminWhitelistEntry(email: string, role = 'admin') {
+  const cleanEmail = email.trim().toLowerCase();
+  if (isDemoMode()) {
+    const list = await loadAdminWhitelist();
+    if (!list.some((a) => a.email === cleanEmail)) {
+      list.push({ email: cleanEmail, role, created_at: new Date().toISOString() });
+      writeJson(WHITELIST_KEY, list);
+    }
+    return;
+  }
+  const { error } = await supabase.from('admin_whitelist').upsert({ email: cleanEmail, role });
+  if (error) throw error;
+}
+
+export async function removeAdminWhitelistEntry(email: string) {
+  const cleanEmail = email.trim().toLowerCase();
+  if (isDemoMode()) {
+    const list = await loadAdminWhitelist();
+    writeJson(WHITELIST_KEY, list.filter((a) => a.email !== cleanEmail));
+    return;
+  }
+  const { error } = await supabase.from('admin_whitelist').delete().eq('email', cleanEmail);
+  if (error) throw error;
+}
+

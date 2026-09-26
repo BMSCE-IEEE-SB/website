@@ -6,12 +6,14 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { isDemoMode, supabase } from '@/lib/supabase';
 import { DEFAULT_ANNOUNCEMENT, getAdminUser, loadAnnouncement, saveLocalAnnouncement, type Announcement } from '@/lib/auth';
+import AdminNav from '@/components/admin/AdminNav';
 import { Alert, Field, Input, PageLoader, Spinner } from '@/components/ui/form';
 import { cn, errorMessage } from '@/lib/utils';
 
 export default function AdminAnnouncementPage() {
   const router = useRouter();
   const demo = isDemoMode();
+  const [adminEmail, setAdminEmail] = useState('');
   const [message, setMessage] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [isActive, setIsActive] = useState(true);
@@ -26,6 +28,7 @@ export default function AdminAnnouncementPage() {
         router.replace('/admin/login');
         return;
       }
+      setAdminEmail(admin.email);
       const a = (await loadAnnouncement().catch(() => null)) ?? DEFAULT_ANNOUNCEMENT;
       setMessage(a.message);
       setLinkUrl(a.link_url ?? '');
@@ -62,12 +65,12 @@ export default function AdminAnnouncementPage() {
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className="container-page max-w-3xl py-10 sm:py-12">
-      <Link href="/admin/orders" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink">
-        <ArrowLeft className="h-4 w-4" /> Back to verifications
-      </Link>
-      <h1 className="mt-4 text-2xl font-bold sm:text-3xl">Announcement banner</h1>
-      <p className="mt-2 text-sm text-muted">The banner appears at the very top of every page.</p>
+    <div>
+      <AdminNav current="announcement" adminEmail={adminEmail} demo={demo} />
+
+      <div className="container-page max-w-3xl py-10 sm:py-12">
+        <h1 className="text-2xl font-bold sm:text-3xl">Announcement Banner</h1>
+        <p className="mt-1 text-sm text-muted">The banner appears at the very top of every page across the website.</p>
 
       <div className="mt-8">
         <p className="mb-2 text-xs font-semibold tracking-wide text-muted uppercase">Preview</p>
@@ -116,6 +119,7 @@ export default function AdminAnnouncementPage() {
           {isSaving && <Spinner />} Save and publish
         </button>
       </form>
+      </div>
     </div>
   );
 }

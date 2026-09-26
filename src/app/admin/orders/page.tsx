@@ -9,6 +9,7 @@ import { isDemoMode, supabase } from '@/lib/supabase';
 import { clearAdminSession, getAdminUser, getLocalOrders, updateLocalOrderStatus, type Order } from '@/lib/auth';
 import { resolveScreenshotUrl } from '@/lib/orders';
 import { Alert, Modal, PageLoader, Spinner, StatusBadge } from '@/components/ui/form';
+import AdminNav from '@/components/admin/AdminNav';
 import { cn, errorMessage, formatDateTime } from '@/lib/utils';
 
 type Filter = 'all' | 'pending' | 'verified' | 'rejected';
@@ -203,18 +204,21 @@ export default function AdminOrdersPage() {
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className="container-page py-10 sm:py-12">
-      <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
-        <div>
-          <p className="text-sm text-muted">Signed in as {adminEmail}{demo && ' · demo mode'}</p>
-          <h1 className="mt-1 text-2xl font-bold sm:text-3xl">Membership verifications</h1>
+    <div>
+      <AdminNav current="orders" adminEmail={adminEmail} demo={demo} />
+
+      <div className="container-page py-10 sm:py-12">
+        <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+          <div>
+            <h1 className="text-2xl font-bold sm:text-3xl">Membership Verifications</h1>
+            <p className="mt-1 text-sm text-muted">Verify UPI transaction receipts and manage active membership applications.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={exportCSV} disabled={filtered.length === 0} className="btn btn-ghost bg-white shadow-sm">
+              <Download className="h-4 w-4" /> Export CSV
+            </button>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Link href="/admin/announcement" className="btn btn-ghost bg-white"><Megaphone className="h-4 w-4" /> Announcement</Link>
-          <button type="button" onClick={exportCSV} disabled={filtered.length === 0} className="btn btn-ghost bg-white"><Download className="h-4 w-4" /> Export CSV</button>
-          <button type="button" onClick={signOut} className="btn btn-ghost bg-white text-red-600"><LogOut className="h-4 w-4" /> Sign out</button>
-        </div>
-      </div>
 
       <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-6 lg:grid-cols-4">
         {[
@@ -342,6 +346,7 @@ export default function AdminOrdersPage() {
           <Alert tone={toast.tone} className="shadow-xl">{toast.text}</Alert>
         </div>
       )}
+      </div>
     </div>
   );
 }

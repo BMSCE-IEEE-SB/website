@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ArrowRight, X } from 'lucide-react';
 import { loadAnnouncement, type Announcement } from '@/lib/auth';
 
@@ -9,6 +10,7 @@ const DISMISS_KEY = 'bmsce_announcement_dismissed';
 
 export default function AnnouncementBar() {
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     let alive = true;
@@ -25,7 +27,7 @@ export default function AnnouncementBar() {
     };
   }, []);
 
-  if (!announcement) return null;
+  if (!announcement || pathname?.startsWith('/admin')) return null;
 
   const dismiss = () => {
     sessionStorage.setItem(DISMISS_KEY, announcement.message);

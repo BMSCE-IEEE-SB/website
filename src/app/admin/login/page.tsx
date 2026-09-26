@@ -22,9 +22,11 @@ export default function AdminLoginPage() {
     setIsSubmitting(true);
     setError('');
     try {
+      const next = new URLSearchParams(window.location.search).get('next');
+      const dest = next && next.startsWith('/admin') && !next.startsWith('/admin/login') ? next : '/admin';
       if (demo) {
         setDummyAdminSession(email.trim().toLowerCase());
-        router.push('/admin/orders');
+        router.push(dest);
         return;
       }
       const { data, error: authError } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
@@ -34,7 +36,7 @@ export default function AdminLoginPage() {
         await supabase.auth.signOut();
         throw new Error('This account does not have branch administrator access.');
       }
-      router.push('/admin/orders');
+      router.push(dest);
     } catch (err) {
       setError(errorMessage(err, 'Invalid administrator credentials.'));
       setIsSubmitting(false);

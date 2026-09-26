@@ -5,6 +5,7 @@ import AnnouncementBar from '@/components/site/AnnouncementBar';
 import Header from '@/components/site/Header';
 import Footer from '@/components/site/Footer';
 import ScrollProgress from '@/components/site/ScrollProgress';
+import HideOnAdmin from '@/components/site/HideOnAdmin';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const archivo = Archivo({ subsets: ['latin'], variable: '--font-archivo', display: 'swap', axes: ['wdth'] });
@@ -28,7 +29,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${archivo.variable} ${mono.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} ${archivo.variable} ${mono.variable}`}>
       <body className="flex min-h-screen flex-col">
         <a
           href="#main"
@@ -42,7 +43,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main id="main" className="flex-1">
           {children}
         </main>
-        <Footer />
+        <HideOnAdmin>
+          <Footer />
+        </HideOnAdmin>
       </body>
     </html>
   );

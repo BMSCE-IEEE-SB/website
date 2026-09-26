@@ -1,17 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { isDemoMode, supabase } from '@/lib/supabase';
-import { DEFAULT_ANNOUNCEMENT, getAdminUser, loadAnnouncement, saveLocalAnnouncement, type Announcement } from '@/lib/auth';
+import { DEFAULT_ANNOUNCEMENT, loadAnnouncement, saveLocalAnnouncement, type Announcement } from '@/lib/auth';
+import { useAdmin } from '@/components/admin/AdminContext';
+import { logActivity } from '@/lib/admin';
 import { Alert, Field, Input, PageLoader, Spinner } from '@/components/ui/form';
 import { cn, errorMessage } from '@/lib/utils';
 
 export default function AdminAnnouncementPage() {
-  const router = useRouter();
   const demo = isDemoMode();
+  const { admin } = useAdmin();
   const [message, setMessage] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [isActive, setIsActive] = useState(true);
@@ -21,18 +21,13 @@ export default function AdminAnnouncementPage() {
 
   useEffect(() => {
     (async () => {
-      const admin = await getAdminUser().catch(() => null);
-      if (!admin) {
-        router.replace('/admin/login');
-        return;
-      }
       const a = (await loadAnnouncement().catch(() => null)) ?? DEFAULT_ANNOUNCEMENT;
       setMessage(a.message);
       setLinkUrl(a.link_url ?? '');
       setIsActive(a.is_active);
       setIsLoading(false);
     })();
-  }, [router]);
+  }, []);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -51,6 +46,7 @@ export default function AdminAnnouncementPage() {
         const { error } = await supabase.from('announcement').upsert({ id: 1, ...payload, link_url: payload.link_url ?? null });
         if (error) throw error;
       }
+      await logActivity(admin, 'updated the announcement', payload.is_active ? 'banner on' : 'banner off', payload.message.slice(0, 120));
       setStatus({ tone: 'success', text: 'Saved. Visitors will see the change on their next page load.' });
     } catch (err) {
       setStatus({ tone: 'error', text: errorMessage(err, 'Could not save the announcement.') });
@@ -62,11 +58,8 @@ export default function AdminAnnouncementPage() {
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className="container-page max-w-3xl py-10 sm:py-12">
-      <Link href="/admin/orders" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink">
-        <ArrowLeft className="h-4 w-4" /> Back to verifications
-      </Link>
-      <h1 className="mt-4 text-2xl font-bold sm:text-3xl">Announcement banner</h1>
+    <div className="max-w-3xl pb-10">
+      <h1 className="display text-4xl text-ink sm:text-5xl">Announcement</h1>
       <p className="mt-2 text-sm text-muted">The banner appears at the very top of every page.</p>
 
       <div className="mt-8">

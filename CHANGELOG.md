@@ -4,6 +4,25 @@ All notable changes to the **BMSCE IEEE Student Branch Website** will be documen
 
 ---
 
+## [4.0.0] - 2026-09-27 (Admin portal)
+
+### Added
+- Admin portal shell with sidebar (tabs on phones), live pending badge and demo-mode badge. The public footer and banner are hidden inside the portal.
+- **Overview** (`/admin`): verified funds, pending count and age, verification trend, weekly change, "needs attention" list, charts for applications per day, status, chapter sign-ups, departments and years (each with a table view), recent activity.
+- **Applications** (`/admin/orders`): filters (chapter, department, date, flagged), sorting, pagination, bulk verify/reject/export, detail drawer with zoomable proof, timeline, private notes and previous/next, preset rejection reasons, keyboard shortcuts.
+- Automatic review flags: duplicate UTR, amount mismatch, repeat USN. Verifying a flagged application asks for confirmation.
+- **Members** (`/admin/members`): verified-member directory with chapter breakdown, inline IEEE member ID, "credentials sent" tracking (single and bulk), roster export and BCC email.
+- **Fees & payment** (`/admin/settings`): edit base fee, chapter prices, UPI ID and payee with a live fee-slip preview, test QR and change confirmation. Registration and checkout read these values.
+- **Activity log** (`/admin/activity`): every admin action with who and when; filter, search, export.
+- Richer demo data (46 sample applications over five weeks) so the dashboard is meaningful before Supabase is connected.
+- Schema: `orders.admin_note`, `orders.credentials_sent_at`, `admin_activity` table and admin update policies for profiles, fees and chapter prices.
+
+### Changed
+- Admin sign-in returns you to the page you asked for.
+- `ADMIN_GUIDE.md` rewritten for the new portal.
+
+---
+
 ## [3.3.0] - 2026-09-27 (Fee slip)
 
 ### Changed

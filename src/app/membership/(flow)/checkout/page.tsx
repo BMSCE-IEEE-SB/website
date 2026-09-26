@@ -9,12 +9,11 @@ import { isDemoMode, supabase } from '@/lib/supabase';
 import { getCurrentUser, saveLocalOrder, type SessionUser } from '@/lib/auth';
 import { clearCart, getOrCreateOrderRef, readCart, type CartChapter } from '@/lib/cart';
 import { uploadScreenshot } from '@/lib/orders';
+import { FALLBACK_PAYEE, loadPayee } from '@/lib/pricing';
 import { Alert, Field, FileDrop, Input, PageLoader, Spinner } from '@/components/ui/form';
 import DemoNotice from '@/components/membership/DemoNotice';
 import { errorMessage, imageToDataUrl, validateScreenshot } from '@/lib/utils';
 
-const FALLBACK_VPA = 'bmsceieee@okhdfcbank';
-const FALLBACK_PAYEE = 'BMSCE IEEE Student Branch';
 
 function CopyButton({ value, label }: { value: string; label: string }) {
   const [copied, setCopied] = useState(false);
@@ -44,8 +43,8 @@ export default function CheckoutPage() {
   const [chapters, setChapters] = useState<CartChapter[]>([]);
   const [baseFee, setBaseFee] = useState(0);
   const [orderRef, setOrderRef] = useState('');
-  const [vpa, setVpa] = useState(FALLBACK_VPA);
-  const [payee, setPayee] = useState(FALLBACK_PAYEE);
+  const [vpa, setVpa] = useState(FALLBACK_PAYEE.vpa);
+  const [payee, setPayee] = useState(FALLBACK_PAYEE.name);
   const [isLoading, setIsLoading] = useState(true);
 
   const [file, setFile] = useState<File | null>(null);
@@ -73,10 +72,10 @@ export default function CheckoutPage() {
       setBaseFee(cart.baseFee);
       setOrderRef(getOrCreateOrderRef());
 
-      if (!demo) {
-        const { data } = await supabase.from('membership_config').select('payee_vpa, payee_name').eq('id', 1).maybeSingle();
-        if (alive && data?.payee_vpa) setVpa(data.payee_vpa);
-        if (alive && data?.payee_name) setPayee(data.payee_name);
+      const p = await loadPayee();
+      if (alive) {
+        setVpa(p.vpa);
+        setPayee(p.name);
       }
       if (alive) setIsLoading(false);
     })();

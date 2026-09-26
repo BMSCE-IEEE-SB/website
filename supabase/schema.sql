@@ -60,6 +60,21 @@ create table if not exists order_items (
   price_at_purchase numeric not null
 );
 
+-- Admin-only fields on orders (safe to re-run on an existing database)
+alter table orders add column if not exists admin_note text;
+alter table orders add column if not exists credentials_sent_at timestamptz;
+
+-- Audit trail of admin actions (verify, reject, settings changes...)
+create table if not exists admin_activity (
+  id uuid primary key default gen_random_uuid(),
+  admin_id uuid references admins(id),
+  admin_email text,
+  action text not null,
+  target text,
+  details text,
+  created_at timestamptz default now()
+);
+
 -- The site-wide announcement banner (single row, id = 1).
 create table if not exists announcement (
   id int primary key default 1 check (id = 1),
@@ -106,6 +121,7 @@ alter table admins enable row level security;
 alter table orders enable row level security;
 alter table order_items enable row level security;
 alter table announcement enable row level security;
+alter table admin_activity enable row level security;
 
 -- Public read-only data
 create policy "chapters are public" on chapters for select using (true);
@@ -119,6 +135,15 @@ create policy "read own admin row" on admins for select using (id = auth.uid());
 -- Profiles
 create policy "members manage own profile" on profiles for all using (id = auth.uid()) with check (id = auth.uid());
 create policy "admins read profiles" on profiles for select using (is_admin());
+create policy "admins update profiles" on profiles for update using (is_admin()) with check (is_admin());
+
+-- Settings: admins may change fees, UPI details and chapter prices
+create policy "admins update config" on membership_config for update using (is_admin()) with check (is_admin());
+create policy "admins update chapters" on chapters for update using (is_admin()) with check (is_admin());
+
+-- Activity log: admins write and read
+create policy "admins write activity" on admin_activity for insert with check (is_admin());
+create policy "admins read activity" on admin_activity for select using (is_admin());
 
 -- Orders: members create and read their own; they may only resubmit a rejected order
 create policy "members read own orders" on orders for select using (user_id = auth.uid());

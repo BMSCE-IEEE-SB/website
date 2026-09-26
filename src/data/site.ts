@@ -443,10 +443,10 @@ export const FALLBACK_CART_CHAPTERS = [
 export const chapterBySlug = (slug: string) => chapters.find((c) => c.slug === slug);
 
 export const pillars = [
-  { title: 'Learn', text: 'Workshops and study groups taught by seniors, alumni and industry engineers.', stat: '50+', statLabel: 'sessions a year' },
-  { title: 'Build', text: 'Project teams that turn ideas into boards, robots, apps and papers.', stat: '30+', statLabel: 'active projects' },
-  { title: 'Compete', text: 'Hackathons, IEEEXtreme and design contests, on campus and across India.', stat: '12', statLabel: 'competitions hosted' },
-  { title: 'Lead', text: 'Run a chapter, an event or a team, and learn to lead people, not just code.', stat: '60+', statLabel: 'student leaders' },
+  { title: 'Learn', text: 'Workshops and study groups taught by seniors, alumni and industry engineers.', stat: '50+', statLabel: 'sessions a year', image: u('photo-1524178232363-1fb2b075b655', 1000, 700), accent: '#18a4fe' },
+  { title: 'Build', text: 'Project teams that turn ideas into boards, robots, apps and papers.', stat: '30+', statLabel: 'active projects', image: u('photo-1518770660439-4636190af475', 1000, 700), accent: '#f26625' },
+  { title: 'Compete', text: 'Hackathons, IEEEXtreme and design contests, on campus and across India.', stat: '12', statLabel: 'competitions hosted', image: u('photo-1531482615713-2afd69097998', 1000, 700), accent: '#fbbf24' },
+  { title: 'Lead', text: 'Run a chapter, an event or a team, and learn to lead people, not just code.', stat: '60+', statLabel: 'student leaders', image: u('photo-1540575467063-178a50c2df87', 1000, 700), accent: '#34d399' },
 ];
 
 // PLACEHOLDER quotes: replace with real member testimonials before launch.

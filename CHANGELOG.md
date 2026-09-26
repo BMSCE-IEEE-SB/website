@@ -4,6 +4,14 @@ All notable changes to the **BMSCE IEEE Student Branch Website** will be documen
 
 ---
 
+## [3.2.0] - 2026-09-27 (Chapter step & pricing)
+
+### Changed
+- `/membership` no longer asks students to pick chapters. The pricing block now shows the base price, what it includes and chapter add-on prices, next to a "try your card" preview. The name and department typed there carry into registration.
+- The chapter step is rebuilt: colour tiles with photos, "Suggested" badges and a one-tap "add the picks for your department", tiles that expand to show activities, chips that pop onto the live card, an animated total with removable line items, and a sticky total bar on phones.
+
+---
+
 ## [3.1.0] - 2026-09-27 (Dynamic redesign)
 
 ### Added

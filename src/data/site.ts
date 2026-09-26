@@ -492,3 +492,39 @@ export function chapterCode(name: string) {
   ];
   return rules.find(([re]) => re.test(n))?.[1] ?? name;
 }
+
+export const departments = [
+  ['CSE', 'Computer Science & Engineering'],
+  ['ISE', 'Information Science & Engineering'],
+  ['AIML', 'Artificial Intelligence & Machine Learning'],
+  ['CSE-DS', 'Computer Science (Data Science)'],
+  ['ECE', 'Electronics & Communication'],
+  ['EEE', 'Electrical & Electronics'],
+  ['ETE', 'Electronics & Telecommunication'],
+  ['EIE', 'Electronics & Instrumentation'],
+  ['MED', 'Medical Electronics'],
+  ['MECH', 'Mechanical Engineering'],
+  ['CIVIL', 'Civil Engineering'],
+  ['CHEM', 'Chemical Engineering'],
+  ['IEM', 'Industrial Engineering & Management'],
+  ['BT', 'Biotechnology'],
+  ['OTHER', 'Other'],
+];
+
+/** Chapters we suggest first for each department (everyone is welcome in all of them). */
+export const suggestedByDepartment: Record<string, string[]> = {
+  CSE: ['CS', 'SSIT'],
+  ISE: ['CS', 'SSIT'],
+  AIML: ['CS', 'RAS'],
+  'CSE-DS': ['CS', 'SSIT'],
+  ECE: ['PELS/IES', 'RAS'],
+  EEE: ['PES', 'PELS/IES'],
+  ETE: ['PELS/IES', 'CS'],
+  EIE: ['PELS/IES', 'RAS'],
+  MED: ['PELS/IES', 'SSIT'],
+  MECH: ['RAS', 'PES'],
+  CIVIL: ['SSIT', 'PES'],
+  CHEM: ['PES', 'SSIT'],
+  IEM: ['SSIT', 'RAS'],
+  BT: ['SSIT', 'CS'],
+};

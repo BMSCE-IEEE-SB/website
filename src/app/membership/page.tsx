@@ -6,7 +6,7 @@ import Tilt from '@/components/site/Tilt';
 import MembershipCard from '@/components/site/MembershipCard';
 import NetworkCanvas from '@/components/site/NetworkCanvas';
 import { SectionLabel } from '@/components/site/BrandShapes';
-import PriceCalculator from '@/components/membership/PriceCalculator';
+import CardPreview from '@/components/membership/CardPreview';
 import Faq from '@/components/membership/Faq';
 
 export const metadata: Metadata = {
@@ -48,7 +48,7 @@ export default function MembershipPage() {
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link href="#pricing" className="btn btn-primary btn-lg">
-                Build your membership <ArrowRight className="h-4 w-4" />
+                See pricing & try your card <ArrowRight className="h-4 w-4" />
               </Link>
               <Link href="/login" className="btn btn-ghost btn-lg bg-white/60">
                 Already applied? Sign in
@@ -87,11 +87,11 @@ export default function MembershipPage() {
         <div className="container-page">
           <Reveal>
             <SectionLabel index="02">Pricing</SectionLabel>
-            <h2 className="section-title mt-6">Build your membership</h2>
-            <p className="lead mt-4 max-w-xl">Base membership is included. Tap the chapters you want and watch the total update.</p>
+            <h2 className="section-title mt-6">One simple price</h2>
+            <p className="lead mt-4 max-w-xl">Pay once for the year. Add chapters later in registration, and try on your card while you&apos;re here.</p>
           </Reveal>
           <div className="mt-12">
-            <PriceCalculator />
+            <CardPreview />
           </div>
         </div>
       </section>

@@ -1,3 +1,6 @@
+'use client';
+
+import { AnimatePresence, motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { Sails } from './BrandShapes';
 
@@ -9,6 +12,16 @@ export type CardData = {
   chapters?: string[];
   status?: 'draft' | 'pending' | 'verified' | 'rejected';
   reference?: string;
+};
+
+/** Chapter colours for the chips (kept here so the card stays self-contained). */
+const chipColor: Record<string, string> = {
+  CS: '#0284c7',
+  PES: '#059669',
+  'PELS/IES': '#d97706',
+  RAS: '#7c3aed',
+  WIE: '#db2777',
+  SSIT: '#4f46e5',
 };
 
 const statusText: Record<string, string> = {
@@ -68,11 +81,22 @@ export default function MembershipCard({ data, className }: { data: CardData; cl
             {data.year && <span>{data.year === 'PG' ? 'PG' : `Year ${data.year}`}</span>}
           </div>
           <div className="mt-3 flex min-h-[22px] flex-wrap gap-1.5">
-            {(data.chapters?.length ? data.chapters : ['Branch']).map((c) => (
-              <span key={c} className="rounded-full bg-white/12 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-white/90 ring-1 ring-white/15">
-                {c}
-              </span>
-            ))}
+            <AnimatePresence initial={false} mode="popLayout">
+              {(data.chapters?.length ? data.chapters : ['Branch']).map((c) => (
+                <motion.span
+                  key={c}
+                  layout
+                  initial={{ opacity: 0, scale: 0.4, y: 8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.4 }}
+                  transition={{ type: 'spring', stiffness: 420, damping: 24 }}
+                  className="rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide text-white ring-1 ring-white/20"
+                  style={{ background: chipColor[c] ?? 'rgb(255 255 255 / 0.12)' }}
+                >
+                  {c}
+                </motion.span>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
       </div>

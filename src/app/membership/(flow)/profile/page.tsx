@@ -7,26 +7,10 @@ import { isDemoMode, supabase } from '@/lib/supabase';
 import { getCurrentUser, getLocalProfile, saveLocalProfile, type SessionUser, type UserProfile } from '@/lib/auth';
 import { Alert, Field, Input, PageLoader, Select, Spinner } from '@/components/ui/form';
 import DemoNotice from '@/components/membership/DemoNotice';
-import { LiveCard, useDraft } from '@/components/membership/Draft';
+import { LiveCard, readDraft, useDraft } from '@/components/membership/Draft';
 import { errorMessage } from '@/lib/utils';
+import { departments } from '@/data/site';
 
-const departments = [
-  ['CSE', 'Computer Science & Engineering'],
-  ['ISE', 'Information Science & Engineering'],
-  ['AIML', 'Artificial Intelligence & Machine Learning'],
-  ['CSE-DS', 'Computer Science (Data Science)'],
-  ['ECE', 'Electronics & Communication'],
-  ['EEE', 'Electrical & Electronics'],
-  ['ETE', 'Electronics & Telecommunication'],
-  ['EIE', 'Electronics & Instrumentation'],
-  ['MED', 'Medical Electronics'],
-  ['MECH', 'Mechanical Engineering'],
-  ['CIVIL', 'Civil Engineering'],
-  ['CHEM', 'Chemical Engineering'],
-  ['IEM', 'Industrial Engineering & Management'],
-  ['BT', 'Biotechnology'],
-  ['OTHER', 'Other'],
-];
 
 type Form = Omit<UserProfile, 'id' | 'email'>;
 const empty: Form = { full_name: '', usn: '', department: '', year_of_study: '', phone: '', ieee_member_id: '' };
@@ -43,10 +27,11 @@ export default function ProfilePage() {
   const { update } = useDraft();
   const set = (key: keyof Form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  // Mirror the form into the live card preview.
+  // Mirror the form into the live card preview (after loading, so we don't wipe a saved draft).
   useEffect(() => {
+    if (isLoading) return;
     update({ name: form.full_name, usn: form.usn?.toUpperCase(), department: form.department, year: form.year_of_study });
-  }, [form.full_name, form.usn, form.department, form.year_of_study, update]);
+  }, [form.full_name, form.usn, form.department, form.year_of_study, update, isLoading]);
 
   useEffect(() => {
     let alive = true;
@@ -65,6 +50,11 @@ export default function ProfilePage() {
       } else {
         const { data } = await supabase.from('profiles').select('*').eq('id', active.id).maybeSingle();
         existing = data;
+      }
+      if (alive && !existing) {
+        // New member: start from what they typed into the card preview on /membership.
+        const d = readDraft();
+        setForm((f) => ({ ...f, full_name: d.name ?? '', department: d.department ?? '' }));
       }
       if (alive && existing) {
         setForm({

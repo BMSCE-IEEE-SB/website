@@ -4,8 +4,22 @@ import { createContext, useCallback, useContext, useEffect, useState } from 'rea
 import MembershipCard, { type CardData } from '@/components/site/MembershipCard';
 import Tilt from '@/components/site/Tilt';
 
-type Draft = Omit<CardData, 'status' | 'reference'>;
+export type Draft = Omit<CardData, 'status' | 'reference'>;
 const KEY = 'membership_card_draft';
+
+export function readDraft(): Draft {
+  try {
+    return JSON.parse(sessionStorage.getItem(KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+export function saveDraft(d: Partial<Draft>) {
+  try {
+    sessionStorage.setItem(KEY, JSON.stringify({ ...readDraft(), ...d }));
+  } catch {}
+}
 
 const Ctx = createContext<{ draft: Draft; update: (d: Partial<Draft>) => void }>({ draft: {}, update: () => {} });
 

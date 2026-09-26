@@ -19,6 +19,3 @@ export async function loadPricing(): Promise<Pricing> {
     chapters: (chaptersRes.data ?? []).map((c) => ({ ...c, price: Number(c.price) })),
   };
 }
-
-/** Chapter codes picked on the /membership calculator, carried into the chapter step. */
-export const PRESELECT_KEY = 'membership_preselect_codes';

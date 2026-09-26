@@ -74,7 +74,7 @@ create table if not exists announcement (
 -- ---------------------------------------------------------------------------
 
 insert into membership_config (id, base_fee, payee_vpa, payee_name)
-values (1, 250, 'bmsceieee@okhdfcbank', 'BMSCE IEEE Student Branch')
+values (1, 1810, 'bmsceieee@okhdfcbank', 'BMSCE IEEE Student Branch')
 on conflict (id) do nothing;
 
 insert into chapters (name, code, price) values

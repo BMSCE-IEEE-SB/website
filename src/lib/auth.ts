@@ -53,7 +53,7 @@ export const DUMMY_ADMIN_CREDENTIALS = { email: 'admin@bmsce.ac.in', password: '
 const DUMMY_USER_KEY = 'bmsce_dummy_user';
 const DUMMY_ADMIN_KEY = 'bmsce_dummy_admin';
 const DUMMY_PROFILE_KEY = 'bmsce_dummy_profiles';
-const DUMMY_ORDERS_KEY = 'bmsce_dummy_orders';
+const DUMMY_ORDERS_KEY = 'bmsce_dummy_orders_v2';
 const ANNOUNCEMENT_KEY = 'bmsce_announcement';
 
 const isBrowser = () => typeof window !== 'undefined';
@@ -159,21 +159,21 @@ const SAMPLE_ORDERS: Order[] = [
   {
     id: 'ord-demo-001', user_id: 'user-sample-01', student_name: 'Rahul Varma', usn: '1BM23CS084',
     email: 'rahul.cs23@bmsce.ac.in', department: 'CSE', year_of_study: '2', phone: '+91 9845012345',
-    base_fee: 250, total_amount: 450, utr_reference: '423984572910', order_reference: 'BMSCE-X8K92A',
+    base_fee: 1810, total_amount: 2010, utr_reference: '423984572910', order_reference: 'BMSCE-X8K92A',
     payment_screenshot_url: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80',
     status: 'pending', created_at: hoursAgo(2), chapters: ['Computer Society', 'Power & Energy Society'],
   },
   {
     id: 'ord-demo-002', user_id: 'user-sample-02', student_name: 'Pooja Hegde', usn: '1BM23EC042',
     email: 'pooja.ec23@bmsce.ac.in', department: 'ECE', year_of_study: '3', phone: '+91 9741098765',
-    base_fee: 250, total_amount: 300, utr_reference: '423910293847', order_reference: 'BMSCE-P4M19Q',
+    base_fee: 1810, total_amount: 1860, utr_reference: '423910293847', order_reference: 'BMSCE-P4M19Q',
     payment_screenshot_url: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=600&auto=format&fit=crop&q=80',
     status: 'pending', created_at: hoursAgo(6), chapters: ['Women in Engineering'],
   },
   {
     id: 'ord-demo-003', user_id: 'user-sample-03', student_name: 'Karthik Rao', usn: '1BM22IS035',
     email: 'karthik.is22@bmsce.ac.in', department: 'ISE', year_of_study: '3', phone: '+91 9448011223',
-    base_fee: 250, total_amount: 350, utr_reference: '423891029384', order_reference: 'BMSCE-Z7T33K',
+    base_fee: 1810, total_amount: 1910, utr_reference: '423891029384', order_reference: 'BMSCE-Z7T33K',
     payment_screenshot_url: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80',
     status: 'verified', created_at: hoursAgo(24), verified_at: hoursAgo(12), chapters: ['Computer Society'],
   },

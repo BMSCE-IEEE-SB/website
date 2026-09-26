@@ -430,7 +430,7 @@ export const membershipBenefits = [
 ];
 
 /** Used by the chapter cart when the database has no chapters configured yet. */
-export const FALLBACK_BASE_FEE = 250;
+export const FALLBACK_BASE_FEE = 1810;
 export const FALLBACK_CART_CHAPTERS = [
   { id: 'demo-cs', name: 'Computer Society', code: 'CS', price: 100 },
   { id: 'demo-pes', name: 'Power & Energy Society', code: 'PES', price: 100 },

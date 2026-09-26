@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { animate, useInView, useReducedMotion } from 'motion/react';
 
-/** Animates the numeric part of values like "1,000+" or "₹250" when scrolled into view. */
+/** Animates the numeric part of values like "1,000+" or "₹1,810" when scrolled into view. */
 export default function CountUp({ value, className }: { value: string; className?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: '-10% 0px' });

@@ -8,7 +8,7 @@ This checklist turns **PRD §10** into an actionable, non-technical punch list o
 
 - [ ] **Branch UPI VPA (ID)**: The exact Virtual Payment Address for receiving fees (e.g. `bmsceieee@okhdfcbank` or `bmsce.ieee@sbi`).
 - [ ] **Payee Display Name**: The registered account name appearing in UPI banking apps (e.g. `BMSCE IEEE Student Branch`).
-- [ ] **Base Membership Fee**: Exact amount in INR for general student branch membership (e.g. ₹250 or ₹500).
+- [x] **Base Membership Fee**: ₹1,810 (set in `membership_config` and as the demo fallback).
 - [ ] **Chapter Prices**: Fee per society chapter in INR:
   - [ ] IEEE Computer Society (CS): ₹____
   - [ ] IEEE Power & Energy Society (PES): ₹____

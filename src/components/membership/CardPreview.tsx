@@ -1,19 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Check, Sparkles } from 'lucide-react';
-import { chapters, departments } from '@/data/site';
+import { ArrowRight, Sparkles } from 'lucide-react';
+import { departments } from '@/data/site';
+import FeeSlip from './FeeSlip';
 import { loadPricing, type Pricing } from '@/lib/pricing';
 import { useSession } from '@/lib/useSession';
 import { saveDraft } from './Draft';
 import MembershipCard from '@/components/site/MembershipCard';
 import Tilt from '@/components/site/Tilt';
-import AnimatedNumber from '@/components/site/AnimatedNumber';
 import { cn } from '@/lib/utils';
-
-const included = ['IEEE global student membership', 'BMSCE branch events and workshops', 'Member-only competition discounts', 'Your digital membership card'];
 
 /** Pricing summary plus a "try your card" preview. Chapters are picked later, in step 3. */
 export default function CardPreview() {
@@ -41,56 +38,10 @@ export default function CardPreview() {
   };
 
   return (
-    <div className="grid items-stretch gap-6 lg:grid-cols-2">
-      {/* Price summary */}
-      <div className="grain relative flex flex-col justify-between overflow-hidden rounded-[32px] bg-ink p-7 text-white sm:p-9">
-        <div aria-hidden className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-brand-sky/20 blur-3xl" />
-        <div className="relative">
-          <p className="text-sm text-white/60">Base membership</p>
-          {error ? (
-            <p className="mt-3 text-sm text-red-200">{error}</p>
-          ) : (
-            <p className="display mt-2 text-7xl">
-              ₹{pricing ? <AnimatedNumber value={pricing.baseFee} /> : '—'}
-            </p>
-          )}
-          <p className="mt-1 text-sm text-white/60">one-time for the academic year</p>
-          <ul className="mt-7 space-y-3">
-            {included.map((i) => (
-              <li key={i} className="flex items-center gap-3 text-white/85">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-orange">
-                  <Check className="h-3 w-3" strokeWidth={3} />
-                </span>
-                {i}
-              </li>
-            ))}
-          </ul>
-          <dl className="mt-9 grid grid-cols-3 gap-4 border-t border-white/10 pt-7">
-            {[
-              ['400K+', 'IEEE members'],
-              ['6', 'chapters'],
-              ['50+', 'events a year'],
-            ].map(([v, l]) => (
-              <div key={l}>
-                <dd className="display text-3xl text-white">{v}</dd>
-                <dt className="mt-1 text-xs text-white/55">{l}</dt>
-              </div>
-            ))}
-          </dl>
-        </div>
-        <div className="relative mt-9 rounded-2xl bg-white/[0.06] p-5 ring-1 ring-white/10">
-          <p className="font-semibold">
-            Chapters are optional add-ons{pricing && prices.length ? `, ₹${min}${max !== min ? `–₹${max}` : ''} each` : ''}
-          </p>
-          <p className="mt-1 text-sm text-white/60">You choose them in step 3, after adding your details. We suggest ones that fit your department.</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {chapters.map((c) => (
-              <Link key={c.slug} href={`/chapters/${c.slug}`} className="rounded-full px-3 py-1 text-xs font-bold transition-transform hover:-translate-y-0.5" style={{ background: c.color }}>
-                {c.code}
-              </Link>
-            ))}
-          </div>
-        </div>
+    <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
+      {/* Price as a fee slip */}
+      <div className="flex items-center justify-center py-4">
+        <FeeSlip baseFee={pricing?.baseFee} minChapter={prices.length ? min : undefined} maxChapter={prices.length ? max : undefined} error={error} />
       </div>
 
       {/* Try your card */}

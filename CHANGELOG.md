@@ -4,6 +4,14 @@ All notable changes to the **BMSCE IEEE Student Branch Website** will be documen
 
 ---
 
+## [3.3.0] - 2026-09-27 (Fee slip)
+
+### Changed
+- Base membership fee is now ₹1,810 (demo fallback, Supabase seed and sample orders).
+- The pricing panel on `/membership` is redesigned as a printed fee slip: itemised lines, dashed rules, a branch stamp, a barcode and a torn edge, beside the membership card preview.
+
+---
+
 ## [3.2.0] - 2026-09-27 (Chapter step & pricing)
 
 ### Changed

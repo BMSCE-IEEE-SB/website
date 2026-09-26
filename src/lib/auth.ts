@@ -32,6 +32,9 @@ export interface Order {
   department?: string;
   year_of_study?: string;
   phone?: string;
+  receipt_sent?: boolean;
+  receipt_sent_at?: string;
+  receipt_error?: string;
 }
 
 export interface Announcement {
@@ -230,6 +233,16 @@ export function resubmitLocalOrderProof(orderId: string, screenshotUrl: string, 
     rejection_reason: undefined,
   }));
 }
+
+export function updateLocalOrderReceipt(orderId: string, receipt_sent: boolean, receipt_error?: string) {
+  return patchLocalOrder(orderId, (o) => ({
+    ...o,
+    receipt_sent,
+    receipt_sent_at: receipt_sent ? new Date().toISOString() : o.receipt_sent_at,
+    receipt_error: receipt_error ?? undefined,
+  }));
+}
+
 
 // ---------------------------------------------------------------------------
 // Announcement banner

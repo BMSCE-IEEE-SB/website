@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Plus, Shield, ShieldAlert, Trash2, UserCheck, Users } from 'lucide-react';
+import { Mail, Plus, Shield, ShieldAlert, Trash2, UserCheck } from 'lucide-react';
 import { isDemoMode } from '@/lib/supabase';
 import {
   addAdminWhitelistEntry,
@@ -43,14 +43,14 @@ export default function AdminTeamPage() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       const list = await loadAdminWhitelist();
       setWhitelist(list);
     } catch (err) {
       showToast('error', `Failed to load admin team: ${errorMessage(err)}`);
     }
-  };
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -63,7 +63,7 @@ export default function AdminTeamPage() {
       await load();
       setIsLoading(false);
     })();
-  }, [router]);
+  }, [router, load]);
 
   async function handleAddAdmin(e: React.FormEvent) {
     e.preventDefault();

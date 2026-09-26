@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Calendar, Edit, Plus, Trash2, MapPin, Clock, Tag } from 'lucide-react';
 import { isDemoMode } from '@/lib/supabase';
@@ -13,7 +13,7 @@ import {
 } from '@/lib/auth';
 import AdminNav from '@/components/admin/AdminNav';
 import { Alert, Field, Input, Modal, PageLoader, Select, Spinner } from '@/components/ui/form';
-import { cn, errorMessage, formatDate } from '@/lib/utils';
+import { errorMessage } from '@/lib/utils';
 
 const emptyEvent: AdminEvent = {
   id: '',
@@ -57,14 +57,14 @@ export default function AdminEventsPage() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  const load = async () => {
+  const load = useCallback(async () => {
     try {
       const list = await loadAdminEvents();
       setEvents(list);
     } catch (err) {
       showToast('error', `Failed to load events: ${errorMessage(err)}`);
     }
-  };
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -77,7 +77,7 @@ export default function AdminEventsPage() {
       await load();
       setIsLoading(false);
     })();
-  }, [router]);
+  }, [router, load]);
 
   const openCreate = () => {
     setIsNew(true);

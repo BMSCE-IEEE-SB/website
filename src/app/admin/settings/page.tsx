@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, DollarSign, Layers, Save, Sparkles } from 'lucide-react';
+import { DollarSign, Layers, Save } from 'lucide-react';
 import { isDemoMode } from '@/lib/supabase';
 import {
   getAdminUser,

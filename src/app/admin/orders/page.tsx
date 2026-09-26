@@ -2,11 +2,10 @@
 /* eslint-disable @next/next/no-img-element */
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Check, Download, Eye, LogOut, Megaphone, Search, X } from 'lucide-react';
+import { Check, Download, Eye, Mail, MailCheck, Search, X } from 'lucide-react';
 import { isDemoMode, supabase } from '@/lib/supabase';
-import { clearAdminSession, getAdminUser, getLocalOrders, updateLocalOrderStatus, type Order } from '@/lib/auth';
+import { getAdminUser, getLocalOrders, updateLocalOrderReceipt, updateLocalOrderStatus, type Order } from '@/lib/auth';
 import { resolveScreenshotUrl } from '@/lib/orders';
 import { Alert, Modal, PageLoader, Spinner, StatusBadge } from '@/components/ui/form';
 import AdminNav from '@/components/admin/AdminNav';
@@ -40,6 +39,7 @@ export default function AdminOrdersPage() {
   const [rejecting, setRejecting] = useState<Order | null>(null);
   const [reason, setReason] = useState('The payment screenshot is unclear or the UTR does not match our bank statement.');
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [sendingReceiptId, setSendingReceiptId] = useState<string | null>(null);
   const [toast, setToast] = useState<{ tone: 'success' | 'error' | 'info'; text: string } | null>(null);
 
   const showToast = (tone: 'success' | 'error' | 'info', text: string) => {
@@ -86,11 +86,6 @@ export default function AdminOrdersPage() {
     load();
   }, [load]);
 
-  const signOut = async () => {
-    await clearAdminSession();
-    router.push('/admin/login');
-  };
-
   async function sendReceipt(order: Order) {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (!demo) {
@@ -123,16 +118,58 @@ export default function AdminOrdersPage() {
           .eq('id', order.id);
         if (error) throw error;
       }
-      const sent = order.email ? await sendReceipt(order).catch(() => false) : false;
-      showToast(
-        sent ? 'success' : 'info',
-        sent ? `${order.order_reference} verified. Receipt emailed.` : `${order.order_reference} verified. The receipt email could not be sent (check SMTP settings).`,
-      );
+      showToast('success', `${order.order_reference} verified. You can now send the receipt.`);
       await load();
     } catch (err) {
       showToast('error', `Verification failed: ${errorMessage(err)}`);
     } finally {
       setBusyId(null);
+    }
+  }
+
+  async function handleSendReceipt(order: Order) {
+    if (!order.email) {
+      showToast('error', 'Cannot send receipt: order has no student email associated.');
+      return;
+    }
+    setSendingReceiptId(order.id);
+    try {
+      const ok = await sendReceipt(order).catch(() => false);
+      if (!ok) {
+        throw new Error('API returned an error or SMTP failed. Check your server logs / SMTP settings.');
+      }
+      if (demo) {
+        updateLocalOrderReceipt(order.id, true);
+      } else {
+        const { error } = await supabase
+          .from('orders')
+          .update({
+            receipt_sent: true,
+            receipt_sent_at: new Date().toISOString(),
+            receipt_error: null,
+          })
+          .eq('id', order.id);
+        if (error) throw error;
+      }
+      showToast('success', `Receipt sent successfully to ${order.email}.`);
+      await load();
+    } catch (err) {
+      const msg = errorMessage(err);
+      if (demo) {
+        updateLocalOrderReceipt(order.id, false, msg);
+      } else {
+        await supabase
+          .from('orders')
+          .update({
+            receipt_sent: false,
+            receipt_error: msg,
+          })
+          .eq('id', order.id);
+      }
+      showToast('error', `Failed to send receipt: ${msg}`);
+      await load();
+    } finally {
+      setSendingReceiptId(null);
     }
   }
 
@@ -287,6 +324,35 @@ export default function AdminOrdersPage() {
                   {o.payment_screenshot_url && (
                     <button type="button" onClick={() => openPreview(o)} className="btn btn-ghost px-3.5 py-2">
                       <Eye className="h-4 w-4" /> Proof
+                    </button>
+                  )}
+                  {o.status === 'verified' && (
+                    <button
+                      type="button"
+                      disabled={sendingReceiptId === o.id}
+                      onClick={() => handleSendReceipt(o)}
+                      className={cn(
+                        'btn px-3.5 py-2 text-xs font-semibold',
+                        o.receipt_sent
+                          ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 ring-inset hover:bg-emerald-100'
+                          : 'bg-brand-navy text-white hover:bg-brand-navy-light'
+                      )}
+                      title={
+                        o.receipt_sent && o.receipt_sent_at
+                          ? `Receipt sent on ${formatDateTime(o.receipt_sent_at)}. Click to resend.`
+                          : o.receipt_error
+                          ? `Previous attempt failed: ${o.receipt_error}. Click to retry.`
+                          : 'Send official confirmation receipt email to student'
+                      }
+                    >
+                      {sendingReceiptId === o.id ? (
+                        <Spinner className="h-4 w-4" />
+                      ) : o.receipt_sent ? (
+                        <MailCheck className="h-4 w-4 text-emerald-600" />
+                      ) : (
+                        <Mail className="h-4 w-4" />
+                      )}
+                      {o.receipt_sent ? 'Resend Receipt' : 'Send Receipt'}
                     </button>
                   )}
                   {o.status !== 'verified' && (

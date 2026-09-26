@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { isDemoMode, supabase } from '@/lib/supabase';
 import { DEFAULT_ANNOUNCEMENT, getAdminUser, loadAnnouncement, saveLocalAnnouncement, type Announcement } from '@/lib/auth';
 import AdminNav from '@/components/admin/AdminNav';

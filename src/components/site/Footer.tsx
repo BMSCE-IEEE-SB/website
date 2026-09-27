@@ -37,7 +37,8 @@ export default function Footer() {
       <div className="container-page pt-20 pb-10">
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <div className="inline-flex rounded-2xl bg-white px-4 py-3">
+            <div className="inline-flex items-center gap-3 rounded-2xl bg-white px-4 py-3">
+              <Image src="/brand/college-logo.png" alt="B.M.S. College of Engineering" width={2132} height={2132} className="h-10 w-10 object-contain" />
               <Image src="/brand/logo.png" alt="BMSCE IEEE" width={816} height={334} className="h-9 w-auto" />
             </div>
             <p className="mt-6 max-w-sm text-sm leading-relaxed">

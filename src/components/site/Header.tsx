@@ -110,7 +110,8 @@ export default function Header() {
       )}
     >
       <div className="container-page flex h-16 items-center justify-between gap-6 lg:h-[76px]">
-        <Link href="/" onClick={close} className="flex shrink-0 items-center" aria-label="BMSCE IEEE home">
+        <Link href="/" onClick={close} className="flex shrink-0 items-center gap-2" aria-label="BMSCE IEEE home">
+          <Image src="/brand/college-logo.png" alt="B.M.S. College of Engineering" width={2132} height={2132} className="h-8 w-8 object-contain lg:h-9 lg:w-9" />
           <Image src="/brand/logo.png" alt="BMSCE IEEE" width={816} height={334} preload loading="eager" className="h-9 w-auto lg:h-10" />
         </Link>
 

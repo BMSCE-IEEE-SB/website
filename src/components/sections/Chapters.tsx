@@ -47,7 +47,7 @@ export default function Chapters() {
             </Reveal>
           </div>
           <Reveal delay={120}>
-            <p className="lead max-w-md">Five communities, each with its own projects, events and mentors. Pick one or join them all when you register.</p>
+            <p className="lead max-w-md">Five communities, each with its own projects and mentors. Pick one or join them all when you register.</p>
           </Reveal>
         </div>
 
@@ -123,10 +123,6 @@ export default function Chapters() {
                       <div>
                         <dd className="display text-3xl">{ch.stats.members}</dd>
                         <dt className="text-xs text-white/70">members</dt>
-                      </div>
-                      <div>
-                        <dd className="display text-3xl">{ch.stats.events}</dd>
-                        <dt className="text-xs text-white/70">events a year</dt>
                       </div>
                     </dl>
                     <Link href={`/chapters/${ch.slug}`} className="btn btn-light btn-lg">

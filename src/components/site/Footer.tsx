@@ -9,7 +9,6 @@ const columns = [
     title: 'Explore',
     links: [
       { label: 'About', href: '/#about' },
-      { label: 'Events', href: '/#events' },
       { label: 'Gallery', href: '/gallery' },
       { label: 'Team', href: '/#team' },
       { label: 'Contact', href: '/#contact' },

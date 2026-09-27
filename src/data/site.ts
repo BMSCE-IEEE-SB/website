@@ -22,7 +22,6 @@ export const contactInfo = {
 export const navItems = [
   { label: 'About', href: '/#about', id: 'about' },
   { label: 'Chapters', href: '/#chapters', id: 'chapters' },
-  { label: 'Events', href: '/#events', id: 'events' },
   { label: 'Gallery', href: '/gallery', id: 'gallery' },
   { label: 'Team', href: '/#team', id: 'team' },
   { label: 'Contact', href: '/#contact', id: 'contact' },
@@ -32,7 +31,6 @@ export const metrics = [
   { value: '16+', label: 'Years of technical legacy' },
   { value: '1,000+', label: 'Active members' },
   { value: '5', label: 'Technical chapters & affinity groups' },
-  { value: '50+', label: 'Workshops & hackathons every year' },
 ];
 
 export type Chapter = {
@@ -449,7 +447,7 @@ export const pillars = [
   { title: 'Learn', text: 'Workshops and study groups taught by seniors, alumni and industry engineers.', stat: '50+', statLabel: 'sessions a year', image: u('photo-1524178232363-1fb2b075b655', 1000, 700), accent: '#18a4fe' },
   { title: 'Build', text: 'Project teams that turn ideas into circuit boards, software and research.', stat: '30+', statLabel: 'active projects', image: u('photo-1518770660439-4636190af475', 1000, 700), accent: '#f26625' },
   { title: 'Compete', text: 'Hackathons, IEEEXtreme and design contests, on campus and across India.', stat: '12', statLabel: 'competitions hosted', image: u('photo-1531482615713-2afd69097998', 1000, 700), accent: '#fbbf24' },
-  { title: 'Lead', text: 'Run a chapter, an event or a team, and learn to lead people, not just code.', stat: '60+', statLabel: 'student leaders', image: u('photo-1540575467063-178a50c2df87', 1000, 700), accent: '#34d399' },
+  { title: 'Lead', text: 'Run a chapter, a project or a team, and learn to lead people, not just code.', stat: '60+', statLabel: 'student leaders', image: u('photo-1540575467063-178a50c2df87', 1000, 700), accent: '#34d399' },
 ];
 
 export const faqs = [

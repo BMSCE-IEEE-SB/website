@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, ArrowUpRight, CalendarDays, Check, Clock, Layers, LogOut, Pencil, Plus, RefreshCw, X } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Check, Clock, Layers, LogOut, Pencil, Plus, RefreshCw, X } from 'lucide-react';
 import { isDemoMode, supabase } from '@/lib/supabase';
 import {
   clearUserSession,
@@ -197,7 +197,7 @@ export default function AccountPage() {
               />
             </Tilt>
             <p className="text-center text-sm text-muted">
-              {latest?.status === 'verified' ? 'Your membership is active. Show this card at branch events.' : 'Your card activates once your payment is verified.'}
+              {latest?.status === 'verified' ? 'Your membership is active. Show this card on campus.' : 'Your card activates once your payment is verified.'}
             </p>
           </div>
 
@@ -255,7 +255,6 @@ export default function AccountPage() {
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
           {[
             { href: '/membership', icon: Plus, title: 'Add chapters', text: 'Start a new application with more chapters.' },
-            { href: '/#events', icon: CalendarDays, title: 'Upcoming events', text: 'Hackathons, workshops and talks this term.' },
             { href: '/#chapters', icon: Layers, title: 'Explore chapters', text: 'See what each community is working on.' },
           ].map((q) => (
             <Link key={q.title} href={q.href} className="group panel flex items-start gap-4 p-5 transition-transform hover:-translate-y-1">

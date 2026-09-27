@@ -20,7 +20,7 @@ export default function Team() {
             </Reveal>
           </div>
           <Reveal delay={120}>
-            <p className="lead max-w-sm">Branch counselor, mentor and student leaders elected every year. Say hi at any event, or message them on LinkedIn.</p>
+            <p className="lead max-w-sm">Branch counselor, mentor and student leaders elected every year. Say hi on campus, or message them on LinkedIn.</p>
           </Reveal>
         </div>
 

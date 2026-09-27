@@ -121,12 +121,16 @@ drop policy if exists "read own admin row" on public.admins;
 drop policy if exists "admins read whitelist" on public.admin_whitelist;
 drop policy if exists "config is public" on public.membership_config;
 drop policy if exists "admins manage config" on public.membership_config;
+drop policy if exists "public checkout config" on public.membership_config;
+drop policy if exists "admins read orders" on public.orders;
+drop policy if exists "admins read order items" on public.order_items;
 drop policy if exists "admins manage chapters" on public.chapters;
 drop policy if exists "admins manage announcement" on public.announcement;
 drop policy if exists "admins manage events" on public.events;
 drop policy if exists "members upload own proofs" on storage.objects;
 drop policy if exists "members update own proofs" on storage.objects;
 drop policy if exists "members read own proofs" on storage.objects;
+drop policy if exists "admins read all proofs" on storage.objects;
 
 -- Remove any legacy/custom permissive write policies on protected tables too;
 -- table grants and server endpoints are the sole write path after this point.

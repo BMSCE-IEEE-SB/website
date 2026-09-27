@@ -7,6 +7,7 @@ import { Check, Download, Eye, Mail, MailCheck, Search, X } from 'lucide-react';
 import { isDemoMode, supabase } from '@/lib/supabase';
 import { getAdminUser, getLocalOrders, updateLocalOrderReceipt, updateLocalOrderStatus, type Order } from '@/lib/auth';
 import { resolveScreenshotUrl } from '@/lib/orders';
+import { adminFetch } from '@/lib/admin-api';
 import { Alert, Modal, PageLoader, Spinner, StatusBadge } from '@/components/ui/form';
 import AdminNav from '@/components/admin/AdminNav';
 import { cn, errorMessage, formatDateTime } from '@/lib/utils';
@@ -28,7 +29,6 @@ export default function AdminOrdersPage() {
   const router = useRouter();
   const demo = isDemoMode();
   const [adminEmail, setAdminEmail] = useState('');
-  const [adminId, setAdminId] = useState('');
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
@@ -54,7 +54,6 @@ export default function AdminOrdersPage() {
       return;
     }
     setAdminEmail(admin.email);
-    setAdminId(admin.id);
 
     if (demo) {
       setOrders(getLocalOrders());
@@ -87,23 +86,10 @@ export default function AdminOrdersPage() {
   }, [load]);
 
   async function sendReceipt(order: Order) {
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (!demo) {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) headers.Authorization = `Bearer ${data.session.access_token}`;
-    }
-    const res = await fetch('/api/send-receipt', {
+    const res = await adminFetch('/api/send-receipt', {
       method: 'POST',
-      headers,
-      body: JSON.stringify({
-        orderId: order.id,
-        email: order.email,
-        name: order.student_name || 'Member',
-        orderRef: order.order_reference,
-        receiptNumber: order.receipt_number,
-        amount: order.total_amount,
-        chaptersList: order.chapters ?? [],
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId: order.id }),
     });
     const data = await res.json().catch(() => null);
     if (!res.ok) {
@@ -118,11 +104,11 @@ export default function AdminOrdersPage() {
       if (demo) {
         updateLocalOrderStatus(order.id, 'verified');
       } else {
-        const { error } = await supabase
-          .from('orders')
-          .update({ status: 'verified', verified_at: new Date().toISOString(), verified_by: adminId, rejection_reason: null })
-          .eq('id', order.id);
-        if (error) throw error;
+        const response = await adminFetch(`/api/admin/orders/${order.id}/status`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'verified' }),
+        });
+        if (!response.ok) throw new Error((await response.json()).error || 'Order update failed.');
       }
       showToast('success', `${order.order_reference} verified. You can now send the receipt.`);
       await load();
@@ -140,37 +126,19 @@ export default function AdminOrdersPage() {
     }
     setSendingReceiptId(order.id);
     try {
+      if (demo) {
+        const demoNumber = order.receipt_number || 'DEMO-RECEIPT';
+        updateLocalOrderReceipt(order.id, true, demoNumber);
+        showToast('success', `Demo receipt delivery simulated for ${order.email}. No email was sent.`);
+        await load();
+        return;
+      }
       const result = await sendReceipt(order);
       const assignedNum = result.receiptNumber || order.receipt_number;
-      if (demo) {
-        updateLocalOrderReceipt(order.id, true, assignedNum);
-      } else {
-        const { error } = await supabase
-          .from('orders')
-          .update({
-            receipt_sent: true,
-            receipt_sent_at: new Date().toISOString(),
-            receipt_number: assignedNum,
-            receipt_error: null,
-          })
-          .eq('id', order.id);
-        if (error) throw error;
-      }
       showToast('success', `Official receipt ${assignedNum ? `(${assignedNum}) ` : ''}sent successfully to ${order.email}.`);
       await load();
     } catch (err) {
       const msg = errorMessage(err);
-      if (demo) {
-        updateLocalOrderReceipt(order.id, false, msg);
-      } else {
-        await supabase
-          .from('orders')
-          .update({
-            receipt_sent: false,
-            receipt_error: msg,
-          })
-          .eq('id', order.id);
-      }
       showToast('error', `Failed to send receipt: ${msg}`);
       await load();
     } finally {
@@ -186,8 +154,11 @@ export default function AdminOrdersPage() {
       if (demo) {
         updateLocalOrderStatus(rejecting.id, 'rejected', reason.trim());
       } else {
-        const { error } = await supabase.from('orders').update({ status: 'rejected', rejection_reason: reason.trim(), verified_at: null }).eq('id', rejecting.id);
-        if (error) throw error;
+        const response = await adminFetch(`/api/admin/orders/${rejecting.id}/status`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'rejected', reason: reason.trim() }),
+        });
+        if (!response.ok) throw new Error((await response.json()).error || 'Order update failed.');
       }
       showToast('success', `${rejecting.order_reference} rejected. The student can resubmit from their portal.`);
       setRejecting(null);

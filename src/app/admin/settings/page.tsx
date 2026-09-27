@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertCircle, CheckCircle2, DollarSign, Layers, Mail, Save, Send } from 'lucide-react';
-import { isDemoMode, supabase } from '@/lib/supabase';
+import { isDemoMode } from '@/lib/supabase';
 import {
   getAdminUser,
+  DEFAULT_SETTINGS,
   loadAdminChapters,
   loadAdminSettings,
   saveAdminChapter,
@@ -16,6 +17,7 @@ import {
 import AdminNav from '@/components/admin/AdminNav';
 import { Alert, Field, Input, PageLoader, Spinner } from '@/components/ui/form';
 import { cn, errorMessage } from '@/lib/utils';
+import { adminFetch } from '@/lib/admin-api';
 
 export default function AdminSettingsPage() {
   const router = useRouter();
@@ -41,6 +43,10 @@ export default function AdminSettingsPage() {
   const [smtpStatus, setSmtpStatus] = useState<{ checked: boolean; ok?: boolean; message?: string } | null>(null);
   const [isTestingSmtp, setIsTestingSmtp] = useState(false);
   const [testEmail, setTestEmail] = useState('');
+  const [testName, setTestName] = useState('');
+  const [testAmount, setTestAmount] = useState('');
+  const [testChapters, setTestChapters] = useState('');
+  const [testReason, setTestReason] = useState('');
   const [isSendingTestMail, setIsSendingTestMail] = useState(false);
 
   const [toast, setToast] = useState<{ tone: 'success' | 'error'; text: string } | null>(null);
@@ -59,10 +65,16 @@ export default function AdminSettingsPage() {
       }
       setAdminEmail(admin.email);
       try {
-        const [loadedSettings, loadedChapters] = await Promise.all([
-          loadAdminSettings(),
-          loadAdminChapters(),
-        ]);
+        let loadedSettings: MembershipSettings;
+        let loadedChapters: ChapterSetting[];
+        if (demo) [loadedSettings, loadedChapters] = await Promise.all([loadAdminSettings(), loadAdminChapters()]);
+        else {
+          const response = await adminFetch('/api/admin/settings');
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error || 'Could not load settings.');
+          loadedSettings = { ...DEFAULT_SETTINGS, ...result.settings, base_fee: Number(result.settings.base_fee) };
+          loadedChapters = (result.chapters ?? []).map((c: ChapterSetting) => ({ ...c, price: Number(c.price) }));
+        }
         setSettings(loadedSettings);
         setChapters(loadedChapters);
       } catch (err) {
@@ -71,13 +83,18 @@ export default function AdminSettingsPage() {
         setIsLoading(false);
       }
     })();
-  }, [router]);
+  }, [router, demo]);
 
   async function handleSaveSettings(e: React.FormEvent) {
     e.preventDefault();
     setIsSavingSettings(true);
     try {
-      await saveAdminSettings(settings);
+      if (demo) await saveAdminSettings(settings);
+      else {
+        const response = await adminFetch('/api/admin/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ settings }) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not save settings.');
+      }
       showToast('success', 'Membership drive configuration saved successfully.');
     } catch (err) {
       showToast('error', `Could not save settings: ${errorMessage(err)}`);
@@ -89,7 +106,12 @@ export default function AdminSettingsPage() {
   async function handleSaveChapter(ch: ChapterSetting) {
     setSavingChapterId(ch.id);
     try {
-      await saveAdminChapter(ch);
+      if (demo) await saveAdminChapter(ch);
+      else {
+        const response = await adminFetch('/api/admin/settings', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chapter: ch }) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not save chapter.');
+      }
       showToast('success', `${ch.name} (${ch.code}) updated to ₹${ch.price}.`);
     } catch (err) {
       showToast('error', `Failed to update chapter: ${errorMessage(err)}`);
@@ -102,18 +124,13 @@ export default function AdminSettingsPage() {
     setIsTestingSmtp(true);
     setSmtpStatus(null);
     try {
-      const headers: Record<string, string> = {};
-      if (!demo) {
-        const { data } = await supabase.auth.getSession();
-        if (data.session) headers.Authorization = `Bearer ${data.session.access_token}`;
-      }
-      const res = await fetch('/api/send-receipt', { headers });
+      const res = demo ? await fetch('/api/send-receipt') : await adminFetch('/api/send-receipt');
       const data = await res.json();
       if (!res.ok || !data.configured) {
         setSmtpStatus({ checked: true, ok: false, message: data.error || 'SMTP verification failed' });
         showToast('error', data.error || 'SMTP verification failed');
       } else {
-        setSmtpStatus({ checked: true, ok: true, message: `Connected to ${data.host}:${data.port} as ${data.user}` });
+        setSmtpStatus({ checked: true, ok: true, message: data.message || 'Receipt email service is ready.' });
         showToast('success', 'SMTP server connected and verified successfully!');
       }
     } catch (err) {
@@ -127,33 +144,29 @@ export default function AdminSettingsPage() {
 
   async function handleSendTestReceipt(e: React.FormEvent) {
     e.preventDefault();
+    if (demo) return showToast('error', 'Demo mode never sends email.');
     if (!testEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(testEmail)) {
       showToast('error', 'Please enter a valid email address.');
       return;
     }
     setIsSendingTestMail(true);
     try {
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      if (!demo) {
-        const { data } = await supabase.auth.getSession();
-        if (data.session) headers.Authorization = `Bearer ${data.session.access_token}`;
-      }
-      const res = await fetch('/api/send-receipt', {
+      const res = await adminFetch('/api/admin/manual-receipt', {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: testEmail,
-          name: 'Branch Executive Test',
-          orderRef: 'TEST-' + Math.random().toString(36).substring(2, 8).toUpperCase(),
-          amount: settings.base_fee,
-          chaptersList: ['Computer Society (Sample)'],
+          name: testName,
+          amount: Number(testAmount),
+          chapters: testChapters.split('\n').map((part) => part.trim()).filter(Boolean),
+          reason: testReason,
         }),
       });
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || 'Failed to dispatch test receipt.');
       }
-      showToast('success', `Test receipt sent successfully to ${testEmail}!`);
+      showToast('success', `Audited manual receipt ${data.receiptNumber} sent to ${testEmail}.`);
     } catch (err) {
       showToast('error', `Failed to send test email: ${errorMessage(err)}`);
     } finally {
@@ -426,27 +439,24 @@ export default function AdminSettingsPage() {
               </button>
             </div>
 
-            <form onSubmit={handleSendTestReceipt} className="rounded-xl border border-line bg-paper/50 p-4">
-              <p className="text-sm font-semibold text-ink">Send a Sample Receipt Email</p>
-              <p className="text-xs text-muted">Dispatches a test membership confirmation receipt to verify inbox delivery</p>
-              <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <input
-                  type="email"
-                  required
-                  placeholder="your-email@example.com"
-                  value={testEmail}
-                  onChange={(e) => setTestEmail(e.target.value)}
-                  className="input flex-1 py-1.5 text-sm"
-                />
+            <form onSubmit={handleSendTestReceipt} className="rounded-xl border border-line bg-paper/50 p-4 space-y-3">
+              <p className="text-sm font-semibold text-ink">Audited Manual Receipt Override</p>
+              <p className="text-xs text-muted">Use only for documented exceptions. The reason and administrator are retained in the audit log; this does not verify an order.</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <input type="email" required maxLength={254} placeholder="recipient@example.com" value={testEmail} onChange={(e) => setTestEmail(e.target.value)} className="input py-1.5 text-sm" />
+                <input type="text" required maxLength={120} placeholder="Recipient name" value={testName} onChange={(e) => setTestName(e.target.value)} className="input py-1.5 text-sm" />
+                <input type="number" required min="0" max="10000000" step="0.01" placeholder="Amount (₹)" value={testAmount} onChange={(e) => setTestAmount(e.target.value)} className="input py-1.5 text-sm" />
+                <textarea maxLength={1000} required minLength={10} placeholder="Required reason for override" value={testReason} onChange={(e) => setTestReason(e.target.value)} className="input min-h-10 resize-y py-1.5 text-sm" />
+                <textarea maxLength={2000} placeholder="Chapter names, one per line (optional)" value={testChapters} onChange={(e) => setTestChapters(e.target.value)} className="input min-h-10 resize-y py-1.5 text-sm sm:col-span-2" />
+              </div>
                 <button
                   type="submit"
                   disabled={isSendingTestMail}
-                  className="btn btn-dark shrink-0 text-xs"
+                  className="btn btn-dark text-xs"
                 >
                   {isSendingTestMail ? <Spinner className="h-3.5 w-3.5" /> : <Send className="h-3.5 w-3.5" />}
-                  Send Test Email
+                  Reserve & Send Override Receipt
                 </button>
-              </div>
             </form>
           </div>
         </div>

@@ -504,4 +504,3 @@ export async function removeAdminWhitelistEntry(email: string) {
   const { error } = await supabase.from('admin_whitelist').delete().eq('email', cleanEmail);
   if (error) throw error;
 }
-

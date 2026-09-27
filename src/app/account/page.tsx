@@ -15,7 +15,7 @@ import {
   type SessionUser,
   type UserProfile,
 } from '@/lib/auth';
-import { uploadScreenshot } from '@/lib/orders';
+import { adminFetch } from '@/lib/admin-api';
 import { Alert, Field, FileDrop, Input, Modal, PageLoader, Spinner, StatusBadge } from '@/components/ui/form';
 import { cn, errorMessage, formatDateTime, imageToDataUrl, validateScreenshot } from '@/lib/utils';
 import MembershipCard from '@/components/site/MembershipCard';
@@ -120,13 +120,19 @@ export default function AccountPage() {
       if (demo) {
         resubmitLocalOrderProof(resubmitting.id, await imageToDataUrl(newFile!), cleanUtr);
       } else {
-        const path = await uploadScreenshot(user.id, resubmitting.order_reference, newFile!, `_resubmit-${Date.now()}`);
-        const { error } = await supabase
-          .from('orders')
-          .update({ status: 'pending', payment_screenshot_url: path, utr_reference: cleanUtr, rejection_reason: null })
-          .eq('id', resubmitting.id)
-          .eq('user_id', user.id);
-        if (error) throw error;
+        const form = new FormData();
+        form.set('file', newFile!);
+        form.set('orderId', resubmitting.id);
+        form.set('utr', cleanUtr);
+        const upload = await adminFetch('/api/checkout/proof', { method: 'POST', body: form });
+        const uploaded = await upload.json();
+        if (!upload.ok) throw new Error(uploaded.error || 'Proof upload failed.');
+        const response = await adminFetch('/api/checkout/resubmit', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: resubmitting.id, proofPath: uploaded.path, utr: cleanUtr }),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Resubmission failed.');
       }
       setResubmitting(null);
       await load();

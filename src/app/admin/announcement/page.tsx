@@ -3,11 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
-import { isDemoMode, supabase } from '@/lib/supabase';
+import { isDemoMode } from '@/lib/supabase';
 import { DEFAULT_ANNOUNCEMENT, getAdminUser, loadAnnouncement, saveLocalAnnouncement, type Announcement } from '@/lib/auth';
 import AdminNav from '@/components/admin/AdminNav';
 import { Alert, Field, Input, PageLoader, Spinner } from '@/components/ui/form';
 import { cn, errorMessage } from '@/lib/utils';
+import { adminFetch } from '@/lib/admin-api';
+import { isSafeLink } from '@/lib/server/input';
 
 export default function AdminAnnouncementPage() {
   const router = useRouter();
@@ -39,8 +41,8 @@ export default function AdminAnnouncementPage() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     const url = linkUrl.trim();
-    if (url && !url.startsWith('/') && !/^https:\/\//.test(url)) {
-      setStatus({ tone: 'error', text: 'Links must start with / (a page on this site) or https://.' });
+    if (url && !isSafeLink(url)) {
+      setStatus({ tone: 'error', text: 'Use a same-site path or a valid https:// address.' });
       return;
     }
     setIsSaving(true);
@@ -50,8 +52,9 @@ export default function AdminAnnouncementPage() {
       if (demo) {
         saveLocalAnnouncement(payload);
       } else {
-        const { error } = await supabase.from('announcement').upsert({ id: 1, ...payload, link_url: payload.link_url ?? null });
-        if (error) throw error;
+        const response = await adminFetch('/api/admin/announcement', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...payload, link_url: payload.link_url ?? null }) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not save announcement.');
       }
       setStatus({ tone: 'success', text: 'Saved. Visitors will see the change on their next page load.' });
     } catch (err) {

@@ -1,5 +1,8 @@
 -- BMSCE IEEE Student Branch - Complete Database Schema
 -- Run this once in the Supabase SQL editor or via Supabase migrations.
+-- Then apply every ordered SQL file in supabase/migrations/. The security
+-- remediation migration is mandatory for both fresh and existing projects;
+-- it preserves existing rows and moves privileged writes to server routes.
 
 -- ---------------------------------------------------------------------------
 -- 1. Core Tables

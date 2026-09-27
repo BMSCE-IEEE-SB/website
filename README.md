@@ -111,19 +111,23 @@ The application includes built-in offline/demo sessions, allowing complete testi
 ## 🗄️ Database Setup (Supabase)
 
 When connecting your live Supabase project:
-1. Execute the DDL in `supabase/schema.sql` inside your Supabase SQL Editor.
-2. Create a storage bucket named `public-assets` with **Public turned OFF**. Payment screenshots are private and admins view them through signed URLs. The storage policies are in `schema.sql`.
-3. Add each executive to the `admins` table (see the last line of `schema.sql`).
+1. Back up the project and review the existing `public` schema and policies.
+2. For a fresh project, execute `supabase/schema.sql`. For either a fresh or existing project, then execute `supabase/migrations/20260927003133_security_remediation.sql` in the SQL editor. This migration preserves existing orders and profiles, privatizes payment screenshots, and introduces auditable receipt numbering. Do not run `schema.sql` over a live database as a migration.
+3. Admin access is provisioned through `admin_whitelist`; do not insert directly into `admins`. Existing whitelist entries are retained and active users are synchronized by the migration.
 4. Update `.env.local`:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://<your-project>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>
+SUPABASE_SERVICE_ROLE_KEY=<server-only-service-role-secret>
 
 # Transactional Receipt Email (Nodemailer SMTP)
 SMTP_HOST=smtp.gmail.com
 SMTP_USER=ieee@bmsce.ac.in
 SMTP_PASS=your-app-password
+SMTP_PORT=465
 ```
+
+The service-role key must remain server-only: never rename it with a `NEXT_PUBLIC_` prefix. Deploy the application only after the migration succeeds, and verify registration, proof upload, admin verification, receipt delivery, manual-receipt auditing, and denial of direct client writes. Keep the Supabase backup until those checks pass.
 
 ---
 

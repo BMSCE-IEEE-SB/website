@@ -14,6 +14,7 @@ import {
 import AdminNav from '@/components/admin/AdminNav';
 import { Alert, Field, Input, Modal, PageLoader, Select, Spinner } from '@/components/ui/form';
 import { errorMessage } from '@/lib/utils';
+import { adminFetch } from '@/lib/admin-api';
 
 const emptyEvent: AdminEvent = {
   id: '',
@@ -59,12 +60,19 @@ export default function AdminEventsPage() {
 
   const load = useCallback(async () => {
     try {
-      const list = await loadAdminEvents();
+      let list: AdminEvent[];
+      if (demo) list = await loadAdminEvents();
+      else {
+        const response = await adminFetch('/api/admin/events');
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not load events.');
+        list = result.events;
+      }
       setEvents(list);
     } catch (err) {
       showToast('error', `Failed to load events: ${errorMessage(err)}`);
     }
-  }, []);
+  }, [demo]);
 
   useEffect(() => {
     (async () => {
@@ -105,7 +113,12 @@ export default function AdminEventsPage() {
     }
     setIsSaving(true);
     try {
-      await saveAdminEvent(editingEvent);
+      if (demo) await saveAdminEvent(editingEvent);
+      else {
+        const response = await adminFetch('/api/admin/events', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(editingEvent) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not save event.');
+      }
       showToast('success', `${editingEvent.title} saved successfully.`);
       closeEditor();
       await load();
@@ -120,7 +133,12 @@ export default function AdminEventsPage() {
     if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
     setDeletingId(id);
     try {
-      await deleteAdminEvent(id);
+      if (demo) await deleteAdminEvent(id);
+      else {
+        const response = await adminFetch(`/api/admin/events?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not delete event.');
+      }
       showToast('success', `Deleted "${title}".`);
       await load();
     } catch (err) {

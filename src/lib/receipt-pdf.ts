@@ -11,7 +11,6 @@ export interface ReceiptData {
   treasurerName?: string;
   treasurerRole?: string;
   treasurerPhone?: string;
-  signaturePath?: string;
 }
 
 function getOrdinal(n: number): string {
@@ -250,36 +249,24 @@ export async function generateReceiptPdf(data: ReceiptData): Promise<Buffer> {
   const sigX = 590;
   let sigY = 160;
 
-  // If a signature image exists, embed it
-  const signatureFiles = [
-    data.signaturePath,
-    path.join(cwd, 'public/brand/signature.png'),
-    path.join(cwd, 'public/brand/signature.jpg'),
-  ].filter(Boolean) as string[];
-
   let sigDrawn = false;
-  for (const sf of signatureFiles) {
-    if (fs.existsSync(sf)) {
-      try {
-        const sigBytes = fs.readFileSync(sf);
-        const sigImg = sf.endsWith('.png') ? await doc.embedPng(sigBytes) : await doc.embedJpg(sigBytes);
-        const maxSigW = 140;
-        const maxSigH = 50;
-        const scale = Math.min(maxSigW / sigImg.width, maxSigH / sigImg.height, 0.5);
-        const sW = sigImg.width * scale;
-        const sH = sigImg.height * scale;
-        page.drawImage(sigImg, {
-          x: sigX + (180 - sW) / 2,
-          y: sigY - sH + 15,
-          width: sW,
-          height: sH,
-        });
-        sigDrawn = true;
-        break;
-      } catch (err) {
-        console.error('Error embedding signature image:', err);
-      }
-    }
+  try {
+    const sigBytes = fs.readFileSync(path.join(process.cwd(), 'public/brand/signature.png'));
+    const sigImg = await doc.embedPng(sigBytes);
+    const maxSigW = 140;
+    const maxSigH = 50;
+    const scale = Math.min(maxSigW / sigImg.width, maxSigH / sigImg.height, 0.5);
+    const sW = sigImg.width * scale;
+    const sH = sigImg.height * scale;
+    page.drawImage(sigImg, {
+      x: sigX + (180 - sW) / 2,
+      y: sigY - sH + 15,
+      width: sW,
+      height: sH,
+    });
+    sigDrawn = true;
+  } catch {
+    // A signed image is optional at build time; no user-controlled path is read.
   }
 
   if (!sigDrawn) {

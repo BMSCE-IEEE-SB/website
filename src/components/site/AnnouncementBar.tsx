@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, X } from 'lucide-react';
 import { loadAnnouncement, type Announcement } from '@/lib/auth';
+import { isSafeLink } from '@/lib/server/input';
 
 const DISMISS_KEY = 'bmsce_announcement_dismissed';
 
@@ -32,7 +33,8 @@ export default function AnnouncementBar() {
     setAnnouncement(null);
   };
 
-  const isExternal = announcement.link_url?.startsWith('http');
+  const safeLink = isSafeLink(announcement.link_url) ? announcement.link_url : null;
+  const isExternal = safeLink?.startsWith('https://');
 
   return (
     <aside className="relative z-[51] bg-night text-white">
@@ -40,9 +42,9 @@ export default function AnnouncementBar() {
         <span className="hidden h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-brand-orange sm:block" />
         <p className="min-w-0 flex-1 text-white/85 sm:flex-none">
           {announcement.message}
-          {announcement.link_url && (
+          {safeLink && (
             <Link
-              href={announcement.link_url}
+              href={safeLink}
               {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
               className="ml-2 inline-flex items-center gap-1 font-semibold whitespace-nowrap text-white underline-offset-4 hover:underline"
             >

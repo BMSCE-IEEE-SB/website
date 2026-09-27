@@ -26,12 +26,20 @@ Before clicking Deploy, expand the **Environment Variables** section and add:
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://xyzcompany.supabase.co` | Supabase API Endpoint |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJhbGciOi...` | Supabase Public Client Key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase secret key | Server-only privileged API access; never use a `NEXT_PUBLIC_` prefix |
+| `SMTP_PORT` | `465` | SMTP port |
 | `SMTP_HOST` | `smtp.gmail.com` | Email SMTP Server |
 | `SMTP_USER` | `ieee@bmsce.ac.in` | Official Branch Sender Email |
 | `SMTP_PASS` | `xxxx xxxx xxxx xxxx` | 16-character App Password |
 
 ### Step 4: Deploy
 Click **"Deploy"**. Within ~60 seconds, Vercel will build the 14 routes with Turbopack and assign a live URL (e.g. `https://sb-website-theta.vercel.app` or `https://sb-website-ratik.vercel.app`).
+
+### Supabase Security Migration
+
+Before deploying this version, take a database backup and apply the SQL in `supabase/migrations/20260927003133_security_remediation.sql` to the existing project. Do not rerun `schema.sql` over an existing live database. The migration preserves historical profile/order rows, makes proof storage private, switches checkout/order/admin writes to authenticated server APIs, and backfills existing receipt numbers. Verify these workflows on a staging project first. Admin access is provisioned by the `admin_whitelist` table; do not grant roles by direct client-side writes to `admins`.
+
+After deployment, test member checkout and resubmission, admin order review, SMTP verification, normal receipt resend, audited manual override, settings/team/content editing, and that direct anonymous/authenticated writes to orders and admin configuration are denied. Demo mode uses local storage and must not send mail.
 
 ---
 

@@ -8,7 +8,6 @@ import { ArrowLeft, Check, Copy, Download, Smartphone } from 'lucide-react';
 import { isDemoMode, supabase } from '@/lib/supabase';
 import { getCurrentUser, saveLocalOrder, type SessionUser } from '@/lib/auth';
 import { clearCart, getOrCreateOrderRef, readCart, type CartChapter } from '@/lib/cart';
-import { uploadScreenshot } from '@/lib/orders';
 import { Alert, Field, FileDrop, Input, PageLoader, Spinner } from '@/components/ui/form';
 import DemoNotice from '@/components/membership/DemoNotice';
 import { errorMessage, imageToDataUrl, validateScreenshot } from '@/lib/utils';
@@ -45,6 +44,7 @@ export default function CheckoutPage() {
   const [baseFee, setBaseFee] = useState(0);
   const [tshirtSize, setTshirtSize] = useState('');
   const [orderRef, setOrderRef] = useState('');
+  const [checkoutIntentId, setCheckoutIntentId] = useState('');
   const [vpa, setVpa] = useState(FALLBACK_VPA);
   const [payee, setPayee] = useState(FALLBACK_PAYEE);
   const [isLoading, setIsLoading] = useState(true);
@@ -57,6 +57,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     let alive = true;
     (async () => {
+      try {
       const active = await getCurrentUser().catch(() => null);
       if (!alive) return;
       if (!active) {
@@ -70,17 +71,40 @@ export default function CheckoutPage() {
         return;
       }
       setUser(active);
-      setChapters(cart.chapters);
-      setBaseFee(cart.baseFee);
       setTshirtSize(cart.tshirtSize || '');
-      setOrderRef(getOrCreateOrderRef());
-
-      if (!demo) {
-        const { data } = await supabase.from('membership_config').select('payee_vpa, payee_name').eq('id', 1).maybeSingle();
-        if (alive && data?.payee_vpa) setVpa(data.payee_vpa);
-        if (alive && data?.payee_name) setPayee(data.payee_name);
+      if (demo) {
+        setChapters(cart.chapters);
+        setBaseFee(cart.baseFee);
+        setOrderRef(getOrCreateOrderRef());
+      } else {
+        if (!cart.tshirtSize || !cart.chapters.every((chapter) => /^[0-9a-f-]{36}$/i.test(chapter.id))) {
+          router.replace('/membership/chapters');
+          return;
+        }
+        const { data: session } = await supabase.auth.getSession();
+        const response = await fetch('/api/checkout/intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(session.session?.access_token ? { Authorization: `Bearer ${session.session.access_token}` } : {}) },
+          body: JSON.stringify({ chapterIds: cart.chapters.map((chapter) => chapter.id) }),
+          cache: 'no-store',
+        });
+        const quote = await response.json().catch(() => null);
+        if (!response.ok || !quote) throw new Error(quote?.error || 'Checkout could not be started.');
+        if (!alive) return;
+        setCheckoutIntentId(quote.id);
+        setChapters(quote.chapters);
+        setBaseFee(Number(quote.base_fee));
+        setOrderRef(quote.order_reference);
+        setVpa(quote.payee_vpa);
+        setPayee(quote.payee_name);
       }
       if (alive) setIsLoading(false);
+      } catch (err) {
+        if (alive) {
+          setError(errorMessage(err, 'Checkout could not be loaded.'));
+          setIsLoading(false);
+        }
+      }
     })();
     return () => {
       alive = false;
@@ -144,29 +168,25 @@ export default function CheckoutPage() {
           chapters: chapters.map((c) => c.name),
         });
       } else {
-        const path = await uploadScreenshot(user.id, orderRef, file!);
-        const { data: order, error: orderError } = await supabase
-          .from('orders')
-          .insert({
-            user_id: user.id,
-            base_fee: baseFee,
-            total_amount: total,
-            tshirt_size: tshirtSize || null,
-            payment_screenshot_url: path,
-            utr_reference: cleanUtr,
-            order_reference: orderRef,
-            status: 'pending',
-          })
-          .select('id')
-          .single();
-        if (orderError) throw orderError;
-
-        if (chapters.length > 0) {
-          const { error: itemsError } = await supabase
-            .from('order_items')
-            .insert(chapters.map((c) => ({ order_id: order.id, chapter_id: c.id, price_at_purchase: c.price })));
-          if (itemsError) throw itemsError;
-        }
+        const { data: session } = await supabase.auth.getSession();
+        if (!session.session?.access_token || !checkoutIntentId) throw new Error('Your checkout quote expired. Start checkout again.');
+        const form = new FormData();
+        form.set('file', file!);
+        form.set('intentId', checkoutIntentId);
+        const upload = await fetch('/api/checkout/proof', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${session.session.access_token}` },
+          body: form,
+        });
+        const uploaded = await upload.json().catch(() => null);
+        if (!upload.ok || !uploaded?.path) throw new Error(uploaded?.error || 'Payment proof could not be uploaded.');
+        const submit = await fetch('/api/checkout/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.session.access_token}` },
+          body: JSON.stringify({ intentId: checkoutIntentId, proofPath: uploaded.path, utr: cleanUtr, tshirtSize }),
+        });
+        const result = await submit.json().catch(() => null);
+        if (!submit.ok) throw new Error(result?.error || 'Your application could not be submitted.');
       }
       clearCart();
       router.push('/account?submitted=1');
@@ -176,7 +196,7 @@ export default function CheckoutPage() {
     }
   }
 
-  if (isLoading) return <PageLoader />;
+  if (isLoading && !error) return <PageLoader />;
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -184,6 +204,8 @@ export default function CheckoutPage() {
         <h1 className="text-3xl font-bold sm:text-4xl">Pay and submit</h1>
         <p className="lead mx-auto mt-3 max-w-xl">Pay the exact amount with any UPI app, then upload the payment screenshot.</p>
       </div>
+
+      {error && <Alert tone="error" className="mt-6">{error} <Link href="/membership/chapters" className="ml-2 underline">Return to chapter selection</Link></Alert>}
 
       <div className="mt-10 grid items-start gap-8 lg:grid-cols-2">
         {/* Step A: pay */}

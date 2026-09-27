@@ -14,6 +14,7 @@ import {
 import AdminNav from '@/components/admin/AdminNav';
 import { Alert, Field, Input, PageLoader, Select, Spinner } from '@/components/ui/form';
 import { cn, errorMessage } from '@/lib/utils';
+import { adminFetch } from '@/lib/admin-api';
 
 const roles = [
   { value: 'chair', label: 'Branch Chair' },
@@ -45,12 +46,19 @@ export default function AdminTeamPage() {
 
   const load = useCallback(async () => {
     try {
-      const list = await loadAdminWhitelist();
+      let list: AdminWhitelistEntry[];
+      if (demo) list = await loadAdminWhitelist();
+      else {
+        const response = await adminFetch('/api/admin/team');
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not load admin team.');
+        list = result.whitelist;
+      }
       setWhitelist(list);
     } catch (err) {
       showToast('error', `Failed to load admin team: ${errorMessage(err)}`);
     }
-  }, []);
+  }, [demo]);
 
   useEffect(() => {
     (async () => {
@@ -74,7 +82,12 @@ export default function AdminTeamPage() {
     }
     setIsSubmitting(true);
     try {
-      await addAdminWhitelistEntry(clean, newRole);
+      if (demo) await addAdminWhitelistEntry(clean, newRole);
+      else {
+        const response = await adminFetch('/api/admin/team', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: clean, role: newRole }) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not authorize administrator.');
+      }
       showToast('success', `${clean} added to authorized administrators.`);
       setNewEmail('');
       await load();
@@ -93,7 +106,12 @@ export default function AdminTeamPage() {
     if (!confirm(`Revoke admin privileges for ${email}?`)) return;
     setDeletingEmail(email);
     try {
-      await removeAdminWhitelistEntry(email);
+      if (demo) await removeAdminWhitelistEntry(email);
+      else {
+        const response = await adminFetch(`/api/admin/team?email=${encodeURIComponent(email)}`, { method: 'DELETE' });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not revoke administrator.');
+      }
       showToast('success', `Revoked admin privileges for ${email}.`);
       await load();
     } catch (err) {

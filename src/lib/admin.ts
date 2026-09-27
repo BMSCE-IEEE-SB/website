@@ -2,6 +2,7 @@ import { chapterCode } from '@/data/site';
 import { getLocalOrders, writeLocalOrders, type Order } from './auth';
 import { DEMO_SETTINGS_KEY, loadPayee, loadPricing, type DemoSettings, type Pricing } from './pricing';
 import { isDemoMode, supabase } from './supabase';
+import { adminFetch } from './admin-api';
 
 export type AdminIdentity = { id: string; email: string };
 
@@ -48,8 +49,17 @@ export async function verifyOrders(list: Order[], admin: AdminIdentity) {
   if (isDemoMode()) {
     patchDemo(ids, (o) => ({ ...o, status: 'verified', verified_at: now, rejection_reason: undefined }));
   } else {
-    const { error } = await supabase.from('orders').update({ status: 'verified', verified_at: now, verified_by: admin.id, rejection_reason: null }).in('id', ids);
-    if (error) throw error;
+    for (const o of list) {
+      const res = await adminFetch(`/api/admin/orders/${o.id}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'verified' }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Failed to verify order ${o.order_reference}`);
+      }
+    }
   }
   await logActivity(admin, 'verified', labelFor(list));
 }
@@ -59,8 +69,17 @@ export async function rejectOrders(list: Order[], reason: string, admin: AdminId
   if (isDemoMode()) {
     patchDemo(ids, (o) => ({ ...o, status: 'rejected', verified_at: undefined, rejection_reason: reason }));
   } else {
-    const { error } = await supabase.from('orders').update({ status: 'rejected', rejection_reason: reason, verified_at: null }).in('id', ids);
-    if (error) throw error;
+    for (const o of list) {
+      const res = await adminFetch(`/api/admin/orders/${o.id}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'rejected', reason }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Failed to reject order ${o.order_reference}`);
+      }
+    }
   }
   await logActivity(admin, 'rejected', labelFor(list), reason);
 }
@@ -95,18 +114,13 @@ export async function saveIeeeId(order: Order, ieeeId: string, admin: AdminIdent
   await logActivity(admin, 'set the IEEE member ID for', labelFor([order]), ieeeId || 'cleared');
 }
 
-/** Asks the server to email the receipt. Returns false if email is not configured. */
+/** Asks the server to generate and email the official PDF receipt. */
 export async function sendReceipt(order: Order) {
-  if (!order.email) return false;
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (!isDemoMode()) {
-    const { data } = await supabase.auth.getSession();
-    if (data.session) headers.Authorization = `Bearer ${data.session.access_token}`;
-  }
-  const res = await fetch('/api/send-receipt', {
+  if (isDemoMode()) return true;
+  const res = await adminFetch('/api/send-receipt', {
     method: 'POST',
-    headers,
-    body: JSON.stringify({ email: order.email, name: order.student_name || 'Member', orderRef: order.order_reference, amount: order.total_amount, chaptersList: order.chapters ?? [] }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ orderId: order.id }),
   }).catch(() => null);
   return Boolean(res?.ok);
 }
@@ -186,11 +200,70 @@ export async function fetchActivity(limit = 100): Promise<Activity[]> {
 // Settings: fees and payment details
 // ---------------------------------------------------------------------------
 
-export type Settings = { baseFee: number; vpa: string; payeeName: string; chapters: { id: string; code: string; name: string; price: number }[] };
+export type Settings = {
+  baseFee: number;
+  vpa: string;
+  payeeName: string;
+  driveYear?: number;
+  isDriveOpen?: boolean;
+  treasurerName?: string;
+  treasurerRole?: string;
+  treasurerPhone?: string;
+  signatureUrl?: string;
+  chapters: { id: string; code: string; name: string; price: number; is_active?: boolean }[];
+};
 
 export async function loadSettings(): Promise<Settings> {
+  if (isDemoMode()) {
+    const [pricing, payee] = await Promise.all([loadPricing(), loadPayee()]);
+    return {
+      baseFee: pricing.baseFee,
+      vpa: payee.vpa,
+      payeeName: payee.name,
+      driveYear: new Date().getFullYear(),
+      isDriveOpen: true,
+      treasurerName: 'Branch Treasurer',
+      treasurerRole: 'Treasurer',
+      treasurerPhone: '+91 98765 43210',
+      chapters: pricing.chapters,
+    };
+  }
+  try {
+    const res = await adminFetch('/api/admin/settings');
+    if (res.ok) {
+      const { settings, chapters } = await res.json();
+      return {
+        baseFee: Number(settings?.base_fee ?? 500),
+        vpa: settings?.payee_vpa ?? '',
+        payeeName: settings?.payee_name ?? '',
+        driveYear: Number(settings?.drive_year ?? new Date().getFullYear()),
+        isDriveOpen: settings?.is_drive_open ?? true,
+        treasurerName: settings?.treasurer_name ?? 'Branch Treasurer',
+        treasurerRole: settings?.treasurer_role ?? 'Treasurer',
+        treasurerPhone: settings?.treasurer_phone ?? '',
+        signatureUrl: settings?.signature_url ?? '',
+        chapters: (chapters ?? []).map((c: any) => ({
+          id: c.id,
+          code: c.code,
+          name: c.name,
+          price: Number(c.price),
+          is_active: c.is_active ?? true,
+        })),
+      };
+    }
+  } catch {}
   const [pricing, payee] = await Promise.all([loadPricing(), loadPayee()]);
-  return { baseFee: pricing.baseFee, vpa: payee.vpa, payeeName: payee.name, chapters: pricing.chapters };
+  return {
+    baseFee: pricing.baseFee,
+    vpa: payee.vpa,
+    payeeName: payee.name,
+    driveYear: new Date().getFullYear(),
+    isDriveOpen: true,
+    treasurerName: 'Branch Treasurer',
+    treasurerRole: 'Treasurer',
+    treasurerPhone: '',
+    chapters: pricing.chapters,
+  };
 }
 
 export async function saveSettings(next: Settings, admin: AdminIdentity) {
@@ -198,11 +271,43 @@ export async function saveSettings(next: Settings, admin: AdminIdentity) {
     const demo: DemoSettings = { baseFee: next.baseFee, vpa: next.vpa, payeeName: next.payeeName, prices: Object.fromEntries(next.chapters.map((c) => [c.id, c.price])) };
     localStorage.setItem(DEMO_SETTINGS_KEY, JSON.stringify(demo));
   } else {
-    const { error } = await supabase.from('membership_config').update({ base_fee: next.baseFee, payee_vpa: next.vpa, payee_name: next.payeeName }).eq('id', 1);
-    if (error) throw error;
+    const res = await adminFetch('/api/admin/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        settings: {
+          base_fee: next.baseFee,
+          payee_vpa: next.vpa,
+          payee_name: next.payeeName,
+          drive_year: next.driveYear ?? new Date().getFullYear(),
+          is_drive_open: next.isDriveOpen ?? true,
+          treasurer_name: next.treasurerName || 'Treasurer',
+          treasurer_role: next.treasurerRole || 'Branch Treasurer',
+          treasurer_phone: next.treasurerPhone || '',
+        },
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to save settings.');
+    }
     for (const c of next.chapters) {
-      const { error: chErr } = await supabase.from('chapters').update({ price: c.price }).eq('id', c.id);
-      if (chErr) throw chErr;
+      const chRes = await adminFetch('/api/admin/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chapter: {
+            id: c.id,
+            name: c.name,
+            price: c.price,
+            is_active: c.is_active ?? true,
+          },
+        }),
+      });
+      if (!chRes.ok) {
+        const err = await chRes.json().catch(() => ({}));
+        throw new Error(err.error || `Failed to save chapter ${c.name}.`);
+      }
     }
   }
   await logActivity(admin, 'updated settings', 'fees & payment', `Base ₹${next.baseFee}, UPI ${next.vpa}`);

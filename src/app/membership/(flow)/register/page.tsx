@@ -22,7 +22,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<React.ReactNode>('');
   const [pendingEmail, setPendingEmail] = useState('');
 
   const cleanEmail = email.trim().toLowerCase();
@@ -47,11 +47,54 @@ export default function RegisterPage() {
         password,
         options: { emailRedirectTo: `${window.location.origin}/membership/profile` },
       });
-      if (authError) throw authError;
-      if (data.session) {
+
+      if (authError) {
+        if (authError.message.toLowerCase().includes('already registered')) {
+          setError(
+            <span>
+              An account with this email already exists.{' '}
+              <Link href={`/login?redirect=/membership/profile`} className="font-semibold underline underline-offset-2">
+                Sign in here
+              </Link>
+              {' '}or reset your password.
+            </span>
+          );
+          return;
+        }
+        throw authError;
+      }
+
+      // Check if Supabase detected a duplicate user (empty identities array)
+      if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+        setError(
+          <span>
+            An account with this email already exists.{' '}
+            <Link href={`/login?redirect=/membership/profile`} className="font-semibold underline underline-offset-2">
+              Sign in here
+            </Link>
+            {' '}or reset your password.
+          </span>
+        );
+        return;
+      }
+
+      if (data?.session) {
         router.push('/membership/profile');
         return;
       }
+
+      // If session was not directly returned (e.g. GoTrue email confirmation setting),
+      // attempt instant sign-in using the database auto-confirmed credentials.
+      const { data: signInData } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password,
+      });
+
+      if (signInData?.session) {
+        router.push('/membership/profile');
+        return;
+      }
+
       setPendingEmail(cleanEmail);
     } catch (err) {
       setError(errorMessage(err, 'Could not create your account. Please try again.'));

@@ -34,6 +34,11 @@ export default function SettingsPage() {
     if (saved.baseFee !== draft.baseFee) out.push(`Base fee: ₹${saved.baseFee} → ₹${draft.baseFee}`);
     if (saved.vpa !== draft.vpa) out.push(`UPI ID: ${saved.vpa} → ${draft.vpa}`);
     if (saved.payeeName !== draft.payeeName) out.push(`Payee name: ${saved.payeeName} → ${draft.payeeName}`);
+    if (saved.isDriveOpen !== draft.isDriveOpen) out.push(`Drive status: ${draft.isDriveOpen ? 'Open' : 'Closed'}`);
+    if (saved.driveYear !== draft.driveYear) out.push(`Drive year: ${saved.driveYear} → ${draft.driveYear}`);
+    if (saved.treasurerName !== draft.treasurerName) out.push(`Treasurer: ${saved.treasurerName} → ${draft.treasurerName}`);
+    if (saved.treasurerRole !== draft.treasurerRole) out.push(`Treasurer role: ${saved.treasurerRole} → ${draft.treasurerRole}`);
+    if (saved.treasurerPhone !== draft.treasurerPhone) out.push(`Treasurer phone: ${saved.treasurerPhone} → ${draft.treasurerPhone}`);
     draft.chapters.forEach((c) => {
       const before = saved.chapters.find((x) => x.id === c.id)?.price;
       if (before !== c.price) out.push(`${c.code}: ₹${before} → ₹${c.price}`);
@@ -49,6 +54,8 @@ export default function SettingsPage() {
     !VPA_RE.test(draft.vpa) && 'The UPI ID should look like name@bank.',
     !draft.payeeName.trim() && 'Add the payee name shown in UPI apps.',
     draft.chapters.some((c) => !(c.price >= 0)) && 'Chapter prices cannot be negative.',
+    !draft.treasurerName?.trim() && 'Add the branch treasurer name for official receipts.',
+    !draft.treasurerRole?.trim() && 'Add the treasurer designation / role.',
   ].filter(Boolean) as string[];
 
   const setChapterPrice = (id: string, price: number) => setDraft({ ...draft, chapters: draft.chapters.map((c) => (c.id === id ? { ...c, price } : c)) });
@@ -78,6 +85,36 @@ export default function SettingsPage() {
 
       <div className="mt-8 grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_440px] [&>*]:min-w-0">
         <div className="space-y-6">
+          <section className="panel p-6">
+            <h2 className="font-bold text-ink">Drive status & academic year</h2>
+            <div className="mt-5 grid gap-5 sm:grid-cols-2 [&>*]:min-w-0">
+              <div>
+                <label htmlFor="drive-status" className="field-label">Membership applications</label>
+                <select
+                  id="drive-status"
+                  value={draft.isDriveOpen ? 'open' : 'closed'}
+                  onChange={(e) => setDraft({ ...draft, isDriveOpen: e.target.value === 'open' })}
+                  className="input text-sm"
+                >
+                  <option value="open">Active / Open (Registrations accepted)</option>
+                  <option value="closed">Closed (Public message shown)</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="drive-year" className="field-label">Drive year</label>
+                <input
+                  id="drive-year"
+                  type="number"
+                  min={2020}
+                  max={2035}
+                  value={draft.driveYear ?? new Date().getFullYear()}
+                  onChange={(e) => setDraft({ ...draft, driveYear: Number(e.target.value) })}
+                  className="input font-mono text-sm max-w-xs"
+                />
+              </div>
+            </div>
+          </section>
+
           <section className="panel p-6">
             <h2 className="font-bold text-ink">Membership fee</h2>
             <label htmlFor="base-fee" className="field-label mt-5">Base branch membership (₹)</label>
@@ -113,6 +150,43 @@ export default function SettingsPage() {
             <div className="mt-5 flex items-center gap-5 rounded-2xl bg-paper p-4">
               <div className="rounded-xl bg-white p-2"><QRCodeSVG value={upiPreview} size={88} marginSize={0} /></div>
               <p className="text-sm text-ink-soft">Test this QR with your phone before saving. It should open a payment of <strong className="text-ink">₹{draft.baseFee}</strong> to <strong className="text-ink">{draft.payeeName || '—'}</strong>. Don&apos;t complete the payment.</p>
+            </div>
+          </section>
+
+          <section className="panel p-6">
+            <h2 className="font-bold text-ink">Branch Treasurer (Receipt Signatory)</h2>
+            <p className="mt-1 text-xs text-muted">These details appear on official PDF receipts generated and dispatched to students.</p>
+            <div className="mt-5 grid gap-5 sm:grid-cols-3 [&>*]:min-w-0">
+              <div>
+                <label htmlFor="treasurer-name" className="field-label">Treasurer name</label>
+                <input
+                  id="treasurer-name"
+                  value={draft.treasurerName ?? ''}
+                  onChange={(e) => setDraft({ ...draft, treasurerName: e.target.value })}
+                  placeholder="e.g. Branch Treasurer"
+                  className="input text-sm"
+                />
+              </div>
+              <div>
+                <label htmlFor="treasurer-role" className="field-label">Designation / Role</label>
+                <input
+                  id="treasurer-role"
+                  value={draft.treasurerRole ?? ''}
+                  onChange={(e) => setDraft({ ...draft, treasurerRole: e.target.value })}
+                  placeholder="e.g. Treasurer and MDC"
+                  className="input text-sm"
+                />
+              </div>
+              <div>
+                <label htmlFor="treasurer-phone" className="field-label">Contact phone</label>
+                <input
+                  id="treasurer-phone"
+                  value={draft.treasurerPhone ?? ''}
+                  onChange={(e) => setDraft({ ...draft, treasurerPhone: e.target.value })}
+                  placeholder="e.g. +91 98765 43210"
+                  className="input text-sm font-mono"
+                />
+              </div>
             </div>
           </section>
 

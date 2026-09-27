@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight, LogOut, Mail } from 'lucide-react';
 import { isDemoMode, supabase } from '@/lib/supabase';
 import { DUMMY_CREDENTIALS, clearUserSession, setDummySession } from '@/lib/auth';
@@ -15,8 +15,9 @@ import { errorMessage } from '@/lib/utils';
 
 const perks = ['Track your application status', 'See your digital membership card', 'Add chapters any time'];
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const demo = isDemoMode();
   const { user } = useSession();
   const [email, setEmail] = useState('');
@@ -24,6 +25,12 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
+
+  const redirectParam = searchParams.get('redirect');
+  const redirectTarget =
+    redirectParam && redirectParam.startsWith('/') && !redirectParam.startsWith('//')
+      ? redirectParam
+      : '/account';
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,7 +44,7 @@ export default function LoginPage() {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email: clean, password });
         if (signInError) throw signInError;
       }
-      router.push('/account');
+      router.push(redirectTarget);
     } catch (err) {
       setError(errorMessage(err, 'Could not sign you in. Check your email and password.'));
       setIsSubmitting(false);
@@ -73,7 +80,7 @@ export default function LoginPage() {
             <p className="text-sm font-medium text-muted">You&apos;re signed in as</p>
             <p className="mt-1 truncate text-2xl font-bold text-ink">{user.email}</p>
             <div className="mt-8 flex flex-col gap-3">
-              <Link href="/account" className="btn btn-primary btn-lg w-full">
+              <Link href={redirectTarget} className="btn btn-primary btn-lg w-full">
                 Open my portal <ArrowRight className="h-4 w-4" />
               </Link>
               <button type="button" onClick={() => clearUserSession()} className="btn btn-ghost btn-lg w-full">
@@ -130,5 +137,13 @@ export default function LoginPage() {
         </AuthShell>
       )}
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <LoginForm />
+    </Suspense>
   );
 }

@@ -26,12 +26,32 @@ Before clicking Deploy, expand the **Environment Variables** section and add:
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://xyzcompany.supabase.co` | Supabase API Endpoint |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJhbGciOi...` | Supabase Public Client Key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase secret key | Server-only privileged API access (required for `/api/checkout/*` & `/api/admin/*`); never use a `NEXT_PUBLIC_` prefix |
 | `SMTP_HOST` | `smtp.gmail.com` | Email SMTP Server |
+| `SMTP_PORT` | `465` | SMTP port (SSL) |
 | `SMTP_USER` | `ieee@bmsce.ac.in` | Official Branch Sender Email |
 | `SMTP_PASS` | `xxxx xxxx xxxx xxxx` | 16-character App Password |
+| `SMTP_FROM` | `"BMSCE IEEE" <ieee@bmsce.ac.in>` | Transactional email sender display name and address |
 
 ### Step 4: Deploy
-Click **"Deploy"**. Within ~60 seconds, Vercel will build the 14 routes with Turbopack and assign a live URL (e.g. `https://sb-website-theta.vercel.app` or `https://sb-website-ratik.vercel.app`).
+Click **"Deploy"**. Within ~60 seconds, Vercel will build all 32+ pages and API routes with Next.js Turbopack and assign a live URL (e.g. `https://sb-website-theta.vercel.app` or `https://sb-website-ratik.vercel.app`).
+
+### Database Setup & Security Remediation
+
+1. **Database Provisioning**:
+   - For a **fresh database**: Execute `supabase/schema.sql`, then apply `supabase/migrations/20260927003133_security_remediation.sql`.
+   - For an **existing database**: Take a backup and apply `supabase/migrations/20260927003133_security_remediation.sql`. **Do not** re-run `schema.sql` over an existing live database.
+2. **Admin Provisioning**:
+   - Verify that your initial executive email is present in the `admin_whitelist` table (e.g. `ratikagrawal.ec24@bmsce.ac.in` or `bms.ieeesb@gmail.com`). Admin access is provisioned strictly through this whitelist.
+3. **Environment Security**:
+   - Ensure `SUPABASE_SERVICE_ROLE_KEY` is saved in Vercel's Environment Variables (for Production and Preview). All server checkout APIs (`/api/checkout/*`) and admin tools (`/api/admin/*`) require this key to execute secure mutations.
+4. **Post-Deployment Verification**:
+   - **Student Flow**: Test account creation (`/membership/register`), profile (`/membership/profile`), chapter and T-shirt size selection (`/membership/chapters`), UPI QR generation, proof screenshot upload, and order submission (`/membership/checkout`).
+   - **Member Portal**: Verify application status tracking at `/account` and test the payment resubmission modal on rejected orders.
+   - **Admin Verification**: Sign into `/admin/login`, review orders on `/admin/orders`, test signed URL payment proof viewing, approve an order, and test on-demand receipt delivery (`/api/send-receipt`) with PDF attachment.
+   - **Manual Receipts**: Test issuing an offline receipt via the "Issue Manual Receipt" modal and verify entry in `issued_receipts` and `admin_audit_log`.
+   - **Admin Management**: Test the Announcement Bar toggle (`/admin/announcement`), Events Manager (`/admin/events`), Team Whitelist (`/admin/team`), and Drive Settings (`/admin/settings`).
+   - **Security Check**: Confirm direct anonymous or authenticated client writes to `orders`, `membership_config`, and `admin_whitelist` are rejected by Row-Level Security.
 
 ---
 

@@ -76,8 +76,15 @@ export default function ProfilePage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
-    setIsSubmitting(true);
     setError('');
+
+    const cleanDigits = (form.phone || '').replace(/\D/g, '');
+    if (!cleanDigits || cleanDigits.length < 10) {
+      setError('Please enter a valid 10-digit phone number.');
+      return;
+    }
+
+    setIsSubmitting(true);
 
     const profile: UserProfile = {
       id: user.id,
@@ -86,7 +93,7 @@ export default function ProfilePage() {
       usn: form.usn?.trim().toUpperCase(),
       department: form.department,
       year_of_study: form.year_of_study,
-      phone: form.phone?.trim() || undefined,
+      phone: form.phone?.trim(),
       ieee_member_id: form.ieee_member_id?.trim() || undefined,
     };
 
@@ -161,8 +168,8 @@ export default function ProfilePage() {
         </Field>
 
         <div className="grid gap-6 sm:grid-cols-2">
-          <Field label="Phone number" htmlFor="phone" optional>
-            <Input id="phone" icon={Phone} type="tel" autoComplete="tel" value={form.phone} onChange={set('phone')} placeholder="+91 98765 43210" pattern="[+0-9 ()-]{10,16}" title="Enter a valid phone number" />
+          <Field label="Phone number" htmlFor="phone" required hint="Used for chapter updates and receipt confirmation.">
+            <Input id="phone" icon={Phone} type="tel" required autoComplete="tel" value={form.phone} onChange={set('phone')} placeholder="+91 98765 43210" pattern="[+0-9 ()-]{10,16}" title="Enter a valid phone number" />
           </Field>
           <Field label="Existing IEEE member ID" htmlFor="ieee_id" optional hint="Only if you are renewing.">
             <Input id="ieee_id" inputMode="numeric" value={form.ieee_member_id} onChange={set('ieee_member_id')} placeholder="98765432" />

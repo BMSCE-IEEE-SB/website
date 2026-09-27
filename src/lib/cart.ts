@@ -4,14 +4,16 @@ export const CART_KEYS = {
   chapters: 'checkout_chapters',
   baseFee: 'checkout_base_fee',
   orderRef: 'checkout_order_ref',
+  tshirtSize: 'checkout_tshirt_size',
 };
 
-export function readCart(): { chapters: CartChapter[]; baseFee: number } | null {
+export function readCart(): { chapters: CartChapter[]; baseFee: number; tshirtSize?: string | null } | null {
   const rawFee = sessionStorage.getItem(CART_KEYS.baseFee);
   if (rawFee === null) return null;
   try {
     const chapters: CartChapter[] = JSON.parse(sessionStorage.getItem(CART_KEYS.chapters) || '[]');
-    return { chapters, baseFee: Number(rawFee) };
+    const tshirtSize = sessionStorage.getItem(CART_KEYS.tshirtSize) || null;
+    return { chapters, baseFee: Number(rawFee), tshirtSize };
   } catch {
     return null;
   }

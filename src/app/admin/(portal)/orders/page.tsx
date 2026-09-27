@@ -343,8 +343,8 @@ export default function ApplicationsPage() {
                       </p>
                     </div>
                     <div className="col-start-2 text-sm lg:col-start-auto">
-                      <p className="font-mono text-xs font-semibold text-ink">{o.order_reference}</p>
-                      <p className="text-xs text-muted">{timeAgo(o.created_at)} · UTR {o.utr_reference ?? '—'}</p>
+                      <p className="font-mono text-xs font-semibold text-ink">{o.order_reference}{o.receipt_number ? ` · ${o.receipt_number}` : ''}</p>
+                      <p className="text-xs text-muted">{timeAgo(o.created_at)} · UTR {o.utr_reference ?? '—'}{o.tshirt_size ? ` · Size ${o.tshirt_size}` : ''}</p>
                     </div>
                     <div className="col-start-2 lg:col-start-auto"><ChapterChips names={o.chapters} /></div>
                     <div className="col-start-2 flex items-center gap-3 lg:col-start-auto lg:block">
@@ -502,6 +502,7 @@ function Drawer({
   const [note, setNote] = useState(order.admin_note ?? '');
   const [savingNote, setSavingNote] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [sendingReceipt, setSendingReceipt] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -510,6 +511,23 @@ function Drawer({
       alive = false;
     };
   }, [order.payment_screenshot_url]);
+
+  const handleSendReceipt = async () => {
+    setSendingReceipt(true);
+    try {
+      const ok = await sendReceipt(order);
+      if (ok) {
+        toast('success', `Official PDF receipt dispatched for ${order.order_reference}.`);
+        await reload();
+      } else {
+        toast('error', 'Could not send receipt. Verify SMTP credentials in environment.');
+      }
+    } catch (err) {
+      toast('error', `Could not send receipt: ${(err as Error).message}`);
+    } finally {
+      setSendingReceipt(false);
+    }
+  };
 
   const storeNote = async () => {
     setSavingNote(true);
@@ -529,6 +547,7 @@ function Drawer({
     order.status === 'verified' && { label: 'Verified', at: order.verified_at, done: true },
     order.status === 'rejected' && { label: 'Rejected', at: undefined, done: true, bad: true },
     order.credentials_sent_at && { label: 'IEEE credentials sent', at: order.credentials_sent_at, done: true },
+    order.receipt_sent_at && { label: 'Official PDF receipt emailed', at: order.receipt_sent_at, done: true },
   ].filter(Boolean) as { label: string; at?: string; done: boolean; bad?: boolean }[];
 
   return (
@@ -609,6 +628,8 @@ function Drawer({
               ['Year', order.year_of_study],
               ['Phone', order.phone],
               ['IEEE member ID', order.ieee_member_id],
+              ['T-Shirt size', order.tshirt_size ? `Size ${order.tshirt_size}` : undefined],
+              ['Receipt #', order.receipt_number],
               ['Base fee', order.base_fee ? `₹${order.base_fee}` : undefined],
             ]
               .filter(([, v]) => v)
@@ -661,7 +682,7 @@ function Drawer({
           </div>
         </div>
 
-        {order.status !== 'verified' && (
+        {order.status !== 'verified' ? (
           <div className="flex gap-3 border-t border-line p-4">
             {order.status === 'pending' && (
               <button type="button" disabled={busy} onClick={onReject} className="btn flex-1 text-red-600 ring-1 ring-red-200 ring-inset hover:bg-red-50">
@@ -670,6 +691,18 @@ function Drawer({
             )}
             <button type="button" disabled={busy} onClick={onVerify} className="btn flex-1 bg-emerald-600 text-white hover:bg-emerald-700">
               {busy ? <Spinner /> : <Check className="h-4 w-4" />} Verify payment
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-3 border-t border-line p-4">
+            <button
+              type="button"
+              disabled={sendingReceipt}
+              onClick={handleSendReceipt}
+              className="btn flex-1 bg-brand-navy text-white hover:bg-brand-navy/90"
+            >
+              {sendingReceipt ? <Spinner /> : <Mail className="h-4 w-4" />}
+              {order.receipt_sent ? 'Resend official PDF receipt' : 'Send official PDF receipt'}
             </button>
           </div>
         )}

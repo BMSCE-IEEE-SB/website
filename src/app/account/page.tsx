@@ -15,7 +15,7 @@ import {
   type SessionUser,
   type UserProfile,
 } from '@/lib/auth';
-import { uploadScreenshot } from '@/lib/orders';
+import { adminFetch } from '@/lib/admin-api';
 import { Alert, Field, FileDrop, Input, Modal, PageLoader, Spinner, StatusBadge } from '@/components/ui/form';
 import { cn, errorMessage, formatDateTime, imageToDataUrl, validateScreenshot } from '@/lib/utils';
 import MembershipCard from '@/components/site/MembershipCard';
@@ -120,13 +120,19 @@ export default function AccountPage() {
       if (demo) {
         resubmitLocalOrderProof(resubmitting.id, await imageToDataUrl(newFile!), cleanUtr);
       } else {
-        const path = await uploadScreenshot(user.id, resubmitting.order_reference, newFile!, `_resubmit-${Date.now()}`);
-        const { error } = await supabase
-          .from('orders')
-          .update({ status: 'pending', payment_screenshot_url: path, utr_reference: cleanUtr, rejection_reason: null })
-          .eq('id', resubmitting.id)
-          .eq('user_id', user.id);
-        if (error) throw error;
+        const form = new FormData();
+        form.set('file', newFile!);
+        form.set('orderId', resubmitting.id);
+        form.set('utr', cleanUtr);
+        const upload = await adminFetch('/api/checkout/proof', { method: 'POST', body: form });
+        const uploaded = await upload.json();
+        if (!upload.ok) throw new Error(uploaded.error || 'Proof upload failed.');
+        const response = await adminFetch('/api/checkout/resubmit', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: resubmitting.id, proofPath: uploaded.path, utr: cleanUtr }),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Resubmission failed.');
       }
       setResubmitting(null);
       await load();
@@ -315,7 +321,7 @@ export default function AccountPage() {
                       </div>
                       <StatusBadge status={o.status} />
                     </div>
-                    <dl className="mt-5 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+                    <dl className="mt-5 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
                       <div>
                         <dt className="text-xs text-muted">Amount</dt>
                         <dd className="mt-0.5 display text-xl">₹{o.total_amount}</dd>
@@ -323,6 +329,10 @@ export default function AccountPage() {
                       <div className="min-w-0">
                         <dt className="text-xs text-muted">UTR</dt>
                         <dd className="mt-0.5 truncate font-mono">{o.utr_reference || '—'}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs text-muted">Official T-Shirt</dt>
+                        <dd className="mt-0.5 font-medium">{o.tshirt_size ? `Size ${o.tshirt_size}` : 'Standard'}</dd>
                       </div>
                       <div className="col-span-2 sm:col-span-1">
                         <dt className="text-xs text-muted">Chapters</dt>

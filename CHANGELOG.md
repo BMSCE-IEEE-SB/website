@@ -4,22 +4,28 @@ All notable changes to the **BMSCE IEEE Student Branch Website** will be documen
 
 ---
 
-## [4.0.0] - 2026-09-27 (Admin portal)
+## [4.0.0] - 2026-09-27 (Unified Admin Portal & Hardened Security Architecture)
 
 ### Added
-- Admin portal shell with sidebar (tabs on phones), live pending badge and demo-mode badge. The public footer and banner are hidden inside the portal.
-- **Overview** (`/admin`): verified funds, pending count and age, verification trend, weekly change, "needs attention" list, charts for applications per day, status, chapter sign-ups, departments and years (each with a table view), recent activity.
-- **Applications** (`/admin/orders`): filters (chapter, department, date, flagged), sorting, pagination, bulk verify/reject/export, detail drawer with zoomable proof, timeline, private notes and previous/next, preset rejection reasons, keyboard shortcuts.
-- Automatic review flags: duplicate UTR, amount mismatch, repeat USN. Verifying a flagged application asks for confirmation.
-- **Members** (`/admin/members`): verified-member directory with chapter breakdown, inline IEEE member ID, "credentials sent" tracking (single and bulk), roster export and BCC email.
-- **Fees & payment** (`/admin/settings`): edit base fee, chapter prices, UPI ID and payee with a live fee-slip preview, test QR and change confirmation. Registration and checkout read these values.
-- **Activity log** (`/admin/activity`): every admin action with who and when; filter, search, export.
-- Richer demo data (46 sample applications over five weeks) so the dashboard is meaningful before Supabase is connected.
-- Schema: `orders.admin_note`, `orders.credentials_sent_at`, `admin_activity` table and admin update policies for profiles, fees and chapter prices.
+- **Unified Admin Portal Shell**: Modern admin sidebar shell (`(portal)/layout.tsx`) with responsive mobile tab navigation, live pending count badge, and demo-mode indicator. Public navigation footer and announcement banner are hidden within the portal.
+- **Executive Overview Dashboard** (`/admin`): Verified funds, pending review age, verification trend charts, weekly comparisons, priority attention queues, and accessible SVG charts (daily applications, chapter signups, departments, year of study) with data table views.
+- **Enhanced Applications Manager** (`/admin/orders`): Multi-factor filtering (chapter, department, date range, warnings), pagination, bulk verify/reject/export, sliding detail drawer with zoomable signed payment proofs, timeline tracking, and private admin notes.
+- **Automated Review Warnings**: Real-time fraud detection flags for duplicate UTRs, amount discrepancies, and repeat USN submissions with verification safety confirmations.
+- **Keyboard Shortcuts**: Power-user navigation (`j`/`k` move, `Enter` open, `v` verify, `r` reject, `x` select, `/` search, `Esc` close, `?` shortcuts guide).
+- **Official PDF Receipt Generator** (`src/lib/receipt-pdf.ts` via `pdf-lib`): High-fidelity, vector-crisp A4 receipts with branch crest, student info, itemized fee breakdowns, sequential receipt numbers (`BMSCE-IEEE-YYYY-XXXX`), and treasurer credentials.
+- **On-Demand Receipt Delivery**: Decoupled receipt email dispatch with transactional delivery status tracking (`delivery_status`, `sent_at`, `last_error`) and retry capabilities.
+- **Members Directory** (`/admin/members`): Verified-member registry with chapter enrollment counters, inline IEEE member ID assignment, "credentials sent" tracking (single and bulk), and roster export for IEEE headquarters.
+- **Events & Workshops Manager** (`/admin/events`): Dynamic CRUD for campus workshops, summits, hackathons, and technical talks with chapter tagging and featured flags.
+- **Sitewide Announcement Manager** (`/admin/announcement`): Live alert banner configuration with real-time preview and safe URL verification.
+- **Executive Team Access Control** (`/admin/team`): Whitelist-based administrative privilege provisioning (`admin_whitelist`) with automatic database trigger synchronization.
+- **Fees & Payment Configuration** (`/admin/settings`): Base fee, chapter add-ons, UPI VPA/QR generator, drive status toggle (`is_drive_open`), and branch treasurer credentials.
+- **Activity & Audit Logging** (`/admin/activity`): Comprehensive record of administrative verifications, rejections, notes, settings updates, and whitelist edits.
+- **T-Shirt Merchandise Selection**: Added T-shirt size picker (`S`, `M`, `L`, `XL`, `XXL`) in checkout, tracked in `orders.tshirt_size`.
+- **Server API Mediation & Security Hardening**: Dedicated server-side API endpoints (`/api/checkout/*` and `/api/admin/*`) running via `SUPABASE_SERVICE_ROLE_KEY`. Direct client mutations are blocked by PostgreSQL Row-Level Security. Private payment screenshot storage bucket rendered via short-lived signed URLs.
 
 ### Changed
-- Admin sign-in returns you to the page you asked for.
-- `ADMIN_GUIDE.md` rewritten for the new portal.
+- Admin sign-in preserves return destination (`redirect` query parameter).
+- Unified `ADMIN_GUIDE.md` and complete documentation suite.
 
 ---
 

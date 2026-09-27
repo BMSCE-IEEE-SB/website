@@ -6,19 +6,44 @@ This checklist turns **PRD §10** into an actionable, non-technical punch list o
 
 ## 🚨 P0: Critical for Membership Drive Launch
 
-- [ ] **Branch UPI VPA (ID)**: The exact Virtual Payment Address for receiving fees (e.g. `bmsceieee@okhdfcbank` or `bmsce.ieee@sbi`).
-- [ ] **Payee Display Name**: The registered account name appearing in UPI banking apps (e.g. `BMSCE IEEE Student Branch`).
-- [x] **Base Membership Fee**: ₹1,810 (set in `membership_config` and as the demo fallback).
-- [ ] **Chapter Prices**: Fee per society chapter in INR:
-  - [ ] IEEE Computer Society (CS): ₹____
-  - [ ] IEEE Power & Energy Society (PES): ₹____
-  - [ ] IEEE Power & Industrial Electronics (PELS/IES): ₹____
-  - [ ] IEEE Women In Engineering (WIE): ₹____
-  - [ ] IEEE Social Implications of Technology (SSIT): ₹____
-- [ ] **Official Email SMTP App Password**:
-  - [ ] Official Gmail/Google Workspace or Outlook address (e.g. `ieee@bmsce.ac.in`).
-  - [ ] Generated 16-character App Password to authorize Nodemailer receipt emails.
-- [ ] **Branch Admin List**: Names and institutional email addresses of the executives who will review and verify payments on `/admin/orders`.
+### 1. Payment & Banking Information
+- [ ] **Branch UPI VPA (ID)**: The exact Virtual Payment Address for receiving dues (e.g. `bmsceieee@okhdfcbank` or `bmsce.ieee@sbi`).
+- [ ] **Payee Display Name**: The registered merchant/account name appearing in UPI banking apps (e.g. `BMSCE IEEE Student Branch`).
+- [x] **Base Membership Fee**: ₹1,810 (configured in `membership_config` and demo fallback).
+- [x] **Chapter Add-on Prices** (Configured in database seed):
+  - [x] IEEE Computer Society (CS): ₹100
+  - [x] IEEE Power & Energy Society (PES): ₹100
+  - [x] IEEE Power & Industrial Electronics Joint Chapter (PELS/IES): ₹100
+  - [x] IEEE Robotics & Automation Society (RAS): ₹100
+  - [x] IEEE Women in Engineering (WIE): ₹50
+  - [x] IEEE Social Implications of Technology (SSIT): ₹50
+
+### 2. Branch Treasurer Credentials (Printed on Official PDF Receipts)
+- [ ] **Treasurer Full Name**: Current branch treasurer (default: `Neha Ramiah`).
+- [ ] **Treasurer Designation**: Official title (default: `Treasurer and MDC`).
+- [ ] **Treasurer Contact Phone**: Official contact number for billing inquiries (default: `+91 6385525264`).
+- [ ] **Treasurer Digital Signature**: Transparent PNG image of authorized signature for PDF receipt stamping (optional).
+
+### 3. T-Shirt Merchandise Logistics
+- [x] **Available Sizes**: `S`, `M`, `L`, `XL`, `XXL` (integrated in cart & order tracking).
+- [ ] **Distribution Details**: Quadrangle collection dates and inventory counts per size.
+
+### 4. Official Transactional Email (SMTP)
+- [ ] **SMTP Sender Address**: Official institutional email (e.g. `ieee@bmsce.ac.in`).
+- [ ] **SMTP App Password**: 16-character Google Workspace or Microsoft 365 app password to authorize automated receipt emails.
+- [ ] **SMTP Configuration Details**:
+  - `SMTP_HOST`: `smtp.gmail.com`
+  - `SMTP_PORT`: `465` (SSL)
+  - `SMTP_USER`: `ieee@bmsce.ac.in`
+  - `SMTP_FROM`: `"BMSCE IEEE" <ieee@bmsce.ac.in>`
+
+### 5. Executive Team Whitelist (`admin_whitelist`)
+List of executive committee members who require administrative access:
+- [ ] Chair: Name & institutional email (`chair.ieee@bmsce.ac.in`)
+- [ ] Vice-Chair: Name & institutional email
+- [ ] Secretary: Name & institutional email
+- [ ] Treasurer: Name & institutional email
+- [ ] Webmaster / Technical Lead: Name & institutional email
 
 ---
 
@@ -51,9 +76,9 @@ For 4–8 prominent BMSCE IEEE alumni:
 - [ ] List of awards (e.g., Outstanding Student Branch Award, Best Chapter Award).
 - [ ] Notable hackathon wins, research paper publications, and dates.
 
-### 6. Events & Workshops (When Re-enabled)
-- [ ] Upcoming event title, chapter tag, date, time, and cover banner.
-- [ ] External Google Form registration link.
+### 6. Events & Workshops (Manageable via `/admin/events`)
+- [ ] Upcoming event title, chapter tag, date, time, venue, and cover banner.
+- [ ] External Google Form, Devfolio, or Unstop registration link.
 
 ---
 

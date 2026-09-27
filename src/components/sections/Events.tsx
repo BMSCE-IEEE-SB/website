@@ -1,10 +1,11 @@
 'use client';
 /* eslint-disable @next/next/no-img-element */
 
+import Link from 'next/link';
 import { useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, Clock, MapPin } from 'lucide-react';
-import { chapters, eventStart, type SiteEvent } from '@/data/site';
+import { chapters, eventPath, eventStart, hasRegistration, type SiteEvent } from '@/data/site';
 import Reveal from '@/components/site/Reveal';
 import Countdown from '@/components/site/Countdown';
 import { SectionLabel } from '@/components/site/BrandShapes';
@@ -83,9 +84,11 @@ export default function Events({ upcoming, past }: { upcoming: SiteEvent[]; past
                 </div>
                 <div className="flex flex-wrap items-end justify-between gap-6">
                   <Countdown to={eventStart(next)} light />
-                  <a href={next.registrationUrl} className="btn btn-primary btn-lg">
-                    Register <ArrowUpRight className="h-4 w-4" />
-                  </a>
+                  {next.id !== 'ieee-day-2026' && (
+                    <a href={next.registrationUrl} className="btn btn-primary btn-lg">
+                      Register <ArrowUpRight className="h-4 w-4" />
+                    </a>
+                  )}
                 </div>
               </div>
             </article>

@@ -46,7 +46,7 @@ export default function Chapters() {
             </Reveal>
           </div>
           <Reveal delay={120}>
-            <p className="lead max-w-md">Six communities, each with its own projects, events and mentors. Pick one or join them all when you register.</p>
+            <p className="lead max-w-md">Five communities, each with its own projects, events and mentors. Pick one or join them all when you register.</p>
           </Reveal>
         </div>
 

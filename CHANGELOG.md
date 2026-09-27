@@ -74,7 +74,7 @@ All notable changes to the **BMSCE IEEE Student Branch Website** will be documen
 ## [3.0.0] - 2026-09-27 (Merged website & redesign)
 
 ### Added
-- Full landing page merged in from the `bmsce-ieee-website` repo: hero, about and metrics, six chapters, events with filters, photo gallery with lightbox, executive committee, membership call-to-action, partnerships and contact.
+- Full landing page merged in from the `bmsce-ieee-website` repo: hero, about and metrics, five chapters, events with filters, photo gallery with lightbox, executive committee, membership call-to-action, partnerships and contact.
 - "Become a member" in the header, hero, chapters and footer now opens the membership flow on the same site.
 - Registration progress stepper across the four membership steps.
 - "Open UPI app" button on phones at checkout.

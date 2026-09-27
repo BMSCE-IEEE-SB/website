@@ -41,7 +41,7 @@ export default function Join() {
 
             <Reveal delay={120} className="mx-auto w-full max-w-md">
               <Tilt className="rounded-[22px]" max={12}>
-                <MembershipCard data={{ name: 'You', usn: '1BM26CS000', department: 'Any branch', chapters: ['CS', 'RAS', 'WIE'], status: 'verified' }} />
+                <MembershipCard data={{ name: 'You', usn: '1BM26CS000', department: 'Any branch', chapters: ['CS', 'PES', 'WIE'], status: 'verified' }} />
               </Tilt>
               <p className="mt-5 text-center text-sm text-white/75">Move your cursor over the card.</p>
             </Reveal>

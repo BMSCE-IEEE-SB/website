@@ -42,7 +42,7 @@ A complete executive snapshot of the membership drive:
 - **Interactive SVG Charts**:
   - *Daily Applications & Verifications* (14-day timeline).
   - *Application Status Distribution* (Pending, Verified, Rejected).
-  - *Society & Chapter Add-on Enrollments* (CS, PES, PELS/IES, RAS, WIE, SSIT).
+  - *Society & Chapter Add-on Enrollments* (CS, PES, PELS/IES, WIE, SSIT).
   - *Department Breakdown* (CSE, ISE, ECE, EEE, ME, etc.).
   - *Year of Study Distribution* (1st, 2nd, 3rd, 4th Year).
   - *Accessible Data Tables*: Every chart includes a **Table** toggle button to view raw counts and exact figures.
@@ -121,7 +121,7 @@ Navigate at high speed during peak drives:
 
 Comprehensive directory of all students whose membership has been approved:
 
-- **Chapter Enrollment Tiles**: Real-time member count for Computer Society, PES, PELS/IES, RAS, WIE, and SSIT. Click any tile to filter.
+- **Chapter Enrollment Tiles**: Real-time member count for Computer Society, PES, PELS/IES, WIE, and SSIT. Click any tile to filter.
 - **IEEE Member ID Assignment**: Click into the "IEEE member ID" column to enter or update the global IEEE 8-digit membership number directly. Saves automatically on blur.
 - **Credential Dispatch Tracking**: Track who has received their IEEE.org login credentials. Click an individual status badge or select multiple members and click **"Credentials sent"**.
 - **BCC Email All**: Click **"Email"** to launch your desktop mail client with all filtered members pre-filled in the BCC field.
@@ -175,7 +175,7 @@ Configure the financial parameters of the membership drive:
 
 1. **Drive Status**: Toggle whether membership applications are open or closed.
 2. **Base Membership Fee (₹)**: Mandatory branch membership fee.
-3. **Chapter Add-ons (₹)**: Individual dues for CS, PES, PELS/IES, RAS, WIE, and SSIT.
+3. **Chapter Add-ons (₹)**: Individual dues for CS, PES, PELS/IES, WIE, and SSIT.
 4. **Branch UPI ID & Payee Name**: Configure the branch VPA (e.g. `bmsceieee@okhdfcbank`) and registered account title.
 5. **Interactive UPI QR Tester**: Scan the test QR with a mobile phone to confirm bank account name and amount before saving.
 6. **Treasurer Credentials**:

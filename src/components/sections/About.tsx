@@ -1,15 +1,16 @@
 'use client';
 /* eslint-disable @next/next/no-img-element */
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useInView, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import { BookOpen, Trophy, Users, Wrench } from 'lucide-react';
-import { BRANCH, events, metrics, pillars } from '@/data/site';
+import { BRANCH, pillars } from '@/data/site';
 import Reveal from '@/components/site/Reveal';
 import CountUp from '@/components/site/CountUp';
 import { SectionLabel } from '@/components/site/BrandShapes';
 import { cn } from '@/lib/utils';
 
+const local = (name: string) => `/${name}`;
 const PILLAR_MS = 5000;
 const pillarIcons = [BookOpen, Wrench, Trophy, Users];
 
@@ -18,11 +19,11 @@ export default function About() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
   const y1 = useTransform(scrollYProgress, [0, 1], [60, -60]);
   const y2 = useTransform(scrollYProgress, [0, 1], [-30, 50]);
-  const [open, setOpen] = useState(0);
-  const [interacted, setInteracted] = useState(false);
   const stripRef = useRef<HTMLDivElement>(null);
   const stripInView = useInView(stripRef, { margin: '-15% 0px' });
   const reduce = useReducedMotion();
+  const [open, setOpen] = useState(0);
+  const [interacted, setInteracted] = useState(false);
 
   useEffect(() => {
     if (interacted || !stripInView || reduce) return;
@@ -60,15 +61,14 @@ export default function About() {
             </Reveal>
             <Reveal delay={140}>
               <p className="lead mt-8 max-w-2xl">
-                We are Branch {BRANCH.branchCode} of {BRANCH.region}, part of the {BRANCH.section}. Membership connects you to IEEE&apos;s
-                400,000+ members worldwide, and to seniors on campus who will happily spend a Saturday debugging your circuit.
+                We are Branch {BRANCH.branchCode} of {BRANCH.region}, part of the {BRANCH.section}. Membership is the campus door into IEEE — labs, chapters, and the people already running them here.
               </p>
             </Reveal>
           </div>
 
           <div className="relative hidden h-[420px] lg:col-span-5 lg:block">
-            <motion.img style={{ y: y1 }} src={events[6].image} alt="Students at an AI/ML workshop" className="absolute top-0 right-0 h-64 w-72 rounded-[28px] object-cover shadow-xl" />
-            <motion.img style={{ y: y2 }} src={events[10].image} alt="Robotics challenge" className="absolute bottom-0 left-4 h-56 w-60 rounded-[28px] object-cover shadow-xl ring-8 ring-paper" />
+            <motion.img style={{ y: y1 }} src={pillars[0].image} alt="Workshop in session on campus" className="absolute top-0 right-0 h-64 w-72 rounded-[28px] object-cover shadow-xl" />
+            <motion.img style={{ y: y2 }} src={local('gallery_img_33_102.png')} alt="Students collaborating at a hackathon" className="absolute bottom-0 left-4 h-56 w-60 rounded-[28px] object-cover shadow-xl ring-8 ring-paper" />
             <motion.div style={{ y: y2 }} className="absolute top-8 left-10 rounded-2xl bg-white px-4 py-3 shadow-lg">
               <p className="display text-2xl text-brand-orange">
                 <CountUp value="400,000+" />
@@ -142,16 +142,6 @@ export default function About() {
           })}
         </div>
 
-        <dl className="mt-16 grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-4">
-          {metrics.map((m, i) => (
-            <Reveal key={m.label} delay={i * 80}>
-              <dd className="display text-5xl text-ink sm:text-6xl">
-                <CountUp value={m.value} />
-              </dd>
-              <dt className="mt-2 max-w-[14rem] text-sm text-muted">{m.label}</dt>
-            </Reveal>
-          ))}
-        </dl>
       </div>
     </section>
   );

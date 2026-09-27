@@ -5,12 +5,13 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowLeft, ArrowRight, Check, Plus, Shirt, Sparkles, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Info, Plus, Shirt, Sparkles, X } from 'lucide-react';
 import { getCurrentUser } from '@/lib/auth';
 import { chapters as chapterInfo, departments, suggestedByDepartment } from '@/data/site';
 import { loadPricing } from '@/lib/pricing';
 import { LiveCard, readDraft, useDraft } from '@/components/membership/Draft';
 import AnimatedNumber from '@/components/site/AnimatedNumber';
+import SizeChart from '@/components/membership/SizeChart';
 import { Alert, PageLoader, Spinner } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
 import { CART_KEYS, type CartChapter } from '@/lib/cart';
@@ -27,6 +28,7 @@ export default function ChaptersPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [tshirtSize, setTshirtSize] = useState('');
   const [sizeError, setSizeError] = useState(false);
+  const [showSizeChart, setShowSizeChart] = useState(false);
   const [department, setDepartment] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -125,6 +127,8 @@ export default function ChaptersPage() {
   const allSuggestedPicked = suggested.length > 0 && suggested.every((code) => picked.some((p) => p.code === code));
 
   return (
+    <>
+      {showSizeChart && <SizeChart onClose={() => setShowSizeChart(false)} />}
     <div className="mx-auto max-w-6xl pb-28 lg:pb-0">
       <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
         <div>
@@ -180,9 +184,14 @@ export default function ChaptersPage() {
                 </div>
               </div>
 
-              <div className="inline-flex items-center self-start rounded-full bg-paper px-3 py-1 text-xs font-medium text-muted sm:self-auto">
-                Size chart coming soon
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowSizeChart(true)}
+                className="inline-flex items-center gap-1.5 self-start rounded-full bg-brand-navy px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-brand-orange sm:self-auto"
+              >
+                <Info className="h-3.5 w-3.5" />
+                View Size Chart
+              </button>
             </div>
 
             <div className="mt-5 border-t border-line pt-5">
@@ -399,5 +408,6 @@ export default function ChaptersPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

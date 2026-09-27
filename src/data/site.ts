@@ -1,7 +1,9 @@
-import { Cpu, Zap, CircuitBoard, Users, Compass, Bot, type LucideIcon } from 'lucide-react';
+import { Cpu, Zap, CircuitBoard, Users, Compass, type LucideIcon } from 'lucide-react';
 
 const u = (id: string, w = 900, h = 600) =>
   `https://images.unsplash.com/${id}?w=${w}&h=${h}&fit=crop&auto=format&q=70`;
+
+const local = (name: string) => `/${name}`;
 
 export const BRANCH = {
   name: 'BMSCE IEEE Student Branch',
@@ -22,7 +24,7 @@ export const contactInfo = {
 export const navItems = [
   { label: 'About', href: '/#about', id: 'about' },
   { label: 'Chapters', href: '/#chapters', id: 'chapters' },
-  { label: 'Events', href: '/#events', id: 'events' },
+  { label: 'Events', href: '/events', id: 'events' },
   { label: 'Gallery', href: '/gallery', id: 'gallery' },
   { label: 'Team', href: '/#team', id: 'team' },
   { label: 'Contact', href: '/#contact', id: 'contact' },
@@ -63,10 +65,10 @@ export const chapters: Chapter[] = [
     short: 'Computer Society',
     code: 'CS',
     color: '#0284c7',
-    image: u('photo-1517694712202-14dd9538aa97', 1400, 900),
+    image: local('gallery_img_48_147.png'),
     about: [
-      'The Computer Society is the largest chapter in the branch. It is where students learn to ship real software, from their first pull request to production systems.',
-      'Members run coding sprints, host the 24-hour IEEEXtreme challenge on campus and work with industry mentors on AI, cloud and systems projects.',
+      'IEEE Computer Society at BMSCE is the software home of the branch: hackathons during Phase Shift, weekly problem-solving, and the campus site for IEEEXtreme.',
+      'Seniors run DSA rounds, Git/GitHub clinics and project reviews. First-years usually start with a workshop, then join a team shipping something for a fest or a paper.',
     ],
     focus: [
       { title: 'AI & machine learning', text: 'Study groups and build nights on LLMs, vision and MLOps.' },
@@ -85,111 +87,117 @@ export const chapters: Chapter[] = [
     icon: Cpu,
     tone: { text: 'text-sky-600', soft: 'bg-sky-50', bar: 'bg-sky-500' },
   },
-  {
+{
     slug: 'pes',
     short: 'Power & Energy',
     code: 'PES',
     color: '#059669',
-    image: u('photo-1509391366360-2e959784a276', 1400, 900),
+    image: local('gallery_img_17_55.png'),
     about: [
-      'The Power & Energy Society looks at how the world will generate, move and store energy as it decarbonises.',
-      'Members get hands-on time in the power labs, visit substations and renewable plants, and design small microgrid and EV projects.',
+      'BMSCE IEEE PES & Sensors Council focuses on advancements in Electrical Power & Energy, Electronics, Robotics, and Sensors.',
+      'We aim to bridge the gap between academic concepts and real-world applications through hands-on projects, technical workshops, industry interactions, research opportunities, and mentorship.',
     ],
     focus: [
-      { title: 'Smart grids', text: 'Grid automation, protection and demand response.' },
-      { title: 'Renewables', text: 'Solar and wind integration, storage and microgrids.' },
-      { title: 'E-mobility', text: 'EV powertrains, battery management and charging.' },
-      { title: 'Energy policy', text: 'How regulation and markets shape the grid.' },
+      { title: 'Power & Energy Systems', text: 'Smart grids, renewables, energy storage, EV powertrains, and power distribution.' },
+      { title: 'Sensors & Robotics', text: 'Sensor technology, robotics, automation, and embedded sensing systems.' },
+      { title: 'Industry & Research', text: 'Industry-academia collaboration, research projects, and standards & regulations.' },
+      { title: 'Career Readiness', text: 'Campus-to-corporate programs, professional skills, and placement preparation.' },
     ],
-    activities: ['Power systems lab workshops', 'Industrial and substation visits', 'Renewable energy design challenge', 'PES Day celebration'],
+    activities: [
+      'Sensors Enclave — 24-hour hardware hackathon with industry guidance',
+      'Sensors Week — Week-long technical workshops, expert talks, and hardware challenges',
+      'PES Day — Annual celebration with technical, collaborative, and awareness activities',
+      'Industry Academia Conclave — Platform connecting students with industry leaders and IEEE professionals',
+      'National Conference on Standards, Codes & Regulations in Lighting',
+      'Campus to Corporate — Industry-oriented value-added course for placement readiness',
+      'Embedded Systems & Analog Design Workshops',
+      'Technical sessions, hands-on projects, and industry interactions',
+    ],
     stats: { members: '250+', events: '15+', founded: '2014' },
     name: 'Power & Energy Society',
-    fullName: 'IEEE Power & Energy Society',
-    tagline: 'Clean tech, smart grids & e-mobility',
+    fullName: 'IEEE Power & Energy Society & Sensors Council',
+    tagline: 'Power systems, sensors, robotics & industry readiness',
     description:
-      'Renewable microgrids, energy storage, power distribution and EV powertrains, with hands-on lab sessions and industry visits.',
-    tracks: ['Smart Grids', 'Clean Tech', 'EV Systems'],
+      'Power systems, sensors, robotics, and industry readiness through hands-on projects, workshops, and flagship events like Sensors Enclave and PES Day.',
+    tracks: ['Power & Energy', 'Sensors & Robotics', 'Industry & Research', 'Career Readiness'],
     icon: Zap,
     tone: { text: 'text-emerald-600', soft: 'bg-emerald-50', bar: 'bg-emerald-500' },
   },
-  {
+{
     slug: 'pels-ies',
     short: 'Power Electronics',
     code: 'PELS/IES',
     color: '#d97706',
-    image: u('photo-1518770660439-4636190af475', 1400, 900),
+    image: local('gallery_img_14_46.png'),
     about: [
-      'The PELS and IES joint chapter is for students who like to hold their work in their hands: boards, converters, motors and controllers.',
-      'Members learn PCB design from schematic to fabrication, build power converters and program the embedded systems that drive industry.',
+      'BMSCE IEEE PELS & IES is the joint student chapter of the IEEE Power Electronics Society and IEEE Industrial Electronics Society.',
+      'Focused on creating opportunities for students to explore power electronics, industrial electronics, VLSI, embedded systems, robotics and emerging technologies. Through technical workshops, competitions, industry interactions, projects and research-oriented initiatives, the chapters encourage students to learn, innovate and apply engineering beyond the classroom.',
     ],
     focus: [
-      { title: 'PCB design', text: 'Schematic capture, layout and in-house fabrication.' },
-      { title: 'Power converters', text: 'DC-DC and inverter topologies, simulation to hardware.' },
-      { title: 'Embedded drives', text: 'Motor control and real-time firmware.' },
-      { title: 'Industrial IoT', text: 'Sensors, PLCs and factory automation.' },
+      { title: 'VLSI & Semiconductor', text: 'VLSI design, semiconductor technology, and chip design workflows.' },
+      { title: 'Power Electronics', text: 'Power converter design, motor drives, GPU computing, and energy systems.' },
+      { title: 'Robotics & Embedded', text: 'SLAM, robotics, embedded systems, automation, and AI-driven technologies.' },
+      { title: 'Outreach & Community', text: 'Yellarigu Electronics — taking electronics to school students through hands-on activities.' },
     ],
-    activities: ['PCB design bootcamp', 'Hardware build weekends', 'Converter design contest', 'Industry automation visits'],
+    activities: [
+      'PELS & IES Week — 17+ events over 3 days: competitions, workshops, seminars, games',
+      'Beyond Basics & Geeks Biz — Flagship events of PELS & IES Week',
+      'GPU Unlocked — GPU computing and applications workshop',
+      'Beyond Maps — SLAM in Robotics (Phase Shift)',
+      'Project Planet Ideathon — Innovation and project ideation competition',
+      'OR(BIT)² — Workshop and codeathon on optimization and algorithms',
+      'Tech-Connect — Industry interaction and professional networking',
+      'The Last Message — Technical event at Utsav',
+      'Yellarigu Electronics — Outreach event introducing school students to electronics',
+      'VLSI Workshop with ChipEdge — Industry-partnered VLSI training',
+      'Yellarigu Electronics 2.0 — Upcoming expanded outreach initiative',
+    ],
     stats: { members: '150+', events: '12+', founded: '2018' },
     name: 'Power & Industrial Electronics',
     fullName: 'IEEE PELS & IES Joint Chapter',
-    tagline: 'PCB design, drives & automation',
+    tagline: 'Power electronics, VLSI, robotics & embedded systems',
     description:
-      'Electronic prototyping, power converter design, embedded drives, sensor interfacing and industrial automation controls.',
-    tracks: ['PCB Design', 'Embedded', 'Industrial IoT'],
+      'Power electronics, VLSI, embedded systems, and robotics through workshops, competitions, and PELS & IES Week. Yellarigu Electronics brings electronics to school students.',
+    tracks: ['VLSI & Semiconductor', 'Power Electronics', 'Robotics & Embedded', 'Outreach & Community'],
     icon: CircuitBoard,
     tone: { text: 'text-amber-600', soft: 'bg-amber-50', bar: 'bg-amber-500' },
-  },
-  {
-    slug: 'ras',
-    short: 'Robotics',
-    code: 'RAS',
-    color: '#7c3aed',
-    image: u('photo-1485827404703-89b55fcc595e', 1400, 900),
-    about: [
-      'The Robotics & Automation Society builds machines that sense, think and move.',
-      'From line followers in first year to autonomous rovers and robotic arms, members work across mechanics, electronics and software in small project teams.',
-    ],
-    focus: [
-      { title: 'Autonomy', text: 'Localisation, path planning and ROS.' },
-      { title: 'Computer vision', text: 'Perception pipelines for real robots.' },
-      { title: 'Controls', text: 'PID to model-predictive control on hardware.' },
-      { title: 'Mechatronics', text: 'Actuators, sensors and mechanical design.' },
-    ],
-    activities: ['Robotics Challenge (maze & manipulation)', 'ROS workshop series', 'Inter-college robo-sumo', 'Project demo day'],
-    stats: { members: '200+', events: '18+', founded: '2016' },
-    name: 'Robotics & Automation',
-    fullName: 'IEEE Robotics & Automation Society',
-    tagline: 'Autonomous systems & intelligent machines',
-    description:
-      'Building autonomous robots, computer-vision pipelines and control systems, from maze solvers to manipulators.',
-    tracks: ['Autonomy', 'Vision', 'Controls'],
-    icon: Bot,
-    tone: { text: 'text-violet-600', soft: 'bg-violet-50', bar: 'bg-violet-500' },
   },
   {
     slug: 'wie',
     short: 'Women in Engineering',
     code: 'WIE',
     color: '#db2777',
-    image: u('photo-1573164713714-d95e436ab8d6', 1400, 900),
+    image: local('gallery_img_37_114.png'),
     about: [
-      'Women in Engineering is an affinity group that builds a stronger, more inclusive engineering community on campus and beyond.',
-      'The group runs mentorship circles with alumni and industry leaders, leadership programmes, and STEM outreach in local schools. Everyone is welcome.',
+      'BMSCE IEEE Women in Engineering (WIE) is a vibrant community dedicated to empowering students through technical learning, leadership, innovation, collaboration, and community engagement.',
+      'Through workshops, hackathons, competitions, panel discussions, awareness initiatives, and collaborative events, WIE provides students with opportunities to explore technology, develop real-world skills, and grow beyond the classroom.',
+      'Membership is open to everyone — the goal is more women in labs, on stage, and in leadership roles, with practical support to get there.',
     ],
     focus: [
-      { title: 'Mentorship', text: 'Paired mentoring with alumni and industry engineers.' },
-      { title: 'Leadership', text: 'Workshops on public speaking, negotiation and leading teams.' },
-      { title: 'STEM outreach', text: 'Hands-on science sessions for school students.' },
-      { title: 'Research', text: 'Support for papers, grants and conference travel.' },
+      { title: 'Technical Learning', text: 'Workshops and hackathons on AI/ML, cybersecurity, web development, data science, AR/VR, and game development.' },
+      { title: 'Leadership & Innovation', text: 'Startup competitions, strategy challenges, and panel discussions that build real-world leadership.' },
+      { title: 'Awareness & Wellness', text: 'Initiatives on menstrual health, sustainable products, fire safety, BLS training, and women\'s wellness.' },
+      { title: 'Community & Outreach', text: 'Walkathons, school outreach, environmental debates with SSIT, and social impact projects.' },
     ],
-    activities: ['WIE Tech Summit', 'Mentorship circles', 'School outreach days', 'Resume and interview clinics'],
+    activities: [
+      'WIE Day — Annual multi-event celebration with technical, creative, and awareness tracks',
+      'NEXUS — Two-day technical summit with workshops, panels, startup competitions, and hackathons',
+      'DATAVERSE — 8-hour data hackathon for analytics, data science, and ML problem-solving',
+      'STARTOPOLIS — Startup-focused initiative for innovative idea development and presentation',
+      'Eco-Bid — Environmental strategy debate with SSIT',
+      'Walkathon — 5km community initiative for women\'s leadership and wellness',
+      'Cyber Talk & Cybersecurity Workshop — Practical security and emerging tech sessions',
+      'Fire Safety, Chemical Safety & BLS Training — Emergency response training with IQAC',
+      'Menstrual Wellness & Sustainable Products — Health awareness initiative',
+      'BrainRush, Game Dev, AR/VR — Upcoming interactive skill-building events',
+    ],
     stats: { members: '180+', events: '12+', founded: '2012' },
     name: 'Women in Engineering',
     fullName: 'IEEE Women in Engineering',
-    tagline: 'Mentorship, leadership & STEM outreach',
+    tagline: 'Technical learning, leadership, innovation & community impact',
     description:
-      'A global affinity group empowering women technologists through mentorship, leadership programmes and research initiatives.',
-    tracks: ['Mentorship', 'Leadership', 'Outreach'],
+      'Technical workshops, hackathons, leadership summits, and wellness initiatives. WIE Day, DATAVERSE, startup pitches, walkathons — explore tech, build skills, lead with impact.',
+    tracks: ['Technical Learning', 'Leadership & Innovation', 'Awareness & Wellness', 'Community & Outreach'],
     icon: Users,
     tone: { text: 'text-pink-600', soft: 'bg-pink-50', bar: 'bg-pink-500' },
   },
@@ -198,10 +206,10 @@ export const chapters: Chapter[] = [
     short: 'Tech & Society',
     code: 'SSIT',
     color: '#4f46e5',
-    image: u('photo-1559136555-9303baea8ebd', 1400, 900),
+    image: local('gallery_img_36_111.png'),
     about: [
-      'The Society on Social Implications of Technology asks what technology should do, not just what it can do.',
-      'Members debate AI ethics and policy, study sustainable design, and build civic-tech projects with NGOs and local communities.',
+      'SSIT is the chapter that asks who a project is for, and what it breaks, before it ships. Policy reading, ethics debates and civic builds with groups off campus.',
+      'It sits well with CS and ECE students who want IEEE work that is not only another hackathon track.',
     ],
     focus: [
       { title: 'AI ethics', text: 'Bias, accountability and responsible AI.' },
@@ -235,10 +243,17 @@ export type SiteEvent = {
   venue: string;
   image: string;
   description: string;
-  registrationUrl: string;
+  /** Public registration form. Empty until the branch publishes one. */
+  registrationUrl?: string;
+  speakers?: { name: string; role: string }[];
+  highlights?: string[];
+  photos?: string[];
 };
 
-// PLACEHOLDER events: replace with the branch's real calendar.
+export const eventPath = (e: Pick<SiteEvent, 'id'>) => `/events/${e.id}`;
+export const hasRegistration = (e: SiteEvent) => Boolean(e.registrationUrl && e.registrationUrl !== '#');
+
+// Calendar copy still needs branch photos; structure is ready for the real programme.
 export const events: SiteEvent[] = [
   {
     id: 'ieee-day-2026',
@@ -248,9 +263,9 @@ export const events: SiteEvent[] = [
     date: '2026-10-06',
     time: '10:00',
     venue: 'BMSCE Main Auditorium',
-    image: u('photo-1519389950473-47ba0277781c'),
-    description: 'A day of technical talks, member recognition and demos celebrating IEEE members around the world.',
-    registrationUrl: '#',
+    image: local('gallery_img_22_69.png'),
+    description: 'Branch-wide talks, member recognition and chapter stalls for IEEE Day on campus.',
+    highlights: ['Chapter stalls in the atrium', 'Short talks from execom and faculty advisors', 'Member pin and photo wall'],
   },
   {
     id: 'pes-lab-2026',
@@ -260,9 +275,10 @@ export const events: SiteEvent[] = [
     date: '2026-10-17',
     time: '14:00',
     venue: 'EEE Power Lab',
-    image: u('photo-1509391366360-2e959784a276'),
-    description: 'Hands-on session on smart grids, renewable integration and power electronics.',
-    registrationUrl: '#',
+    image: local('gallery_img_17_55.png'),
+    description: 'Hands-on session in the EEE Power Lab on protection, renewable integration and measurement.',
+    speakers: [{ name: 'Faculty, EEE', role: 'Lab session lead' }],
+    highlights: ['Relay and protection demo', 'Solar integration walkthrough', 'Limited lab benches — register when the form opens'],
   },
   {
     id: 'xtreme-2026',
@@ -272,23 +288,11 @@ export const events: SiteEvent[] = [
     date: '2026-10-24',
     time: '05:30',
     venue: 'CSE Labs, PJA Block',
-    image: u('photo-1504384308090-c894fdcc538d'),
+    image: local('gallery_img_4_14.png'),
     description: 'The global 24-hour IEEE programming competition, hosted on campus for BMSCE teams.',
-    registrationUrl: '#',
+    highlights: ['Teams of up to 3', 'CSE labs, PJA Block', 'Proctors from Computer Society'],
   },
-  {
-    id: 'phase-shift-2026',
-    title: 'Phase Shift Hackathon 2026',
-    category: 'hackathon',
-    chapter: 'branch',
-    date: '2026-11-14',
-    time: '09:00',
-    venue: 'BMSCE Campus',
-    image: u('photo-1531482615713-2afd69097998'),
-    description: '36-hour inter-college hackathon across AI/ML, FinTech and Sustainability tracks.',
-    registrationUrl: '#',
-  },
-  {
+{
     id: 'pcb-bootcamp-2026',
     title: 'PCB Design Bootcamp',
     category: 'workshop',
@@ -296,9 +300,10 @@ export const events: SiteEvent[] = [
     date: '2026-11-28',
     time: '10:00',
     venue: 'ECE Design Lab',
-    image: u('photo-1518770660439-4636190af475'),
-    description: 'From schematic to fabricated board in one weekend.',
-    registrationUrl: '#',
+    image: local('gallery_img_14_46.png'),
+    description: 'Schematic, layout and a board you can hold, run by PELS/IES in the ECE design lab.',
+    speakers: [{ name: 'PELS/IES execom', role: 'Workshop crew' }],
+    highlights: ['Bring a laptop with KiCad or Altium', 'Fabrication slot announced in the form', 'Best for 2nd year ECE / EEE / ETE'],
   },
   {
     id: 'wie-summit-2026',
@@ -308,9 +313,9 @@ export const events: SiteEvent[] = [
     date: '2026-12-05',
     time: '09:30',
     venue: 'BMSCE Main Auditorium',
-    image: u('photo-1540575467063-178a50c2df87'),
-    description: 'Keynotes, panels and mentorship circles celebrating women in technology.',
-    registrationUrl: '#',
+    image: local('gallery_img_37_114.png'),
+    description: 'Talks, panels and mentorship circles hosted by Women in Engineering on campus.',
+    highlights: ['Open to all departments', 'Alumni panel', 'Resume clinic in the afternoon'],
   },
   {
     id: 'aiml-2026',
@@ -319,9 +324,11 @@ export const events: SiteEvent[] = [
     chapter: 'cs',
     date: '2026-08-22',
     venue: 'BMSCE Campus',
-    image: u('photo-1555949963-aa79dcee981c'),
-    description: 'LLMs, computer vision and MLOps with engineers from leading tech companies.',
-    registrationUrl: '#',
+    image: local('gallery_img_15_49.png'),
+    description: 'A Computer Society series on models you can actually train and ship, held in the CSE block.',
+    speakers: [{ name: 'CS chapter', role: 'Organisers' }],
+    highlights: ['Notebooks shared after each session', 'Vision and LLM tracks', 'Recorded for members who missed a week'],
+    photos: [local('gallery_img_15_49.png'), local('gallery_img_39_120.png')],
   },
   {
     id: 'quantum-2026',
@@ -330,9 +337,10 @@ export const events: SiteEvent[] = [
     chapter: 'cs',
     date: '2026-07-11',
     venue: 'BMSCE Campus',
-    image: u('photo-1635070041078-e363dbe005cb'),
-    description: 'Quantum algorithms, Qiskit programming and quantum machine learning basics.',
-    registrationUrl: '#',
+    image: local('gallery_img_38_117.png'),
+    description: 'Intro to Qiskit and a small algorithm lab for CS and ECE students.',
+    highlights: ['No prior quantum course required', 'Laptops provided in the lab if needed'],
+    photos: [local('gallery_img_38_117.png')],
   },
   {
     id: 'ethics-2026',
@@ -341,9 +349,11 @@ export const events: SiteEvent[] = [
     chapter: 'ssit',
     date: '2026-04-18',
     venue: 'Seminar Hall 2',
-    image: u('photo-1559136555-9303baea8ebd'),
-    description: 'Students and faculty debate accountability in automated decision making.',
-    registrationUrl: '#',
+    image: local('gallery_img_36_111.png'),
+    description: 'SSIT-hosted floor debate on accountability when software makes the call.',
+    speakers: [{ name: 'SSIT + faculty moderator', role: 'Chair' }],
+    highlights: ['Two student teams', 'Open Q&A', 'Notes posted for members'],
+    photos: [local('gallery_img_36_111.png')],
   },
   {
     id: 'cyber-2026',
@@ -352,22 +362,14 @@ export const events: SiteEvent[] = [
     chapter: 'branch',
     date: '2026-03-14',
     venue: 'BMSCE Campus',
-    image: u('photo-1563986768609-322da13575f3'),
-    description: 'Threat intelligence, zero trust and incident response with industry leaders.',
-    registrationUrl: '#',
-  },
-  {
-    id: 'robotics-2026',
-    title: 'Robotics Challenge 2026',
-    category: 'hackathon',
-    chapter: 'ras',
-    date: '2026-02-07',
-    venue: 'BMSCE Campus',
-    image: u('photo-1485827404703-89b55fcc595e'),
-    description: 'Autonomous robots take on maze navigation, detection and manipulation rounds.',
-    registrationUrl: '#',
+    image: local('gallery_img_31_96.png'),
+    description: 'A branch-level half-day on practical security for student projects and labs.',
+    highlights: ['Incident tabletop', 'Password and repo hygiene', 'Open to all years'],
+    photos: [local('gallery_img_31_96.png')],
   },
 ];
+
+export const eventById = (id: string) => events.find((e) => e.id === id);
 
 /** An event is past once its day has ended (IST). */
 export const isPastEvent = (e: SiteEvent, now: number) => new Date(`${e.date}T23:59:59+05:30`).getTime() < now;
@@ -377,47 +379,79 @@ export type GalleryCategory = 'hackathon' | 'workshop' | 'summit' | 'student-lif
 
 export type GalleryPhoto = { src: string; full: string; alt: string; title: string; category: GalleryCategory };
 
-const g = (id: string, alt: string, title: string, category: GalleryCategory): GalleryPhoto => ({
-  src: u(id, 800, 600),
-  full: u(id, 1600, 1066),
+const lg = (name: string, alt: string, title: string, category: GalleryCategory): GalleryPhoto => ({
+  src: local(name),
+  full: local(name),
   alt,
   title,
   category,
 });
 
 export const gallery: GalleryPhoto[] = [
-  g('photo-1504384308090-c894fdcc538d', 'Teams coding at Phase Shift Hackathon', 'Phase Shift Hackathon', 'hackathon'),
-  g('photo-1555949963-aa79dcee981c', 'Speaker at the AI/ML workshop', 'AI/ML Masterclass', 'workshop'),
-  g('photo-1540575467063-178a50c2df87', 'Keynote at WIE Tech Summit', 'WIE Tech Summit', 'summit'),
-  g('photo-1531482615713-2afd69097998', 'Winners announced at Phase Shift', 'Phase Shift Hackathon', 'hackathon'),
-  g('photo-1531746790731-6c087fecd65a', 'Students building ML models', 'AI/ML Masterclass', 'workshop'),
-  g('photo-1573164713714-d95e436ab8d6', 'Panel discussion at WIE Summit', 'WIE Tech Summit', 'summit'),
-  g('photo-1485827404703-89b55fcc595e', 'Autonomous robot in competition', 'Robotics Challenge', 'hackathon'),
-  g('photo-1497436072909-60f360e1d4b1', 'Smart grid demonstration', 'Power Systems Workshop', 'workshop'),
-  g('photo-1519389950473-47ba0277781c', 'IEEE Day celebration', 'IEEE Day 2024', 'summit'),
-  g('photo-1522202176988-66273c2fd55f', 'Students at a campus event', 'Student Outreach', 'student-life'),
-  g('photo-1505373877841-8d25f7d46678', 'Audience at a technical talk', 'Technical Talk Series', 'student-life'),
-  g('photo-1497366216548-37526070297c', 'Industry visit to a tech park', 'Industry Visit', 'student-life'),
-  g('photo-1550751827-4bd374c3f58b', 'Hands-on security workshop', 'Cybersecurity Summit', 'summit'),
-  g('photo-1517694712202-14dd9538aa97', 'Hackathon participants collaborating', 'Phase Shift Hackathon', 'hackathon'),
-  g('photo-1524178232363-1fb2b075b655', 'New members at orientation', 'IEEE Orientation', 'student-life'),
-  g('photo-1521737604893-d14cc237f11d', 'Networking session', 'WIE Tech Summit', 'summit'),
+  lg('gallery_img_48_147.png', 'Phase Shift Hackathon 2024', 'Phase Shift Hackathon', 'hackathon'),
+  lg('gallery_img_15_49.png', 'AI/ML Masterclass workshop', 'AI/ML Masterclass', 'workshop'),
+  lg('gallery_img_37_114.png', 'WIE Tech Summit keynote', 'WIE Tech Summit', 'summit'),
+  lg('gallery_img_38_117.png', 'Phase Shift Hackathon winners', 'Phase Shift Hackathon', 'hackathon'),
+  lg('gallery_img_39_120.png', 'Students at AI/ML workshop', 'AI/ML Masterclass', 'workshop'),
+  lg('gallery_img_36_111.png', 'Panel discussion at WIE Summit', 'WIE Tech Summit', 'summit'),
+  lg('gallery_img_17_55.png', 'Power Systems Workshop demo', 'Power Systems Workshop', 'workshop'),
+  lg('gallery_img_22_69.png', 'IEEE Day 2024 celebration', 'IEEE Day 2024', 'summit'),
+  lg('gallery_img_34_105.png', 'Student outreach event', 'Student Outreach', 'student-life'),
+  lg('gallery_img_16_52.png', 'Technical talk series', 'Technical Talk Series', 'student-life'),
+  lg('gallery_img_44_135.png', 'Industry visit to tech park', 'Industry Visit', 'student-life'),
+  lg('gallery_img_31_96.png', 'Cybersecurity Summit workshop', 'Cybersecurity Summit', 'summit'),
+  lg('gallery_img_33_102.png', 'Hackathon collaboration', 'Phase Shift Hackathon', 'hackathon'),
+  lg('gallery_img_42_129.png', 'IEEE Orientation for new members', 'IEEE Orientation', 'student-life'),
+  lg('gallery_img_43_132.png', 'WIE Tech Summit networking', 'WIE Tech Summit', 'summit'),
+  lg('gallery_img_14_46.png', 'PCB Design Bootcamp', 'PCB Design Bootcamp', 'workshop'),
+  lg('gallery_img_4_14.png', 'IEEEXtreme programming challenge', 'IEEEXtreme', 'hackathon'),
+  lg('gallery_img_27_84.png', 'Student life at BMSCE IEEE', 'Student Life', 'student-life'),
+  lg('gallery_img_19_61.png', 'WIE Day celebration', 'WIE Day', 'summit'),
+  lg('gallery_img_51_158.png', 'Walkathon for women wellness', 'Walkathon', 'student-life'),
+  lg('gallery_img_51_159.png', 'Fire safety & BLS training', 'Fire Safety Training', 'workshop'),
+  lg('gallery_img_59_186.png', 'Cybersecurity awareness session', 'Cyber Talk', 'workshop'),
+  lg('gallery_img_9_31.png', 'Mind Market strategy competition', 'Mind Market', 'summit'),
+  lg('gallery_img_35_108.png', 'DATAVERSE data hackathon', 'DATAVERSE', 'hackathon'),
 ];
 
-export type ExeComMember = { name: string; role: string; photo: string; linkedin: string; batch?: string };
+export type ExeComMember = { name: string; role: string; photo?: string; linkedin?: string; batch?: string };
 
 export const execom: ExeComMember[] = [
-  { name: 'Arjun Sharma', role: 'Chairperson', photo: 'https://randomuser.me/api/portraits/men/32.jpg', linkedin: 'https://linkedin.com/in/arjunsharma', batch: '2025' },
-  { name: 'Priya Nair', role: 'Vice Chairperson', photo: 'https://randomuser.me/api/portraits/women/44.jpg', linkedin: 'https://linkedin.com/in/priyanair', batch: '2025' },
-  { name: 'Ananya Reddy', role: 'Secretary', photo: 'https://randomuser.me/api/portraits/women/26.jpg', linkedin: 'https://linkedin.com/in/ananyareddy', batch: '2026' },
-  { name: 'Rahul Krishnan', role: 'Treasurer', photo: 'https://randomuser.me/api/portraits/men/18.jpg', linkedin: 'https://linkedin.com/in/rahulkrishnan', batch: '2026' },
-  { name: 'Vikram Patel', role: 'Joint Treasurer', photo: 'https://randomuser.me/api/portraits/men/75.jpg', linkedin: 'https://linkedin.com/in/vikrampatel', batch: '2025' },
+  { 
+    name: 'K Sahana', 
+    role: 'Chairperson', 
+    linkedin: 'https://www.linkedin.com/in/sahana-k-8a3562373/',
+    photo: '/team/sahana.jpg'
+  },
+  { 
+    name: 'Ratik Agrawal', 
+    role: 'Vice Chairperson', 
+    linkedin: 'https://www.linkedin.com/in/ratik-agrawal/',
+    photo: '/team/ratik.jpg'
+  },
+  { 
+    name: 'Neha Ramiah', 
+    role: 'Treasurer & MD Head', 
+    linkedin: 'https://www.linkedin.com/in/neharamiah06',
+    photo: '/team/neha.jpg'
+  },
+  { 
+    name: 'Shashwat Goyal', 
+    role: 'Joint Treasurer', 
+    linkedin: 'http://www.linkedin.com/in/shashwat-goyal-b73b73187',
+    photo: '/team/shashwat.jpg'
+  },
+  { 
+    name: 'Nithyaneshwar A', 
+    role: 'Secretary & Webmaster', 
+    linkedin: 'https://linkedin.com/in/nith27',
+    photo: '/team/nithyaneshwar.jpg'
+  },
 ];
 
 export const socialLinks = [
   { key: 'linkedin', href: 'https://linkedin.com/company/bmsce-ieee', label: 'LinkedIn' },
   { key: 'instagram', href: 'https://instagram.com/bmsce_ieee', label: 'Instagram' },
-  { key: 'x', href: 'https://twitter.com/bmsce_ieee', label: 'X (Twitter)' },
   { key: 'youtube', href: 'https://youtube.com/@bmsceieee', label: 'YouTube' },
 ] as const;
 
@@ -430,12 +464,11 @@ export const membershipBenefits = [
 ];
 
 /** Used by the chapter cart when the database has no chapters configured yet. */
-export const FALLBACK_BASE_FEE = 1810;
+export const FALLBACK_BASE_FEE = 1850;
 export const FALLBACK_CART_CHAPTERS = [
   { id: 'demo-cs', name: 'Computer Society', code: 'CS', price: 100 },
   { id: 'demo-pes', name: 'Power & Energy Society', code: 'PES', price: 100 },
   { id: 'demo-pels', name: 'PELS & IES Joint Chapter', code: 'PELS/IES', price: 100 },
-  { id: 'demo-ras', name: 'Robotics & Automation Society', code: 'RAS', price: 100 },
   { id: 'demo-wie', name: 'Women in Engineering', code: 'WIE', price: 50 },
   { id: 'demo-ssit', name: 'Social Implications of Technology', code: 'SSIT', price: 50 },
 ];
@@ -443,10 +476,10 @@ export const FALLBACK_CART_CHAPTERS = [
 export const chapterBySlug = (slug: string) => chapters.find((c) => c.slug === slug);
 
 export const pillars = [
-  { title: 'Learn', text: 'Workshops and study groups taught by seniors, alumni and industry engineers.', stat: '50+', statLabel: 'sessions a year', image: u('photo-1524178232363-1fb2b075b655', 1000, 700), accent: '#18a4fe' },
-  { title: 'Build', text: 'Project teams that turn ideas into boards, robots, apps and papers.', stat: '30+', statLabel: 'active projects', image: u('photo-1518770660439-4636190af475', 1000, 700), accent: '#f26625' },
-  { title: 'Compete', text: 'Hackathons, IEEEXtreme and design contests, on campus and across India.', stat: '12', statLabel: 'competitions hosted', image: u('photo-1531482615713-2afd69097998', 1000, 700), accent: '#fbbf24' },
-  { title: 'Lead', text: 'Run a chapter, an event or a team, and learn to lead people, not just code.', stat: '60+', statLabel: 'student leaders', image: u('photo-1540575467063-178a50c2df87', 1000, 700), accent: '#34d399' },
+  { title: 'Learn', text: 'Workshops and study groups taught by seniors, alumni and industry engineers.', stat: '50+', statLabel: 'sessions a year', image: local('gallery_img_22_69.png'), accent: '#18a4fe' },
+  { title: 'Build', text: 'Project teams that turn ideas into boards, circuits, apps and papers.', stat: '30+', statLabel: 'active projects', image: local('gallery_img_14_46.png'), accent: '#f26625' },
+  { title: 'Compete', text: 'Hackathons, IEEEXtreme and design contests, on campus and across India.', stat: '12', statLabel: 'competitions hosted', image: local('gallery_img_48_147.png'), accent: '#fbbf24' },
+  { title: 'Lead', text: 'Run a chapter, an event or a team, and learn to lead people, not just code.', stat: '60+', statLabel: 'student leaders', image: local('gallery_img_37_114.png'), accent: '#34d399' },
 ];
 
 // PLACEHOLDER quotes: replace with real member testimonials before launch.
@@ -454,19 +487,19 @@ export const testimonials = [
   { quote: 'I joined for the hackathons and stayed for the people. My first PCB, my first paper and my internship all came through IEEE.', name: 'Final-year student', role: 'ECE · PELS/IES' },
   { quote: 'Running a workshop for 200 juniors taught me more about leadership than any course. The seniors trust you with real responsibility.', name: 'Third-year student', role: 'CSE · Computer Society' },
   { quote: 'The WIE mentorship circle connected me with an alumna at a chip company. She reviewed my resume line by line.', name: 'Second-year student', role: 'EEE · WIE' },
-  { quote: 'Our robotics team went from a line follower to an autonomous rover in a year. The lab access alone is worth the membership.', name: 'Third-year student', role: 'MECH · RAS' },
+  { quote: 'Our IEEE chapter workshops connect theory to practice. Building real projects with guidance from seniors made all the difference.', name: 'Third-year student', role: 'MECH · PES' },
 ];
 
 export const faqs = [
   { q: 'Who can become a member?', a: 'Any student currently enrolled at B.M.S. College of Engineering: undergraduate, postgraduate or research scholar, from any department.' },
   { q: 'What does the membership cost?', a: 'A base branch membership fee plus an optional fee for each technical chapter you add. You see the exact total before you pay.' },
-  { q: 'How do I pay?', a: 'With any UPI app. Scan the QR code on the payment step, then upload the screenshot and the 12-digit UTR number.' },
+  { q: 'How do I pay?', a: 'UPI is the usual route. You can also pay from net banking or a card through your bank’s UPI / IMPS flow, then upload the receipt. We match the amount and the reference number.' },
   { q: 'How long does verification take?', a: 'The treasurer matches payments against the bank statement, usually within two to three working days. You get an email once you are verified.' },
   { q: 'Can I join more chapters later?', a: 'Yes. Sign in to the member portal and start a new application with the extra chapters you want.' },
   { q: 'When do I get my IEEE.org account?', a: 'Official IEEE credentials are provisioned by IEEE headquarters in batches. We email them to you as soon as they arrive.' },
 ];
 
-export const tickerItems = ['IEEE Day 2026', 'IEEEXtreme 20.0', 'Phase Shift Hackathon', 'WIE Tech Summit', 'PCB Design Bootcamp', 'Robotics Challenge', 'AI/ML Masterclass', 'Membership Drive 2026'];
+export const tickerItems = ['IEEE Day 2026', 'IEEEXtreme 20.0', 'WIE Tech Summit', 'PCB Design Bootcamp', 'AI/ML Masterclass', 'Membership Drive 2026'];
 
 /** Splits the calendar into upcoming (soonest first) and past (latest first). */
 export function splitEvents(filter?: (e: SiteEvent) => boolean) {
@@ -486,7 +519,6 @@ export function chapterCode(name: string) {
     [/computer/, 'CS'],
     [/pels|industrial|power electronics/, 'PELS/IES'],
     [/power & energy|power and energy|\bpes\b/, 'PES'],
-    [/robot/, 'RAS'],
     [/women/, 'WIE'],
     [/social|ssit/, 'SSIT'],
   ];
@@ -498,16 +530,21 @@ export const departments = [
   ['ISE', 'Information Science & Engineering'],
   ['AIML', 'Artificial Intelligence & Machine Learning'],
   ['CSE-DS', 'Computer Science (Data Science)'],
+  ['CSE-IOT', 'Computer Science (IoT & Cybersecurity)'],
+  ['CSE-AI', 'Computer Science (Artificial Intelligence)'],
   ['ECE', 'Electronics & Communication'],
   ['EEE', 'Electrical & Electronics'],
   ['ETE', 'Electronics & Telecommunication'],
   ['EIE', 'Electronics & Instrumentation'],
   ['MED', 'Medical Electronics'],
   ['MECH', 'Mechanical Engineering'],
+  ['AE', 'Aerospace Engineering'],
   ['CIVIL', 'Civil Engineering'],
   ['CHEM', 'Chemical Engineering'],
   ['IEM', 'Industrial Engineering & Management'],
   ['BT', 'Biotechnology'],
+  ['ARCH', 'Architecture'],
+  ['MCA', 'Master of Computer Applications'],
   ['OTHER', 'Other'],
 ];
 
@@ -515,16 +552,21 @@ export const departments = [
 export const suggestedByDepartment: Record<string, string[]> = {
   CSE: ['CS', 'SSIT'],
   ISE: ['CS', 'SSIT'],
-  AIML: ['CS', 'RAS'],
+  AIML: ['CS'],
   'CSE-DS': ['CS', 'SSIT'],
-  ECE: ['PELS/IES', 'RAS'],
+  'CSE-IOT': ['CS'],
+  'CSE-AI': ['CS', 'SSIT'],
+  ECE: ['PELS/IES'],
   EEE: ['PES', 'PELS/IES'],
   ETE: ['PELS/IES', 'CS'],
-  EIE: ['PELS/IES', 'RAS'],
+  EIE: ['PELS/IES'],
   MED: ['PELS/IES', 'SSIT'],
-  MECH: ['RAS', 'PES'],
+  MECH: ['PES'],
+  AE: ['PES'],
   CIVIL: ['SSIT', 'PES'],
   CHEM: ['PES', 'SSIT'],
-  IEM: ['SSIT', 'RAS'],
+  IEM: ['SSIT'],
   BT: ['SSIT', 'CS'],
+  ARCH: ['SSIT', 'WIE'],
+  MCA: ['CS', 'SSIT'],
 };

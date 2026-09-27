@@ -14,7 +14,6 @@ This checklist turns **PRD §10** into an actionable, non-technical punch list o
   - [x] IEEE Computer Society (CS): ₹100
   - [x] IEEE Power & Energy Society (PES): ₹100
   - [x] IEEE Power & Industrial Electronics Joint Chapter (PELS/IES): ₹100
-  - [x] IEEE Robotics & Automation Society (RAS): ₹100
   - [x] IEEE Women in Engineering (WIE): ₹50
   - [x] IEEE Social Implications of Technology (SSIT): ₹50
 

@@ -11,7 +11,7 @@ export default function Team() {
     <section id="team" className="py-24 sm:py-32">
       <div className="container-page">
         <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-          <div>
+          <div className="lg:w-2/3">
             <Reveal>
               <SectionLabel index="06">Executive committee</SectionLabel>
             </Reveal>

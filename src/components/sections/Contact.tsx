@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowUpRight, Mail, MapPin, Phone, Send } from 'lucide-react';
+import { ArrowUpRight, Mail, MapPin, Phone, Send, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { contactInfo } from '@/data/site';
 import Reveal from '@/components/site/Reveal';
 import { SectionLabel } from '@/components/site/BrandShapes';
@@ -12,13 +12,43 @@ const topics = ['Partnership', 'Sponsorship', 'Guest talk', 'Membership', 'Somet
 export default function Contact() {
   const [topic, setTopic] = useState(topics[0]);
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
 
-  // No backend needed: opens the visitor's email app with everything filled in.
-  const send = (e: React.FormEvent) => {
+  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const send = async (e: React.FormEvent) => {
     e.preventDefault();
-    const subject = `${topic} enquiry from ${name || 'the website'}`;
-    window.location.href = `mailto:${contactInfo.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`${message}\n\n— ${name}`)}`;
+    setErrorMsg('');
+
+    if (!name.trim()) {
+      setErrorMsg('Please enter your name');
+      return;
+    }
+    if (!email.trim() || !validateEmail(email)) {
+      setErrorMsg('Please enter a valid email address');
+      return;
+    }
+    if (!message.trim()) {
+      setErrorMsg('Please enter a message');
+      return;
+    }
+
+    setStatus('loading');
+
+    const subject = `${topic} enquiry from ${name}`;
+    const body = `${message}\n\n— ${name}\n${email}`;
+    const mailtoLink = `mailto:${contactInfo.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    setTimeout(() => {
+      window.location.href = mailtoLink;
+      setStatus('success');
+      setName('');
+      setEmail('');
+      setMessage('');
+    }, 300);
   };
 
   return (
@@ -56,13 +86,14 @@ export default function Contact() {
         <Reveal delay={150} className="lg:col-span-6 lg:col-start-7">
           <form onSubmit={send} className="panel p-6 sm:p-9">
             <p className="text-sm font-medium text-ink">What is this about?</p>
-            <div className="mt-3 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-2" role="radiogroup" aria-label="Enquiry topic">
               {topics.map((t) => (
                 <button
                   key={t}
                   type="button"
+                  role="radio"
+                  aria-checked={topic === t}
                   onClick={() => setTopic(t)}
-                  aria-pressed={topic === t}
                   className={cn('rounded-full px-4 py-2 text-sm font-medium transition-all', topic === t ? 'bg-ink text-white' : 'bg-paper text-ink-soft hover:bg-paper-2')}
                 >
                   {t}
@@ -70,11 +101,33 @@ export default function Contact() {
               ))}
             </div>
             <label htmlFor="contact-name" className="field-label mt-7">Your name</label>
-            <input id="contact-name" className="input" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Priya from Acme Labs" />
+            <input id="contact-name" className="input" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Your full name" />
+            <label htmlFor="contact-email" className="field-label mt-5">Email address</label>
+            <input id="contact-email" type="email" className="input" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" />
             <label htmlFor="contact-msg" className="field-label mt-5">Message</label>
             <textarea id="contact-msg" className="input min-h-[140px] resize-y" value={message} onChange={(e) => setMessage(e.target.value)} required placeholder="Tell us a little about what you have in mind." />
-            <button type="submit" className="btn btn-primary btn-lg mt-6 w-full sm:w-auto">
-              Send message <Send className="h-4 w-4" />
+            {errorMsg && (
+              <p className="mt-3 text-sm text-red-600 flex items-center gap-2" role="alert">
+                <AlertCircle className="h-4 w-4" />
+                {errorMsg}
+              </p>
+            )}
+            <button type="submit" className="btn btn-primary btn-lg mt-6 w-full sm:w-auto" disabled={status === 'loading'}>
+              {status === 'loading' ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Opening email…
+                </>
+              ) : status === 'success' ? (
+                <>
+                  <CheckCircle className="h-4 w-4" />
+                  Email app opened
+                </>
+              ) : (
+                <>
+                  Send message <Send className="h-4 w-4" />
+                </>
+              )}
             </button>
             <p className="mt-3 text-xs text-muted">Opens your email app with the message ready to send.</p>
           </form>

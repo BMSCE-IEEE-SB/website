@@ -39,7 +39,7 @@ All landing-page text, chapters, events, gallery photos, testimonials, FAQs and 
 - **Academic & Personal Profile** (`/membership/profile`): Full Name, USN, Department, Year of Study, Contact Info, and optional IEEE Member ID with auto-fill sample testing helper.
 - **Dynamic Chapters Shopping Cart** (`/membership/chapters`):
   - Fixed Base Branch Membership fee (₹1,810).
-  - Interactive add/remove for all 6 technical chapters (Computer Society, PES, PELS/IES, RAS, WIE, SSIT) with real-time total calculation.
+  - Interactive add/remove for all 5 technical chapters (Computer Society, PES, PELS/IES, WIE, SSIT) with real-time total calculation.
   - **T-Shirt Size Selector**: Members select their merchandise size ('S', 'M', 'L', 'XL', 'XXL') directly in the cart.
 - **Dynamic UPI QR Checkout** (`/membership/checkout`):
   - Server-verified checkout intent (`/api/checkout/intent`) enforcing server-side price validation and expiration.
@@ -83,9 +83,8 @@ Interactive Bento grid showcasing all 6 technical verticals:
 1. **IEEE Computer Society (CS)** — Software Architectures, Algorithms, AI Systems & IEEEXtreme.
 2. **IEEE Power & Energy Society (PES)** — Clean Tech, Microgrids & Smart Energy.
 3. **IEEE PELS & IES Joint Chapter** — PCB Fabrication, Power Drives & Industrial Automation.
-4. **IEEE Robotics & Automation Society (RAS)** — Robotics Platforms, Autonomous Systems & Intelligent Machines.
-5. **IEEE Women in Engineering (WIE)** — Mentorship, Leadership & STEM Advancement.
-6. **IEEE Social Implications of Technology (SSIT)** — Tech Ethics, AI Governance & Humanitarian Engineering.
+4. **IEEE Women in Engineering (WIE)** — Mentorship, Leadership & STEM Advancement.
+5. **IEEE Social Implications of Technology (SSIT)** — Tech Ethics, AI Governance & Humanitarian Engineering.
 
 ---
 

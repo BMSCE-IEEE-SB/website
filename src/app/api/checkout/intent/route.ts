@@ -16,7 +16,11 @@ export async function POST(request: Request) {
       p_user_id: user.id,
       p_chapter_ids: chapterIds,
     });
-    if (error || !data) return jsonError('Checkout pricing is unavailable. Refresh and try again.', 409);
+    if (error) {
+      console.error('create_checkout_intent error:', error);
+      return jsonError(error.message || 'Checkout pricing is unavailable. Refresh and try again.', 409);
+    }
+    if (!data) return jsonError('Checkout pricing is unavailable. Refresh and try again.', 409);
     return Response.json(data, { headers: { 'Cache-Control': 'no-store' } });
   } catch {
     return jsonError('Checkout is temporarily unavailable.', 503);

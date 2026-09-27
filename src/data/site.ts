@@ -372,14 +372,50 @@ export const gallery: GalleryPhoto[] = [
   g('photo-1521737604893-d14cc237f11d', 'Networking session', 'WIE Tech Summit', 'summit'),
 ];
 
-export type ExeComMember = { name: string; role: string; photo: string; linkedin: string; batch?: string };
+export type ExeComMember = { name: string; role: string; photo: string; linkedin?: string; batch?: string };
 
 export const execom: ExeComMember[] = [
-  { name: 'Arjun Sharma', role: 'Chairperson', photo: 'https://randomuser.me/api/portraits/men/32.jpg', linkedin: 'https://linkedin.com/in/arjunsharma', batch: '2025' },
-  { name: 'Priya Nair', role: 'Vice Chairperson', photo: 'https://randomuser.me/api/portraits/women/44.jpg', linkedin: 'https://linkedin.com/in/priyanair', batch: '2025' },
-  { name: 'Ananya Reddy', role: 'Secretary', photo: 'https://randomuser.me/api/portraits/women/26.jpg', linkedin: 'https://linkedin.com/in/ananyareddy', batch: '2026' },
-  { name: 'Rahul Krishnan', role: 'Treasurer', photo: 'https://randomuser.me/api/portraits/men/18.jpg', linkedin: 'https://linkedin.com/in/rahulkrishnan', batch: '2026' },
-  { name: 'Vikram Patel', role: 'Joint Treasurer', photo: 'https://randomuser.me/api/portraits/men/75.jpg', linkedin: 'https://linkedin.com/in/vikrampatel', batch: '2025' },
+  {
+    name: 'Dr. M Vasantha Lakshmi',
+    role: 'Branch Counselor',
+    photo: '/team/vasantha-lakshmi.png',
+  },
+  {
+    name: 'Dr. Namratha M.',
+    role: 'Branch Mentor',
+    photo: '/team/namratha.png',
+    linkedin: 'https://www.linkedin.com/in/dr-namratha-m-2316b814/',
+  },
+  {
+    name: 'K Sahana',
+    role: 'Chairperson',
+    photo: '/team/sahana.jpg',
+    linkedin: 'https://www.linkedin.com/in/sahana-k-8a3562373/',
+  },
+  {
+    name: 'Ratik Agrawal',
+    role: 'Vice Chairperson',
+    photo: '/team/ratik.jpg',
+    linkedin: 'https://www.linkedin.com/in/ratik-agrawal/',
+  },
+  {
+    name: 'Neha Ramiah',
+    role: 'Treasurer & MD Head',
+    photo: '/team/neha.jpg',
+    linkedin: 'https://www.linkedin.com/in/neharamiah06',
+  },
+  {
+    name: 'Shashwat Goyal',
+    role: 'Joint Treasurer',
+    photo: '/team/shashwat.jpg',
+    linkedin: 'http://www.linkedin.com/in/shashwat-goyal-b73b73187',
+  },
+  {
+    name: 'Nithyaneshwar A',
+    role: 'Secretary & Webmaster',
+    photo: '/team/nithyaneshwar.jpg',
+    linkedin: 'https://linkedin.com/in/nith27',
+  },
 ];
 
 export const socialLinks = [
@@ -404,7 +440,7 @@ export const FALLBACK_CART_CHAPTERS = [
   { id: 'demo-pes', name: 'Power & Energy Society and Sensors Council (PES & SC)', code: 'PES', price: 100 },
   { id: 'demo-pels', name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', price: 100 },
   { id: 'demo-wie', name: 'Women in Engineering', code: 'WIE', price: 50 },
-  { id: 'demo-ssit', name: 'Social Implications of Technology', code: 'SSIT', price: 50 },
+  { id: 'demo-ssit', name: 'Society on Social Implications of Technology', code: 'SSIT', price: 50 },
 ];
 
 export const chapterBySlug = (slug: string) => chapters.find((c) => c.slug === slug);

@@ -28,7 +28,7 @@ export default function PrivacyPolicyPage() {
           <ul>
             <li>Validate enrollment at B.M.S. College of Engineering.</li>
             <li>Reconcile UPI membership dues against bank account statements.</li>
-            <li>Provision student memberships into selected technical chapters (CS, PES, PELS/IES, WIE, SSIT).</li>
+            <li>Provision student memberships into selected technical chapters (CS, PES & SC, PELS & IES, WIE, SSIT).</li>
             <li>Transmit roster credentials to IEEE Headquarters (IEEE.org) for official member onboarding.</li>
             <li>Dispatch automated confirmation receipts and branch communications.</li>
           </ul>
@@ -51,7 +51,7 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2>5. Contact & Data Rectification</h2>
           <p>
-            Members may request data corrections, update contact numbers, or inquire about their record by emailing the branch executive team at <span className="font-medium text-brand-navy">ieee@bmsce.ac.in</span> or visiting the IEEE Student Branch room on the BMSCE campus.
+            Members may request data corrections, update contact numbers, or inquire about their record by emailing the branch executive team at <span className="font-medium text-brand-navy">ieee.sb@bmsce.ac.in</span> or visiting the IEEE Student Branch room on the BMSCE campus.
           </p>
         </section>
     </LegalShell>

@@ -2,28 +2,26 @@
 
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { testimonials } from '@/data/site';
+import { membershipBenefits } from '@/data/site';
 import { Sails } from '@/components/site/BrandShapes';
 import NetworkCanvas from '@/components/site/NetworkCanvas';
 
-function RotatingQuote() {
+function RotatingBenefit() {
   const [i, setI] = useState(0);
   const reduce = useReducedMotion();
   useEffect(() => {
     if (reduce) return;
-    const id = setInterval(() => setI((v) => (v + 1) % testimonials.length), 6000);
+    const id = setInterval(() => setI((v) => (v + 1) % membershipBenefits.length), 5000);
     return () => clearInterval(id);
   }, [reduce]);
-  const t = testimonials[i];
+  const benefit = membershipBenefits[i];
   return (
-    <div className="min-h-[150px]">
+    <div className="min-h-[110px]">
       <AnimatePresence mode="wait">
-        <motion.figure key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.4 }}>
-          <blockquote className="text-lg leading-relaxed text-white/90">&ldquo;{t.quote}&rdquo;</blockquote>
-          <figcaption className="mt-4 text-sm text-white/55">
-            {t.name} · {t.role}
-          </figcaption>
-        </motion.figure>
+        <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35 }}>
+          <p className="text-xs font-semibold tracking-wider text-brand-orange uppercase">Member Benefit</p>
+          <p className="mt-2 text-base leading-relaxed text-white/90">{benefit}</p>
+        </motion.div>
       </AnimatePresence>
     </div>
   );
@@ -42,7 +40,7 @@ export default function AuthShell({ title, children, top }: { title: React.React
         </div>
         <div className="relative space-y-10">
           {top}
-          <RotatingQuote />
+          <RotatingBenefit />
         </div>
       </aside>
       <div className="p-6 sm:p-10 xl:p-12">{children}</div>

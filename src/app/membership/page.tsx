@@ -119,7 +119,7 @@ export default function MembershipPage() {
           <Reveal className="lg:col-span-4">
             <SectionLabel index="04">FAQ</SectionLabel>
             <h2 className="section-title mt-6">Questions, answered</h2>
-            <p className="lead mt-5">Still unsure? Write to us at ieee@bmsce.ac.in.</p>
+            <p className="lead mt-5">Still unsure? Write to us at ieee.sb@bmsce.ac.in.</p>
           </Reveal>
           <div className="lg:col-span-8">
             <Faq />

@@ -32,16 +32,15 @@ const emptyEvent: AdminEvent = {
 const chapters = [
   { code: 'branch', name: 'Branch Sitewide' },
   { code: 'cs', name: 'Computer Society' },
-  { code: 'pes', name: 'Power & Energy Society' },
-  { code: 'pels-ies', name: 'PELS & IES Joint Chapter' },
+  { code: 'pes', name: 'Power & Energy Society and Sensors Council (PES & SC)' },
+  { code: 'pels-ies', name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)' },
   { code: 'wie', name: 'Women in Engineering' },
-  { code: 'ssit', name: 'Social Implications of Tech' },
+  { code: 'ssit', name: 'Society on Social Implications of Technology' },
 ];
 
 export default function AdminEventsPage() {
   const router = useRouter();
   const demo = isDemoMode();
-  const [adminEmail, setAdminEmail] = useState('');
   const [events, setEvents] = useState<AdminEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -79,7 +78,6 @@ export default function AdminEventsPage() {
         router.replace('/admin/login');
         return;
       }
-      setAdminEmail(admin.email);
       await load();
       setIsLoading(false);
     })();

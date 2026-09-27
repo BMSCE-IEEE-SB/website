@@ -64,9 +64,13 @@ export default function Chapters() {
                     onFocus={() => pick(i)}
                     onClick={() => pick(i)}
                     aria-pressed={on}
-                    className="group flex w-full items-center gap-3 py-4 text-left"
+                    className="group flex w-full items-center gap-3.5 py-3.5 text-left"
                   >
-                    {c.logo && <span className="flex h-10 w-12 shrink-0 items-center justify-center rounded-lg bg-white p-1 ring-1 ring-ink/5"><Image src={c.logo} alt="" aria-hidden width={100} height={60} className="max-h-8 w-full object-contain" /></span>}
+                    {c.logo && (
+                      <span className="flex h-11 w-14 shrink-0 items-center justify-center rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-ink/10">
+                        <Image src={c.logo} alt="" aria-hidden width={100} height={60} className="max-h-8 w-full object-contain" />
+                      </span>
+                    )}
                     <span className={cn('flex-1 text-sm leading-snug font-semibold transition-colors sm:text-base', on ? 'text-ink' : 'text-ink/60 group-hover:text-ink')} style={on ? { color: c.color } : undefined}>{c.name}</span>
                     <span className="relative h-8 w-8 shrink-0">
                       {on && !interacted && !reduce && (

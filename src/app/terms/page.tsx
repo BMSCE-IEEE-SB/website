@@ -19,7 +19,7 @@ export default function TermsPage() {
         <section>
           <h2>2. Payment & Membership Activation</h2>
           <p>
-            Dues consist of a fixed Base Branch Membership plus variable fees for elected technical societies (Computer Society, PES, PELS/IES, WIE, SSIT).
+            Dues consist of a fixed Base Branch Membership plus variable fees for elected technical societies (Computer Society, Power & Energy Society and Sensors Council (PES & SC), Power Electronics Society and the Industrial Electronics Society (PELS & IES), Women in Engineering, Society on Social Implications of Technology).
           </p>
           <ul>
             <li>Payments must be executed to the official branch UPI VPA as presented during checkout.</li>

@@ -2,7 +2,7 @@
 
 Official website for the **IEEE Student Branch at B.M.S. College of Engineering (Branch 06261, Region 10)**. Built with Next.js 16 (App Router), Tailwind CSS v4, and Supabase for the 2026 Annual Membership Drive.
 
-The public landing page (chapters, events, gallery, team, partnerships) and the membership registration flow live in one site. Every "Become a member" button leads to `/membership/register`.
+The public landing page (chapters, gallery, team, partnerships) and the membership registration flow live in one site. Every "Become a member" button leads to `/membership/register`.
 
 ### Demo mode vs live mode
 - **Demo mode** runs when `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` are not set. Everything is stored in the browser's localStorage with sample admin data, any login works, and a blue "Demo mode" note appears on the forms.
@@ -11,7 +11,7 @@ The public landing page (chapters, events, gallery, team, partnerships) and the 
 ### Main pages
 | Page | What it is |
 |---|---|
-| `/` | Landing page (Hero, About, Chapters, Events, Gallery preview, ExeCom, Partners) |
+| `/` | Landing page (Hero, About, Chapters, Gallery preview, ExeCom, Partners) |
 | `/chapters/[slug]` | Chapter detail pages (`cs`, `pes`, `pels-ies`, `wie`, `ssit`) |
 | `/gallery` | Full photo gallery with interactive lightbox |
 | `/membership` | "Become a member": benefits, fee slip calculator, FAQ |
@@ -21,14 +21,13 @@ The public landing page (chapters, events, gallery, team, partnerships) and the 
 | `/account` | Member portal: digital card, status tracker, payment resubmission |
 | `/admin/login` | Executive administrator sign in |
 | `/admin/orders` | Orders ledger, payment proof verification, and receipt dispatch |
-| `/admin/events` | Events & workshops manager (CRUD) |
 | `/admin/announcement` | Sitewide announcement banner editor |
 | `/admin/team` | Executive team access & whitelist manager |
 | `/admin/settings` | Membership drive status, base fee, UPI VPA & treasurer settings |
 | `/privacy`, `/terms`, `/refund` | Official student branch legal & policy pages |
 
 ### Where to edit site content
-All landing-page text, chapters, events, gallery photos, testimonials, FAQs and ExeCom members are in `src/data/site.ts`. Events marked as upcoming or past are worked out from their dates automatically. The testimonials and events there are **placeholders** and can be replaced or managed dynamically via `/admin/events`. Chapter prices for payment come from the `chapters` table in live mode.
+All landing-page text, chapters, gallery photos, testimonials, FAQs and ExeCom members are in `src/data/site.ts`. The testimonials there are **placeholders**. Chapter prices for payment come from the `chapters` table in live mode.
 
 ---
 

@@ -1,3 +1,6 @@
+## [Unreleased]
+- Temporarily disabled and removed the Events feature from the frontend and admin portal (database schema preserved).
+
 # Changelog
 
 All notable changes to the **BMSCE IEEE Student Branch Website** will be documented in this file.

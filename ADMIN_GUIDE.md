@@ -1,6 +1,6 @@
 # BMSCE IEEE Admin Guide
 
-For student executive committee members, branch chairs, treasurers, and volunteers responsible for managing the website, verifying membership dues, running the membership drive, scheduling technical events, publishing announcements, and configuring branch finances.
+For student executive committee members, branch chairs, treasurers, and volunteers responsible for managing the website, verifying membership dues, running the membership drive, publishing announcements, and configuring branch finances.
 
 ---
 
@@ -11,7 +11,6 @@ The administrative portal features a unified sidebar navigation shell (responsiv
 1. **Overview (`/admin`)**: Real-time financial metrics, pending queue age, verification trends, priority attention items, and interactive SVG charts with data table views.
 2. **Applications (`/admin/orders`)**: Financial ledger for reviewing payment proofs, fraud warning flags (duplicate UTR, amount mismatch, repeat USN), sliding inspection drawer, keyboard shortcuts, bulk verification/rejection, and on-demand official PDF receipts.
 3. **Members Directory (`/admin/members`)**: Verified membership roster, chapter enrollment breakdown tiles, credential dispatch tracking (`credentials_sent_at`), inline IEEE member ID assignment, and headquarters CSV export.
-4. **Events & Workshops (`/admin/events`)**: Create, edit, feature, and archive branch workshops, hackathons, summits, and technical talks.
 5. **Sitewide Announcement (`/admin/announcement`)**: Toggle and edit the global alert banner with live preview and safe URL validation.
 6. **Executive Team Access (`/admin/team`)**: Role-based access control whitelist (`admin_whitelist`) to grant or revoke administrative privileges with automatic database trigger synchronization.
 7. **Fees & Payment (`/admin/settings`)**: Configure membership drive status (`is_drive_open`), base membership fee, chapter add-ons, UPI VPA, payee name with live QR tester, and treasurer credentials printed on receipts.
@@ -126,21 +125,6 @@ Comprehensive directory of all students whose membership has been approved:
 - **Credential Dispatch Tracking**: Track who has received their IEEE.org login credentials. Click an individual status badge or select multiple members and click **"Credentials sent"**.
 - **BCC Email All**: Click **"Email"** to launch your desktop mail client with all filtered members pre-filled in the BCC field.
 - **Export Official Roster**: Download sanitized CSV rosters formatted for submission to IEEE Bangalore Section and Region 10.
-
----
-
-## 🗓️ Events & Workshops Manager (`/admin/events`)
-
-Manage branch events, hackathons, and seminars displayed across the site:
-
-1. **Event List**: Browse all branch events categorized by category (*workshop*, *hackathon*, *summit*, *talk*) with chapter affiliation, date, and venue.
-2. **Adding an Event**:
-   - Click **"Add Event"**.
-   - Fill in Title, Category, Chapter, Date (`YYYY-MM-DD`), Time, and Campus Venue.
-   - Enter Cover Image URL (Unsplash or hosted asset).
-   - Enter Registration URL (Devfolio, Unstop, Google Form).
-   - Toggle **Featured** to pin the event on the homepage hero showcase.
-3. **Editing & Deleting**: Modify event details or remove past events instantly.
 
 ---
 

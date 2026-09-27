@@ -75,8 +75,6 @@ For 4–8 prominent BMSCE IEEE alumni:
 - [ ] List of awards (e.g., Outstanding Student Branch Award, Best Chapter Award).
 - [ ] Notable hackathon wins, research paper publications, and dates.
 
-### 6. Events & Workshops (Manageable via `/admin/events`)
-- [ ] Upcoming event title, chapter tag, date, time, venue, and cover banner.
 - [ ] External Google Form, Devfolio, or Unstop registration link.
 
 ---

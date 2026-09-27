@@ -50,7 +50,7 @@ Click **"Deploy"**. Within ~60 seconds, Vercel will build all 32+ pages and API 
    - **Member Portal**: Verify application status tracking at `/account` and test the payment resubmission modal on rejected orders.
    - **Admin Verification**: Sign into `/admin/login`, review orders on `/admin/orders`, test signed URL payment proof viewing, approve an order, and test on-demand receipt delivery (`/api/send-receipt`) with PDF attachment.
    - **Manual Receipts**: Test issuing an offline receipt via the "Issue Manual Receipt" modal and verify entry in `issued_receipts` and `admin_audit_log`.
-   - **Admin Management**: Test the Announcement Bar toggle (`/admin/announcement`), Events Manager (`/admin/events`), Team Whitelist (`/admin/team`), and Drive Settings (`/admin/settings`).
+   - **Admin Management**: Test the Announcement Bar toggle (`/admin/announcement`), Team Whitelist (`/admin/team`), and Drive Settings (`/admin/settings`).
    - **Security Check**: Confirm direct anonymous or authenticated client writes to `orders`, `membership_config`, and `admin_whitelist` are rejected by Row-Level Security.
 
 ---

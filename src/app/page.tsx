@@ -2,7 +2,6 @@ import Hero from '@/components/sections/Hero';
 import Ticker from '@/components/sections/Ticker';
 import About from '@/components/sections/About';
 import Chapters from '@/components/sections/Chapters';
-import GalleryStrip from '@/components/sections/GalleryStrip';
 import Team from '@/components/sections/Team';
 import BangaloreSection from '@/components/sections/BangaloreSection';
 import Join from '@/components/sections/Join';
@@ -15,7 +14,6 @@ export default function Home() {
       <Ticker />
       <About />
       <Chapters />
-      <GalleryStrip />
       <Team />
       <BangaloreSection />
       <Join />

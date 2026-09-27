@@ -10,7 +10,6 @@ const columns = [
     links: [
       { label: 'About', href: '/#about' },
       { label: 'IEEE Bangalore Section', href: 'https://ieeebangalore.org/' },
-      { label: 'Gallery', href: '/gallery' },
       { label: 'Team', href: '/#team' },
       { label: 'Contact', href: '/#contact' },
     ],

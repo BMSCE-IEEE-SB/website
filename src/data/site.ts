@@ -22,7 +22,6 @@ export const contactInfo = {
 export const navItems = [
   { label: 'About', href: '/#about', id: 'about' },
   { label: 'Chapters', href: '/#chapters', id: 'chapters' },
-  { label: 'Gallery', href: '/gallery', id: 'gallery' },
   { label: 'Team', href: '/#team', id: 'team' },
   { label: 'Contact', href: '/#contact', id: 'contact' },
 ];
@@ -340,35 +339,6 @@ export const events: SiteEvent[] = [
 export const isPastEvent = (e: SiteEvent, now: number) => new Date(`${e.date}T23:59:59+05:30`).getTime() < now;
 export const eventStart = (e: SiteEvent) => new Date(`${e.date}T${e.time ?? '09:00'}:00+05:30`).getTime();
 
-export type GalleryCategory = 'hackathon' | 'workshop' | 'summit' | 'student-life';
-
-export type GalleryPhoto = { src: string; full: string; alt: string; title: string; category: GalleryCategory };
-
-const g = (id: string, alt: string, title: string, category: GalleryCategory): GalleryPhoto => ({
-  src: u(id, 800, 600),
-  full: u(id, 1600, 1066),
-  alt,
-  title,
-  category,
-});
-
-export const gallery: GalleryPhoto[] = [
-  g('photo-1504384308090-c894fdcc538d', 'Teams coding at Phase Shift Hackathon', 'Phase Shift Hackathon', 'hackathon'),
-  g('photo-1555949963-aa79dcee981c', 'Speaker at the AI/ML workshop', 'AI/ML Masterclass', 'workshop'),
-  g('photo-1540575467063-178a50c2df87', 'Keynote at WIE Tech Summit', 'WIE Tech Summit', 'summit'),
-  g('photo-1531482615713-2afd69097998', 'Winners announced at Phase Shift', 'Phase Shift Hackathon', 'hackathon'),
-  g('photo-1531746790731-6c087fecd65a', 'Students building ML models', 'AI/ML Masterclass', 'workshop'),
-  g('photo-1573164713714-d95e436ab8d6', 'Panel discussion at WIE Summit', 'WIE Tech Summit', 'summit'),
-  g('photo-1497436072909-60f360e1d4b1', 'Smart grid demonstration', 'Power Systems Workshop', 'workshop'),
-  g('photo-1519389950473-47ba0277781c', 'IEEE Day celebration', 'IEEE Day 2024', 'summit'),
-  g('photo-1522202176988-66273c2fd55f', 'Students at a campus event', 'Student Outreach', 'student-life'),
-  g('photo-1505373877841-8d25f7d46678', 'Audience at a technical talk', 'Technical Talk Series', 'student-life'),
-  g('photo-1497366216548-37526070297c', 'Industry visit to a tech park', 'Industry Visit', 'student-life'),
-  g('photo-1550751827-4bd374c3f58b', 'Hands-on security workshop', 'Cybersecurity Summit', 'summit'),
-  g('photo-1517694712202-14dd9538aa97', 'Hackathon participants collaborating', 'Phase Shift Hackathon', 'hackathon'),
-  g('photo-1524178232363-1fb2b075b655', 'New members at orientation', 'IEEE Orientation', 'student-life'),
-  g('photo-1521737604893-d14cc237f11d', 'Networking session', 'WIE Tech Summit', 'summit'),
-];
 
 export type ExeComMember = { name: string; role: string; photo: string; linkedin?: string; batch?: string };
 

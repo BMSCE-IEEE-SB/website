@@ -31,7 +31,7 @@ export async function loadPricing(): Promise<Pricing> {
     };
   }
   const [chaptersRes, configRes] = await Promise.all([
-    supabase.from('chapters').select('id, name, code, price').order('name'),
+    supabase.from('chapters').select('id, name, code, price').eq('is_active', true).order('display_order'),
     supabase.from('membership_config').select('base_fee').eq('id', 1).maybeSingle(),
   ]);
   if (chaptersRes.error || configRes.error || !configRes.data) {

@@ -10,7 +10,7 @@
 
 ## 1. Executive Summary & Objective
 
-The BMSCE IEEE Student Branch requires a unified digital presence to drive and manage its **2026 Annual Membership Drive**, highlight its 6 technical society chapters, and provide an auditable administrative platform for dues reconciliation.
+The BMSCE IEEE Student Branch requires a unified digital presence to drive and manage its **2026 Annual Membership Drive**, highlight its 5 technical society chapters and affinity groups, and provide an auditable administrative platform for dues reconciliation.
 
 ### Primary Objectives (P0)
 1. **Unified Public Presence**: A responsive, branded landing page showcasing branch history, chapter verticals, photo gallery, executive committee, and membership benefits.

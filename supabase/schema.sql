@@ -152,6 +152,8 @@ ON CONFLICT (code) DO UPDATE SET
   is_active = EXCLUDED.is_active,
   display_order = EXCLUDED.display_order;
 
+DELETE FROM public.chapters WHERE code NOT IN ('CS', 'PES', 'PELS/IES', 'WIE', 'SSIT');
+
 INSERT INTO public.announcement (id, message, link_url, is_active)
 VALUES (1, 'Membership Drive 2026 is live. Register today to join IEEE and its technical chapters.', '/membership', true)
 ON CONFLICT (id) DO NOTHING;

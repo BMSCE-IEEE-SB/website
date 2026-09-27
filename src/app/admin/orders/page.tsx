@@ -96,14 +96,20 @@ export default function AdminOrdersPage() {
       method: 'POST',
       headers,
       body: JSON.stringify({
+        orderId: order.id,
         email: order.email,
         name: order.student_name || 'Member',
         orderRef: order.order_reference,
+        receiptNumber: order.receipt_number,
         amount: order.total_amount,
         chaptersList: order.chapters ?? [],
       }),
     });
-    return res.ok;
+    const data = await res.json().catch(() => null);
+    if (!res.ok) {
+      throw new Error(data?.error || `Server responded with status ${res.status}`);
+    }
+    return (data || {}) as { success: boolean; receiptNumber?: string };
   }
 
   async function verify(order: Order) {
@@ -134,24 +140,23 @@ export default function AdminOrdersPage() {
     }
     setSendingReceiptId(order.id);
     try {
-      const ok = await sendReceipt(order).catch(() => false);
-      if (!ok) {
-        throw new Error('API returned an error or SMTP failed. Check your server logs / SMTP settings.');
-      }
+      const result = await sendReceipt(order);
+      const assignedNum = result.receiptNumber || order.receipt_number;
       if (demo) {
-        updateLocalOrderReceipt(order.id, true);
+        updateLocalOrderReceipt(order.id, true, assignedNum);
       } else {
         const { error } = await supabase
           .from('orders')
           .update({
             receipt_sent: true,
             receipt_sent_at: new Date().toISOString(),
+            receipt_number: assignedNum,
             receipt_error: null,
           })
           .eq('id', order.id);
         if (error) throw error;
       }
-      showToast('success', `Receipt sent successfully to ${order.email}.`);
+      showToast('success', `Official receipt ${assignedNum ? `(${assignedNum}) ` : ''}sent successfully to ${order.email}.`);
       await load();
     } catch (err) {
       const msg = errorMessage(err);
@@ -210,10 +215,10 @@ export default function AdminOrdersPage() {
   }, [orders, filter, query]);
 
   function exportCSV() {
-    const header = ['Order Ref', 'Student Name', 'USN', 'Email', 'Department', 'Year', 'Phone', 'Chapters', 'Amount', 'Status', 'UTR', 'Submitted'];
+    const header = ['Order Ref', 'Student Name', 'USN', 'Email', 'Department', 'Year', 'Phone', 'Chapters', 'T-Shirt Size', 'Amount', 'Status', 'UTR', 'Submitted'];
     const rows = filtered.map((o) => [
       o.order_reference, o.student_name, o.usn, o.email, o.department, o.year_of_study, o.phone,
-      (o.chapters ?? []).join('; '), o.total_amount, o.status, o.utr_reference, new Date(o.created_at).toISOString(),
+      (o.chapters ?? []).join('; '), o.tshirt_size || '—', o.total_amount, o.status, o.utr_reference, new Date(o.created_at).toISOString(),
     ]);
     const csv = [header, ...rows].map((r) => r.map(csvCell).join(',')).join('\r\n');
     const url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
@@ -303,16 +308,24 @@ export default function AdminOrdersPage() {
                   </div>
                   <p className="mt-0.5 truncate text-sm text-muted">{o.email}{o.phone && ` · ${o.phone}`}</p>
                   <p className="mt-0.5 text-xs text-muted">{[o.department, o.year_of_study && `Year ${o.year_of_study}`].filter(Boolean).join(' · ')}</p>
-                  {o.chapters && o.chapters.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {o.chapters.map((c) => (
-                        <span key={c} className="rounded-full bg-paper px-2 py-0.5 text-[11px] text-ink-soft">{c}</span>
-                      ))}
-                    </div>
-                  )}
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    {o.tshirt_size && (
+                      <span className="rounded-full bg-brand-orange/10 px-2 py-0.5 text-[11px] font-semibold text-brand-orange ring-1 ring-brand-orange/20">
+                        T-Shirt: {o.tshirt_size}
+                      </span>
+                    )}
+                    {o.chapters && o.chapters.map((c) => (
+                      <span key={c} className="rounded-full bg-paper px-2 py-0.5 text-[11px] text-ink-soft">{c}</span>
+                    ))}
+                  </div>
                 </div>
                 <div className="text-sm">
                   <p className="font-mono font-semibold text-ink">{o.order_reference}</p>
+                  {o.receipt_number && (
+                    <span className="inline-block mt-0.5 rounded bg-sky-50 px-1.5 py-0.5 font-mono text-[11px] font-bold text-brand-navy">
+                      Receipt {o.receipt_number}
+                    </span>
+                  )}
                   <p className="text-xs text-muted">{formatDateTime(o.created_at)}</p>
                   <p className="mt-0.5 font-mono text-xs text-muted">UTR {o.utr_reference || '—'}</p>
                 </div>

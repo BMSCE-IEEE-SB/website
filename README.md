@@ -12,7 +12,7 @@ The public landing page (chapters, events, gallery, team, partnerships) and the 
 | Page | What it is |
 |---|---|
 | `/` | Landing page |
-| `/chapters/[slug]` | One page per chapter (`cs`, `pes`, `pels-ies`, `ras`, `wie`, `ssit`) |
+| `/chapters/[slug]` | One page per chapter (`cs`, `pes`, `pels-ies`, `wie`, `ssit`) |
 | `/gallery` | Full photo gallery |
 | `/membership` | "Become a member": benefits, price calculator, FAQ |
 | `/membership/register` → `/profile` → `/chapters` → `/checkout` | The four registration steps |

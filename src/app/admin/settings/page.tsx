@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { DollarSign, Layers, Save } from 'lucide-react';
-import { isDemoMode } from '@/lib/supabase';
+import { AlertCircle, CheckCircle2, DollarSign, Layers, Mail, Save, Send } from 'lucide-react';
+import { isDemoMode, supabase } from '@/lib/supabase';
 import {
   getAdminUser,
   loadAdminChapters,
@@ -36,6 +36,12 @@ export default function AdminSettingsPage() {
   // Chapter settings
   const [chapters, setChapters] = useState<ChapterSetting[]>([]);
   const [savingChapterId, setSavingChapterId] = useState<string | null>(null);
+
+  // SMTP Diagnostics
+  const [smtpStatus, setSmtpStatus] = useState<{ checked: boolean; ok?: boolean; message?: string } | null>(null);
+  const [isTestingSmtp, setIsTestingSmtp] = useState(false);
+  const [testEmail, setTestEmail] = useState('');
+  const [isSendingTestMail, setIsSendingTestMail] = useState(false);
 
   const [toast, setToast] = useState<{ tone: 'success' | 'error'; text: string } | null>(null);
 
@@ -89,6 +95,69 @@ export default function AdminSettingsPage() {
       showToast('error', `Failed to update chapter: ${errorMessage(err)}`);
     } finally {
       setSavingChapterId(null);
+    }
+  }
+
+  async function handleVerifySmtp() {
+    setIsTestingSmtp(true);
+    setSmtpStatus(null);
+    try {
+      const headers: Record<string, string> = {};
+      if (!demo) {
+        const { data } = await supabase.auth.getSession();
+        if (data.session) headers.Authorization = `Bearer ${data.session.access_token}`;
+      }
+      const res = await fetch('/api/send-receipt', { headers });
+      const data = await res.json();
+      if (!res.ok || !data.configured) {
+        setSmtpStatus({ checked: true, ok: false, message: data.error || 'SMTP verification failed' });
+        showToast('error', data.error || 'SMTP verification failed');
+      } else {
+        setSmtpStatus({ checked: true, ok: true, message: `Connected to ${data.host}:${data.port} as ${data.user}` });
+        showToast('success', 'SMTP server connected and verified successfully!');
+      }
+    } catch (err) {
+      const msg = errorMessage(err);
+      setSmtpStatus({ checked: true, ok: false, message: msg });
+      showToast('error', `SMTP test error: ${msg}`);
+    } finally {
+      setIsTestingSmtp(false);
+    }
+  }
+
+  async function handleSendTestReceipt(e: React.FormEvent) {
+    e.preventDefault();
+    if (!testEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(testEmail)) {
+      showToast('error', 'Please enter a valid email address.');
+      return;
+    }
+    setIsSendingTestMail(true);
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (!demo) {
+        const { data } = await supabase.auth.getSession();
+        if (data.session) headers.Authorization = `Bearer ${data.session.access_token}`;
+      }
+      const res = await fetch('/api/send-receipt', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          email: testEmail,
+          name: 'Branch Executive Test',
+          orderRef: 'TEST-' + Math.random().toString(36).substring(2, 8).toUpperCase(),
+          amount: settings.base_fee,
+          chaptersList: ['Computer Society (Sample)'],
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to dispatch test receipt.');
+      }
+      showToast('success', `Test receipt sent successfully to ${testEmail}!`);
+    } catch (err) {
+      showToast('error', `Failed to send test email: ${errorMessage(err)}`);
+    } finally {
+      setIsSendingTestMail(false);
     }
   }
 
@@ -166,6 +235,48 @@ export default function AdminSettingsPage() {
                 placeholder="BMSCE IEEE Student Branch"
               />
             </Field>
+          </div>
+
+          <div className="border-t border-line pt-6">
+            <h3 className="text-sm font-bold text-ink">Official Receipt Sign-Off (Treasurer)</h3>
+            <p className="text-xs text-muted">Details printed on official student membership PDF receipts</p>
+            <div className="mt-4 grid gap-6 sm:grid-cols-3">
+              <Field label="Treasurer Full Name" htmlFor="treasurer_name" required>
+                <Input
+                  id="treasurer_name"
+                  type="text"
+                  required
+                  value={settings.treasurer_name || ''}
+                  onChange={(e) => setSettings((s) => ({ ...s, treasurer_name: e.target.value }))}
+                  placeholder="Neha Ramiah"
+                />
+              </Field>
+
+              <Field label="Designation" htmlFor="treasurer_role" required>
+                <Input
+                  id="treasurer_role"
+                  type="text"
+                  required
+                  value={settings.treasurer_role || ''}
+                  onChange={(e) => setSettings((s) => ({ ...s, treasurer_role: e.target.value }))}
+                  placeholder="Treasurer and MDC"
+                />
+              </Field>
+
+              <Field label="Contact Phone" htmlFor="treasurer_phone" required>
+                <Input
+                  id="treasurer_phone"
+                  type="text"
+                  required
+                  value={settings.treasurer_phone || ''}
+                  onChange={(e) => setSettings((s) => ({ ...s, treasurer_phone: e.target.value }))}
+                  placeholder="+91 6385525264"
+                />
+              </Field>
+            </div>
+            <p className="mt-2 text-[11px] text-muted">
+              💡 Signature image can be uploaded to <code>public/brand/signature.png</code> to automatically appear above the name on all generated receipts.
+            </p>
           </div>
 
           <div className="flex items-center justify-between border-t border-line pt-6">
@@ -277,6 +388,66 @@ export default function AdminSettingsPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* 3. SMTP & Transactional Email Settings */}
+        <div className="panel mt-8 p-6 sm:p-8">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
+              <Mail className="h-5 w-5" />
+            </span>
+            <div>
+              <h2 className="text-lg font-bold">Email SMTP Server & Receipt Dispatch</h2>
+              <p className="text-xs text-muted">Test connection and verify transactional receipt emails</p>
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            <div className="flex flex-col gap-3 rounded-xl border border-line bg-paper/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-ink">SMTP Server Connectivity</p>
+                <p className="text-xs text-muted">Checks credentials, TLS handshake, and port connectivity</p>
+                {smtpStatus && (
+                  <p className={cn('mt-2 text-xs font-medium flex items-center gap-1.5', smtpStatus.ok ? 'text-emerald-600' : 'text-rose-600')}>
+                    {smtpStatus.ok ? <CheckCircle2 className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
+                    {smtpStatus.message}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                disabled={isTestingSmtp}
+                onClick={handleVerifySmtp}
+                className="btn btn-outline shrink-0 text-xs"
+              >
+                {isTestingSmtp ? <Spinner className="h-3.5 w-3.5" /> : null}
+                Test SMTP Connection
+              </button>
+            </div>
+
+            <form onSubmit={handleSendTestReceipt} className="rounded-xl border border-line bg-paper/50 p-4">
+              <p className="text-sm font-semibold text-ink">Send a Sample Receipt Email</p>
+              <p className="text-xs text-muted">Dispatches a test membership confirmation receipt to verify inbox delivery</p>
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <input
+                  type="email"
+                  required
+                  placeholder="your-email@example.com"
+                  value={testEmail}
+                  onChange={(e) => setTestEmail(e.target.value)}
+                  className="input flex-1 py-1.5 text-sm"
+                />
+                <button
+                  type="submit"
+                  disabled={isSendingTestMail}
+                  className="btn btn-dark shrink-0 text-xs"
+                >
+                  {isSendingTestMail ? <Spinner className="h-3.5 w-3.5" /> : <Send className="h-3.5 w-3.5" />}
+                  Send Test Email
+                </button>
+              </div>
+            </form>
           </div>
         </div>
 

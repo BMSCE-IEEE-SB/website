@@ -315,7 +315,7 @@ export default function AccountPage() {
                       </div>
                       <StatusBadge status={o.status} />
                     </div>
-                    <dl className="mt-5 grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+                    <dl className="mt-5 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
                       <div>
                         <dt className="text-xs text-muted">Amount</dt>
                         <dd className="mt-0.5 display text-xl">₹{o.total_amount}</dd>
@@ -323,6 +323,10 @@ export default function AccountPage() {
                       <div className="min-w-0">
                         <dt className="text-xs text-muted">UTR</dt>
                         <dd className="mt-0.5 truncate font-mono">{o.utr_reference || '—'}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs text-muted">Official T-Shirt</dt>
+                        <dd className="mt-0.5 font-medium">{o.tshirt_size ? `Size ${o.tshirt_size}` : 'Standard'}</dd>
                       </div>
                       <div className="col-span-2 sm:col-span-1">
                         <dt className="text-xs text-muted">Chapters</dt>

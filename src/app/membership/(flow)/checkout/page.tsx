@@ -43,6 +43,7 @@ export default function CheckoutPage() {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [chapters, setChapters] = useState<CartChapter[]>([]);
   const [baseFee, setBaseFee] = useState(0);
+  const [tshirtSize, setTshirtSize] = useState('');
   const [orderRef, setOrderRef] = useState('');
   const [vpa, setVpa] = useState(FALLBACK_VPA);
   const [payee, setPayee] = useState(FALLBACK_PAYEE);
@@ -71,6 +72,7 @@ export default function CheckoutPage() {
       setUser(active);
       setChapters(cart.chapters);
       setBaseFee(cart.baseFee);
+      setTshirtSize(cart.tshirtSize || '');
       setOrderRef(getOrCreateOrderRef());
 
       if (!demo) {
@@ -133,6 +135,7 @@ export default function CheckoutPage() {
           email: user.email,
           base_fee: baseFee,
           total_amount: total,
+          tshirt_size: tshirtSize || undefined,
           payment_screenshot_url: await imageToDataUrl(file!),
           utr_reference: cleanUtr,
           order_reference: orderRef,
@@ -148,6 +151,7 @@ export default function CheckoutPage() {
             user_id: user.id,
             base_fee: baseFee,
             total_amount: total,
+            tshirt_size: tshirtSize || null,
             payment_screenshot_url: path,
             utr_reference: cleanUtr,
             order_reference: orderRef,
@@ -220,6 +224,14 @@ export default function CheckoutPage() {
               <dt className="text-muted">Order reference</dt>
               <dd className="font-mono text-[13px] font-semibold text-brand-navy">{orderRef}</dd>
             </div>
+            {tshirtSize && (
+              <div className="flex items-center justify-between gap-3 py-3">
+                <dt className="text-muted">Official IEEE T-Shirt</dt>
+                <dd className="font-medium text-ink">
+                  Size <span className="font-bold">{tshirtSize}</span> <span className="ml-1 text-xs font-bold text-emerald-600">(FREE)</span>
+                </dd>
+              </div>
+            )}
           </dl>
           <p className="mt-4 text-xs leading-relaxed text-muted">Add the order reference in the payment note if your UPI app lets you.</p>
         </section>

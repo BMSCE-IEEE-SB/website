@@ -34,7 +34,11 @@ CREATE TABLE IF NOT EXISTS public.membership_config (
   payee_vpa text NOT NULL,
   payee_name text NOT NULL,
   drive_year int DEFAULT 2026,
-  is_drive_open boolean DEFAULT true
+  is_drive_open boolean DEFAULT true,
+  treasurer_name text DEFAULT 'Neha Ramiah',
+  treasurer_role text DEFAULT 'Treasurer and MDC',
+  treasurer_phone text DEFAULT '+91 6385525264',
+  signature_url text
 );
 
 CREATE TABLE IF NOT EXISTS public.admins (
@@ -58,6 +62,7 @@ CREATE TABLE IF NOT EXISTS public.orders (
   payment_screenshot_url text,          -- storage path inside private 'public-assets' bucket
   utr_reference text,
   order_reference text UNIQUE NOT NULL,
+  receipt_number text UNIQUE,
   drive_year int DEFAULT 2026,
   receipt_sent boolean DEFAULT false,
   receipt_sent_at timestamptz,
@@ -104,14 +109,17 @@ CREATE TABLE IF NOT EXISTS public.events (
 -- 2. Seed Data
 -- ---------------------------------------------------------------------------
 
-INSERT INTO public.membership_config (id, base_fee, payee_vpa, payee_name, drive_year, is_drive_open)
-VALUES (1, 1810, 'bmsceieee@okhdfcbank', 'BMSCE IEEE Student Branch', 2026, true)
+INSERT INTO public.membership_config (id, base_fee, payee_vpa, payee_name, drive_year, is_drive_open, treasurer_name, treasurer_role, treasurer_phone)
+VALUES (1, 1810, 'bmsceieee@okhdfcbank', 'BMSCE IEEE Student Branch', 2026, true, 'Neha Ramiah', 'Treasurer and MDC', '+91 6385525264')
 ON CONFLICT (id) DO UPDATE SET
   base_fee = EXCLUDED.base_fee,
   payee_vpa = EXCLUDED.payee_vpa,
   payee_name = EXCLUDED.payee_name,
   drive_year = EXCLUDED.drive_year,
-  is_drive_open = EXCLUDED.is_drive_open;
+  is_drive_open = EXCLUDED.is_drive_open,
+  treasurer_name = EXCLUDED.treasurer_name,
+  treasurer_role = EXCLUDED.treasurer_role,
+  treasurer_phone = EXCLUDED.treasurer_phone;
 
 INSERT INTO public.chapters (name, code, slug, price, description, is_active, display_order) VALUES
   ('IEEE Computer Society', 'CS', 'cs', 100, 'Focus on software architectures, algorithms, AI systems & IEEEXtreme programming competition.', true, 1),

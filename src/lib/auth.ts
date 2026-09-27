@@ -21,6 +21,8 @@ export interface Order {
   payment_screenshot_url?: string;
   utr_reference?: string;
   order_reference: string;
+  receipt_number?: string;
+  tshirt_size?: string;
   status: OrderStatus;
   created_at: string;
   verified_at?: string;
@@ -234,11 +236,12 @@ export function resubmitLocalOrderProof(orderId: string, screenshotUrl: string, 
   }));
 }
 
-export function updateLocalOrderReceipt(orderId: string, receipt_sent: boolean, receipt_error?: string) {
+export function updateLocalOrderReceipt(orderId: string, receipt_sent: boolean, receipt_number?: string, receipt_error?: string) {
   return patchLocalOrder(orderId, (o) => ({
     ...o,
     receipt_sent,
     receipt_sent_at: receipt_sent ? new Date().toISOString() : o.receipt_sent_at,
+    receipt_number: receipt_number ?? o.receipt_number,
     receipt_error: receipt_error ?? undefined,
   }));
 }
@@ -278,6 +281,10 @@ export interface MembershipSettings {
   payee_name: string;
   drive_year: number;
   is_drive_open: boolean;
+  treasurer_name?: string;
+  treasurer_role?: string;
+  treasurer_phone?: string;
+  signature_url?: string;
 }
 
 export interface ChapterSetting {
@@ -300,6 +307,9 @@ export const DEFAULT_SETTINGS: MembershipSettings = {
   payee_name: 'BMSCE IEEE Student Branch',
   drive_year: 2026,
   is_drive_open: true,
+  treasurer_name: 'Neha Ramiah',
+  treasurer_role: 'Treasurer and MDC',
+  treasurer_phone: '+91 6385525264',
 };
 
 export const DEFAULT_CHAPTER_SETTINGS: ChapterSetting[] = [
@@ -313,7 +323,11 @@ export const DEFAULT_CHAPTER_SETTINGS: ChapterSetting[] = [
 
 export async function loadAdminSettings(): Promise<MembershipSettings> {
   if (isDemoMode()) return readJson(SETTINGS_KEY, DEFAULT_SETTINGS);
-  const { data } = await supabase.from('membership_config').select('base_fee, payee_vpa, payee_name, drive_year, is_drive_open').eq('id', 1).maybeSingle();
+  const { data } = await supabase
+    .from('membership_config')
+    .select('base_fee, payee_vpa, payee_name, drive_year, is_drive_open, treasurer_name, treasurer_role, treasurer_phone, signature_url')
+    .eq('id', 1)
+    .maybeSingle();
   if (!data) return DEFAULT_SETTINGS;
   return {
     base_fee: Number(data.base_fee),
@@ -321,6 +335,10 @@ export async function loadAdminSettings(): Promise<MembershipSettings> {
     payee_name: data.payee_name,
     drive_year: data.drive_year ?? 2026,
     is_drive_open: data.is_drive_open ?? true,
+    treasurer_name: data.treasurer_name || DEFAULT_SETTINGS.treasurer_name,
+    treasurer_role: data.treasurer_role || DEFAULT_SETTINGS.treasurer_role,
+    treasurer_phone: data.treasurer_phone || DEFAULT_SETTINGS.treasurer_phone,
+    signature_url: data.signature_url || undefined,
   };
 }
 

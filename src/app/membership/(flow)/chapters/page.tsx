@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowLeft, ArrowRight, Check, Plus, Sparkles, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Plus, Shirt, Sparkles, X } from 'lucide-react';
 import { getCurrentUser } from '@/lib/auth';
 import { chapters as chapterInfo, departments, suggestedByDepartment } from '@/data/site';
 import { loadPricing } from '@/lib/pricing';
@@ -15,6 +15,8 @@ import { Alert, PageLoader, Spinner } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
 import { CART_KEYS, type CartChapter } from '@/lib/cart';
 
+const TSHIRT_SIZES = ['S', 'M', 'L', 'XL', '2XL', '3XL'] as const;
+
 const infoFor = (code: string) => chapterInfo.find((c) => c.code === code);
 
 export default function ChaptersPage() {
@@ -23,6 +25,8 @@ export default function ChaptersPage() {
   const [chapters, setChapters] = useState<CartChapter[]>([]);
   const [baseFee, setBaseFee] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
+  const [tshirtSize, setTshirtSize] = useState('');
+  const [sizeError, setSizeError] = useState(false);
   const [department, setDepartment] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,10 +56,12 @@ export default function ChaptersPage() {
       setChapters(list);
       setBaseFee(fee);
       setDepartment(readDraft().department ?? '');
-      // Restore the selection if the student came back from checkout.
+      // Restore the selection and T-shirt size if the student came back from checkout.
       try {
         const prev: CartChapter[] = JSON.parse(sessionStorage.getItem(CART_KEYS.chapters) || '[]');
         setSelected(prev.map((c) => c.id).filter((id) => list.some((c) => c.id === id)));
+        const savedSize = sessionStorage.getItem(CART_KEYS.tshirtSize);
+        if (savedSize) setTshirtSize(savedSize);
       } catch {}
       setIsLoading(false);
     })();
@@ -86,14 +92,29 @@ export default function ChaptersPage() {
     setSelected((prev) => [...prev, ...ids.filter((id) => !prev.includes(id))]);
   };
 
+  const handleSelectSize = (size: string) => {
+    setTshirtSize(size);
+    setSizeError(false);
+    sessionStorage.setItem(CART_KEYS.tshirtSize, size);
+  };
+
   const handleCheckout = () => {
+    if (!tshirtSize) {
+      setSizeError(true);
+      const el = document.getElementById('tshirt-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    setSizeError(false);
     setIsSubmitting(true);
     const prev = sessionStorage.getItem(CART_KEYS.chapters);
+    const prevSize = sessionStorage.getItem(CART_KEYS.tshirtSize);
     const nextCart = JSON.stringify(picked);
-    // A changed cart means a changed amount, so it needs a fresh order reference.
-    if (prev !== nextCart) sessionStorage.removeItem(CART_KEYS.orderRef);
+    // A changed cart or size means a changed order configuration.
+    if (prev !== nextCart || prevSize !== tshirtSize) sessionStorage.removeItem(CART_KEYS.orderRef);
     sessionStorage.setItem(CART_KEYS.chapters, nextCart);
     sessionStorage.setItem(CART_KEYS.baseFee, String(baseFee));
+    sessionStorage.setItem(CART_KEYS.tshirtSize, tshirtSize);
     router.push('/membership/checkout');
   };
 
@@ -130,89 +151,170 @@ export default function ChaptersPage() {
       </div>
 
       <div className="mt-10 grid items-start gap-8 lg:grid-cols-[1fr_380px]">
-        <motion.ul layout className="grid gap-4 sm:grid-cols-2">
-          {ordered.map((c) => {
-            const info = infoFor(c.code);
-            const on = selected.includes(c.id);
-            const isSuggested = suggested.includes(c.code);
-            const color = info?.color ?? '#0b1b33';
-            const Icon = info?.icon;
-            return (
-              <motion.li key={c.id} layout transition={{ type: 'spring', stiffness: 300, damping: 30 }}>
-                <div
-                  className={cn(
-                    'group relative block w-full overflow-hidden rounded-[26px] bg-white text-left transition-all duration-300',
-                    on ? 'shadow-[0_0_0_3px_var(--chapter),0_24px_40px_-24px_var(--chapter)]' : 'shadow-[0_1px_2px_rgb(11_27_51/0.05)] hover:-translate-y-1 hover:shadow-[0_20px_40px_-24px_rgb(11_27_51/0.35)]',
-                  )}
-                  style={{ '--chapter': color } as React.CSSProperties}
-                >
-                  {/* Whole tile toggles; the "Learn more" link sits above this layer. */}
-                  <button
-                    type="button"
-                    onClick={() => toggle(c.id)}
-                    aria-pressed={on}
-                    aria-label={`${on ? 'Remove' : 'Add'} ${info?.name ?? c.name}, ₹${c.price}`}
-                    className="absolute inset-0 z-10 cursor-pointer rounded-[26px]"
-                  />
-                  <div className="relative h-28 overflow-hidden">
-                    {info && <img src={info.image} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />}
-                    <div className="absolute inset-0 transition-opacity duration-300" style={{ background: `linear-gradient(to top, ${color} 5%, ${color}99 60%, ${color}40)`, opacity: on ? 1 : 0.85 }} />
-                    <span className="absolute top-3 left-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur">
-                      {Icon ? <Icon className="h-5 w-5" /> : c.code}
+        <div className="space-y-6">
+          {/* Free T-Shirt with Base Membership */}
+          <div
+            id="tshirt-section"
+            className={cn(
+              'relative overflow-hidden rounded-[26px] bg-white p-6 transition-all duration-300',
+              sizeError
+                ? 'shadow-[0_0_0_2px_#ef4444,0_20px_40px_-24px_rgba(239,68,68,0.3)] ring-2 ring-red-500/20'
+                : 'shadow-[0_1px_2px_rgb(11_27_51/0.05)] ring-1 ring-ink/5'
+            )}
+          >
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3.5">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand-orange/10 text-brand-orange">
+                  <Shirt className="h-6 w-6" />
+                </span>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-lg font-bold text-ink">Official BMSCE IEEE T-Shirt</h2>
+                    <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700 ring-1 ring-emerald-600/20">
+                      FREE with base membership
                     </span>
-                    {isSuggested && (
-                      <span className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-ink shadow-sm">
-                        <Sparkles className="h-3 w-3 text-brand-orange" /> Suggested
-                      </span>
-                    )}
-                    <span className="absolute bottom-3 left-4 text-xs font-bold tracking-widest text-white/90">{c.code}</span>
                   </div>
-
-                  <div className="p-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <h3 className="font-bold leading-snug text-ink">{info?.name ?? c.name}</h3>
-                        <p className="mt-0.5 text-sm text-muted">{info?.tagline ?? c.name}</p>
-                      </div>
-                      <motion.span
-                        animate={on ? { scale: [1, 1.25, 1], rotate: [0, -8, 0] } : { scale: 1 }}
-                        transition={{ duration: 0.35 }}
-                        className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors', on ? 'text-white' : 'bg-paper text-muted group-hover:text-ink')}
-                        style={on ? { background: color } : undefined}
-                      >
-                        {on ? <Check className="h-4 w-4" strokeWidth={3} /> : <Plus className="h-4 w-4" />}
-                      </motion.span>
-                    </div>
-
-                    <AnimatePresence initial={false}>
-                      {on && info && (
-                        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
-                          <ul className="mt-4 space-y-1.5 border-t border-line pt-4 text-sm text-ink-soft">
-                            {info.activities.slice(0, 3).map((a) => (
-                              <li key={a} className="flex items-start gap-2">
-                                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: color }} />
-                                {a}
-                              </li>
-                            ))}
-                          </ul>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className="font-display text-lg font-bold" style={{ color: on ? color : undefined }}>+ ₹{c.price}</span>
-                      {info && (
-                        <Link href={`/chapters/${info.slug}`} target="_blank" className="relative z-20 text-xs font-semibold text-muted underline-offset-2 hover:text-ink hover:underline">
-                          Learn more
-                        </Link>
-                      )}
-                    </div>
-                  </div>
+                  <p className="mt-0.5 text-xs sm:text-sm text-muted">
+                    Every member receives our official annual branch T-shirt at no extra cost. Pick your size below.
+                  </p>
                 </div>
-              </motion.li>
-            );
-          })}
-        </motion.ul>
+              </div>
+
+              <div className="inline-flex items-center self-start rounded-full bg-paper px-3 py-1 text-xs font-medium text-muted sm:self-auto">
+                Size chart coming soon
+              </div>
+            </div>
+
+            <div className="mt-5 border-t border-line pt-5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted">
+                  Select T-Shirt Size <span className="text-red-500">*</span>
+                </label>
+                {tshirtSize ? (
+                  <span className="text-xs font-semibold text-brand-navy">
+                    Selected: <span className="rounded bg-sky-50 px-1.5 py-0.5 font-bold">{tshirtSize}</span>
+                  </span>
+                ) : (
+                  <span className={cn('text-xs font-medium', sizeError ? 'text-red-500 font-semibold' : 'text-muted')}>
+                    Required for membership kit
+                  </span>
+                )}
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2.5">
+                {TSHIRT_SIZES.map((size) => {
+                  const active = tshirtSize === size;
+                  return (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => handleSelectSize(size)}
+                      className={cn(
+                        'flex h-11 min-w-[52px] cursor-pointer items-center justify-center rounded-xl px-4 text-sm font-semibold transition-all duration-200',
+                        active
+                          ? 'bg-brand-navy text-white shadow-md shadow-brand-navy/25 scale-[1.03]'
+                          : 'bg-paper text-ink hover:bg-line/70 hover:text-ink'
+                      )}
+                      aria-pressed={active}
+                    >
+                      {size}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {sizeError && (
+                <p className="mt-2 text-xs font-medium text-red-500">
+                  Please pick your T-shirt size before proceeding to payment.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <motion.ul layout className="grid gap-4 sm:grid-cols-2">
+            {ordered.map((c) => {
+              const info = infoFor(c.code);
+              const on = selected.includes(c.id);
+              const isSuggested = suggested.includes(c.code);
+              const color = info?.color ?? '#0b1b33';
+              const Icon = info?.icon;
+              return (
+                <motion.li key={c.id} layout transition={{ type: 'spring', stiffness: 300, damping: 30 }}>
+                  <div
+                    className={cn(
+                      'group relative block w-full overflow-hidden rounded-[26px] bg-white text-left transition-all duration-300',
+                      on ? 'shadow-[0_0_0_3px_var(--chapter),0_24px_40px_-24px_var(--chapter)]' : 'shadow-[0_1px_2px_rgb(11_27_51/0.05)] hover:-translate-y-1 hover:shadow-[0_20px_40px_-24px_rgb(11_27_51/0.35)]',
+                    )}
+                    style={{ '--chapter': color } as React.CSSProperties}
+                  >
+                    {/* Whole tile toggles; the "Learn more" link sits above this layer. */}
+                    <button
+                      type="button"
+                      onClick={() => toggle(c.id)}
+                      aria-pressed={on}
+                      aria-label={`${on ? 'Remove' : 'Add'} ${info?.name ?? c.name}, ₹${c.price}`}
+                      className="absolute inset-0 z-10 cursor-pointer rounded-[26px]"
+                    />
+                    <div className="relative h-28 overflow-hidden">
+                      {info && <img src={info.image} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />}
+                      <div className="absolute inset-0 transition-opacity duration-300" style={{ background: `linear-gradient(to top, ${color} 5%, ${color}99 60%, ${color}40)`, opacity: on ? 1 : 0.85 }} />
+                      <span className="absolute top-3 left-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur">
+                        {Icon ? <Icon className="h-5 w-5" /> : c.code}
+                      </span>
+                      {isSuggested && (
+                        <span className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-ink shadow-sm">
+                          <Sparkles className="h-3 w-3 text-brand-orange" /> Suggested
+                        </span>
+                      )}
+                      <span className="absolute bottom-3 left-4 text-xs font-bold tracking-widest text-white/90">{c.code}</span>
+                    </div>
+
+                    <div className="p-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <h3 className="font-bold leading-snug text-ink">{info?.name ?? c.name}</h3>
+                          <p className="mt-0.5 text-sm text-muted">{info?.tagline ?? c.name}</p>
+                        </div>
+                        <motion.span
+                          animate={on ? { scale: [1, 1.25, 1], rotate: [0, -8, 0] } : { scale: 1 }}
+                          transition={{ duration: 0.35 }}
+                          className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-colors', on ? 'text-white' : 'bg-paper text-muted group-hover:text-ink')}
+                          style={on ? { background: color } : undefined}
+                        >
+                          {on ? <Check className="h-4 w-4" strokeWidth={3} /> : <Plus className="h-4 w-4" />}
+                        </motion.span>
+                      </div>
+
+                      <AnimatePresence initial={false}>
+                        {on && info && (
+                          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
+                            <ul className="mt-4 space-y-1.5 border-t border-line pt-4 text-sm text-ink-soft">
+                              {info.activities.slice(0, 3).map((a) => (
+                                <li key={a} className="flex items-start gap-2">
+                                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: color }} />
+                                  {a}
+                                </li>
+                              ))}
+                            </ul>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
+                      <div className="mt-4 flex items-center justify-between">
+                        <span className="font-display text-lg font-bold" style={{ color: on ? color : undefined }}>+ ₹{c.price}</span>
+                        {info && (
+                          <Link href={`/chapters/${info.slug}`} target="_blank" className="relative z-20 text-xs font-semibold text-muted underline-offset-2 hover:text-ink hover:underline">
+                            Learn more
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </motion.li>
+              );
+            })}
+          </motion.ul>
+        </div>
 
         <aside className="space-y-5 lg:sticky lg:top-24">
           <div className="hidden sm:block">
@@ -229,6 +331,13 @@ export default function ChaptersPage() {
               <li className="flex justify-between">
                 <span className="text-ink-soft">Base branch membership</span>
                 <span className="font-medium">₹{baseFee}</span>
+              </li>
+              <li className="flex items-center justify-between text-ink-soft">
+                <span className="flex items-center gap-2">
+                  <Shirt className="h-3.5 w-3.5 text-brand-orange" />
+                  Official IEEE T-Shirt {tshirtSize && <span className="font-mono text-xs font-bold text-ink">({tshirtSize})</span>}
+                </span>
+                <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-700">FREE</span>
               </li>
               <AnimatePresence initial={false}>
                 {picked.map((c) => (
@@ -254,6 +363,11 @@ export default function ChaptersPage() {
                 ))}
               </AnimatePresence>
             </ul>
+            {sizeError && (
+              <p className="mt-3 text-xs font-medium text-red-500">
+                Please select your T-shirt size above.
+              </p>
+            )}
             {picked.length === 0 && <p className="mt-3 text-xs text-muted">No chapters yet. That&apos;s fine, you can continue with base membership.</p>}
             <button type="button" onClick={handleCheckout} disabled={isSubmitting} className="btn btn-primary btn-lg mt-6 hidden w-full lg:flex">
               {isSubmitting && <Spinner />}
@@ -271,7 +385,10 @@ export default function ChaptersPage() {
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-xl items-center gap-4">
           <div className="min-w-0 flex-1">
-            <p className="text-xs text-muted">{picked.length ? `${picked.length} chapter${picked.length > 1 ? 's' : ''} + base` : 'Base membership'}</p>
+            <p className="text-xs text-muted">
+              {picked.length ? `${picked.length} chapter${picked.length > 1 ? 's' : ''} + base` : 'Base membership'}
+              {tshirtSize ? ` · Shirt: ${tshirtSize}` : ''}
+            </p>
             <p className="display text-2xl text-ink">
               ₹<AnimatedNumber value={total} />
             </p>

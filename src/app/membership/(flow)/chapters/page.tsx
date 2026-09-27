@@ -11,11 +11,11 @@ import { chapters as chapterInfo, departments, suggestedByDepartment } from '@/d
 import { loadPricing } from '@/lib/pricing';
 import { LiveCard, readDraft, useDraft } from '@/components/membership/Draft';
 import AnimatedNumber from '@/components/site/AnimatedNumber';
-import { Alert, PageLoader, Spinner } from '@/components/ui/form';
+import { Alert, PageLoader, Spinner, Modal } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
 import { CART_KEYS, type CartChapter } from '@/lib/cart';
 
-const TSHIRT_SIZES = ['S', 'M', 'L', 'XL', '2XL', '3XL'] as const;
+const TSHIRT_SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'] as const;
 
 const infoFor = (code: string) => chapterInfo.find((c) => c.code === code);
 
@@ -27,6 +27,7 @@ export default function ChaptersPage() {
   const [selected, setSelected] = useState<string[]>([]);
   const [tshirtSize, setTshirtSize] = useState('');
   const [sizeError, setSizeError] = useState(false);
+  const [sizeChartOpen, setSizeChartOpen] = useState(false);
   const [department, setDepartment] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,10 +60,16 @@ export default function ChaptersPage() {
       // Restore the selection and T-shirt size if the student came back from checkout.
       try {
         const prev: CartChapter[] = JSON.parse(sessionStorage.getItem(CART_KEYS.chapters) || '[]');
-        setSelected(prev.map((c) => c.id).filter((id) => list.some((c) => c.id === id)));
+        const prevIds = prev.map((c) => c.id).filter((id) => list.some((c) => c.id === id));
+        const wieId = list.find((c) => c.code === 'WIE')?.id;
+        if (wieId && !prevIds.includes(wieId)) prevIds.push(wieId);
+        setSelected(prevIds);
         const savedSize = sessionStorage.getItem(CART_KEYS.tshirtSize);
         if (savedSize) setTshirtSize(savedSize);
-      } catch {}
+      } catch {
+        const wieId = list.find((c) => c.code === 'WIE')?.id;
+        if (wieId) setSelected([wieId]);
+      }
       setIsLoading(false);
     })();
     return () => {
@@ -85,10 +92,14 @@ export default function ChaptersPage() {
     if (!isLoading) update({ chapters: picked.map((c) => c.code) });
   }, [picked, isLoading, update]);
 
-  const toggle = (id: string) => setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  const toggle = (id: string) => {
+    const chapter = chapters.find((c) => c.id === id);
+    if (chapter?.code === 'WIE') return;
+    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
 
   const addSuggested = () => {
-    const ids = chapters.filter((c) => suggested.includes(c.code)).map((c) => c.id);
+    const ids = chapters.filter((c) => suggested.includes(c.code) && c.code !== 'WIE').map((c) => c.id);
     setSelected((prev) => [...prev, ...ids.filter((id) => !prev.includes(id))]);
   };
 
@@ -180,9 +191,13 @@ export default function ChaptersPage() {
                 </div>
               </div>
 
-              <div className="inline-flex items-center self-start rounded-full bg-paper px-3 py-1 text-xs font-medium text-muted sm:self-auto">
-                Size chart coming soon
-              </div>
+              <button
+                type="button"
+                onClick={() => setSizeChartOpen(true)}
+                className="inline-flex cursor-pointer items-center self-start rounded-full bg-paper px-3 py-1 text-xs font-semibold text-brand-navy transition hover:bg-sky-50 sm:self-auto"
+              >
+                View size chart
+              </button>
             </div>
 
             <div className="mt-5 border-t border-line pt-5">
@@ -237,7 +252,6 @@ export default function ChaptersPage() {
               const on = selected.includes(c.id);
               const isSuggested = suggested.includes(c.code);
               const color = info?.color ?? '#0b1b33';
-              const Icon = info?.icon;
               return (
                 <motion.li key={c.id} layout transition={{ type: 'spring', stiffness: 300, damping: 30 }}>
                   <div
@@ -258,9 +272,11 @@ export default function ChaptersPage() {
                     <div className="relative h-28 overflow-hidden">
                       {info && <img src={info.image} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />}
                       <div className="absolute inset-0 transition-opacity duration-300" style={{ background: `linear-gradient(to top, ${color} 5%, ${color}99 60%, ${color}40)`, opacity: on ? 1 : 0.85 }} />
-                      <span className="absolute top-3 left-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur">
-                        {Icon ? <Icon className="h-5 w-5" /> : c.code}
-                      </span>
+                      {info?.logo ? (
+                        <span className="absolute top-3 left-3 flex h-10 w-20 items-center justify-center rounded-xl bg-white/95 px-2 py-1 shadow-sm ring-1 ring-ink/5 backdrop-blur">
+                          <img src={info.logo} alt="" aria-hidden className="max-h-7 w-full object-contain" />
+                        </span>
+                      ) : null}
                       {isSuggested && (
                         <span className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-ink shadow-sm">
                           <Sparkles className="h-3 w-3 text-brand-orange" /> Suggested
@@ -273,7 +289,6 @@ export default function ChaptersPage() {
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <h3 className="font-bold leading-snug text-ink">{info?.name ?? c.name}</h3>
-                          <p className="mt-0.5 text-sm text-muted">{info?.tagline ?? c.name}</p>
                         </div>
                         <motion.span
                           animate={on ? { scale: [1, 1.25, 1], rotate: [0, -8, 0] } : { scale: 1 }}
@@ -301,7 +316,7 @@ export default function ChaptersPage() {
                       </AnimatePresence>
 
                       <div className="mt-4 flex items-center justify-between">
-                        <span className="font-display text-lg font-bold" style={{ color: on ? color : undefined }}>+ ₹{c.price}</span>
+                        <span className="font-display text-lg font-bold" style={{ color: on ? color : undefined }}>{c.code === 'WIE' ? 'Included' : `+ ₹${c.price}`}</span>
                         {info && (
                           <Link href={`/chapters/${info.slug}`} target="_blank" className="relative z-20 text-xs font-semibold text-muted underline-offset-2 hover:text-ink hover:underline">
                             Learn more
@@ -354,10 +369,16 @@ export default function ChaptersPage() {
                       {c.code}
                     </span>
                     <span className="flex items-center gap-2">
-                      ₹{c.price}
-                      <button type="button" onClick={() => toggle(c.id)} className="rounded-full p-0.5 text-muted hover:bg-paper hover:text-ink" aria-label={`Remove ${c.code}`}>
-                        <X className="h-3.5 w-3.5" />
-                      </button>
+                      {c.code === 'WIE' ? (
+                        <span className="text-xs font-bold text-emerald-700">Included</span>
+                      ) : (
+                        <>
+                          ₹{c.price}
+                          <button type="button" onClick={() => toggle(c.id)} className="rounded-full p-0.5 text-muted hover:bg-paper hover:text-ink" aria-label={`Remove ${c.code}`}>
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      )}
                     </span>
                   </motion.li>
                 ))}
@@ -398,6 +419,69 @@ export default function ChaptersPage() {
           </button>
         </div>
       </div>
+
+      {sizeChartOpen && (
+        <Modal title="T-Shirt Size Chart (Inches)" onClose={() => setSizeChartOpen(false)} wide>
+          <div className="mt-4 overflow-x-auto rounded-xl border border-line">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-paper text-xs font-bold uppercase text-muted">
+                <tr>
+                  <th className="p-3">Size</th>
+                  <th className="p-3">XS (34)</th>
+                  <th className="p-3">S (36)</th>
+                  <th className="p-3">M (38)</th>
+                  <th className="p-3">L (40)</th>
+                  <th className="p-3">XL (42)</th>
+                  <th className="p-3 whitespace-nowrap">2XL (44)</th>
+                  <th className="p-3 whitespace-nowrap">3XL (46)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line font-medium text-ink">
+                <tr>
+                  <td className="p-3 font-bold text-muted">Chest</td>
+                  <td className="p-3">34</td>
+                  <td className="p-3">36</td>
+                  <td className="p-3">38</td>
+                  <td className="p-3">40</td>
+                  <td className="p-3">42</td>
+                  <td className="p-3">44</td>
+                  <td className="p-3">46</td>
+                </tr>
+                <tr>
+                  <td className="p-3 font-bold text-muted">Length</td>
+                  <td className="p-3">24</td>
+                  <td className="p-3">25</td>
+                  <td className="p-3">26</td>
+                  <td className="p-3">27</td>
+                  <td className="p-3">28</td>
+                  <td className="p-3">29</td>
+                  <td className="p-3">30</td>
+                </tr>
+                <tr>
+                  <td className="p-3 font-bold text-muted whitespace-nowrap">Sleeve length</td>
+                  <td className="p-3">7.5</td>
+                  <td className="p-3">8</td>
+                  <td className="p-3">8</td>
+                  <td className="p-3">8.5</td>
+                  <td className="p-3">8.5</td>
+                  <td className="p-3">9</td>
+                  <td className="p-3">10</td>
+                </tr>
+                <tr>
+                  <td className="p-3 font-bold text-muted">Shoulder</td>
+                  <td className="p-3">15.5</td>
+                  <td className="p-3">16</td>
+                  <td className="p-3">17</td>
+                  <td className="p-3">17.5</td>
+                  <td className="p-3">18</td>
+                  <td className="p-3">19</td>
+                  <td className="p-3">20</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

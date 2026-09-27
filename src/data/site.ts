@@ -437,7 +437,7 @@ export const FALLBACK_CART_CHAPTERS = [
   { id: 'demo-cs', name: 'Computer Society', code: 'CS', price: 100 },
   { id: 'demo-pes', name: 'Power & Energy Society and Sensors Council (PES & SC)', code: 'PES', price: 100 },
   { id: 'demo-pels', name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', price: 100 },
-  { id: 'demo-wie', name: 'Women in Engineering', code: 'WIE', price: 50 },
+  { id: 'demo-wie', name: 'Women in Engineering', code: 'WIE', price: 0 },
   { id: 'demo-ssit', name: 'Society on Social Implications of Technology', code: 'SSIT', price: 50 },
 ];
 

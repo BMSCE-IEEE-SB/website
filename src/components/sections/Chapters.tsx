@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { AnimatePresence, motion, useInView, useReducedMotion } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 import { chapters } from '@/data/site';
@@ -104,9 +105,15 @@ export default function Chapters() {
                 <div className="relative flex flex-1 flex-col justify-between p-8 pt-2">
                   <div>
                     <div className="flex items-center gap-3">
-                      <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
-                        <Icon className="h-5 w-5" />
-                      </span>
+                      {ch.logo ? (
+                        <span className="flex h-14 w-28 shrink-0 items-center justify-center rounded-xl bg-white px-2 py-1">
+                          <Image src={ch.logo} alt={`${ch.name} logo`} width={160} height={80} className="max-h-12 w-full object-contain" />
+                        </span>
+                      ) : (
+                        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
+                          <Icon className="h-5 w-5" />
+                        </span>
+                      )}
                       <span className="text-sm font-semibold text-white/80">{ch.fullName}</span>
                     </div>
                     <h3 className="display mt-4 text-3xl xl:text-4xl">{ch.tagline}</h3>
@@ -145,7 +152,11 @@ export default function Chapters() {
                   <span className="absolute top-4 left-4 rounded-full bg-white/20 px-3 py-1 text-xs font-bold backdrop-blur">{c.code}</span>
                 </div>
                 <div className="flex flex-1 flex-col p-6 pt-1">
-                  <CIcon className="h-6 w-6 opacity-80" />
+                  {c.logo ? (
+                    <span className="flex h-12 w-24 items-center justify-center rounded-lg bg-white px-2 py-1">
+                      <Image src={c.logo} alt={`${c.name} logo`} width={120} height={60} className="max-h-10 w-full object-contain" />
+                    </span>
+                  ) : <CIcon className="h-6 w-6 opacity-80" />}
                   <h3 className="display mt-3 text-2xl">{c.name}</h3>
                   <p className="mt-2 flex-1 text-sm text-white/80">{c.tagline}</p>
                   <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold">

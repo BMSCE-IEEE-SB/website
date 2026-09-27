@@ -1,4 +1,4 @@
-import { Cpu, Zap, CircuitBoard, Users, Compass, Bot, type LucideIcon } from 'lucide-react';
+import { Cpu, Zap, CircuitBoard, Users, Compass, type LucideIcon } from 'lucide-react';
 
 const u = (id: string, w = 900, h = 600) =>
   `https://images.unsplash.com/${id}?w=${w}&h=${h}&fit=crop&auto=format&q=70`;
@@ -42,6 +42,8 @@ export type Chapter = {
   code: string;
   /** Accent colour used for dynamic styling (hex). */
   color: string;
+  /** Chapter mark, when a local logo asset is available. */
+  logo?: string;
   image: string;
   about: string[];
   focus: { title: string; text: string }[];
@@ -62,6 +64,7 @@ export const chapters: Chapter[] = [
     slug: 'cs',
     short: 'Computer Society',
     code: 'CS',
+    logo: '/chapter-logos/cs.png',
     color: '#0284c7',
     image: u('photo-1517694712202-14dd9538aa97', 1400, 900),
     about: [
@@ -89,6 +92,7 @@ export const chapters: Chapter[] = [
     slug: 'pes',
     short: 'Power & Energy',
     code: 'PES',
+    logo: '/chapter-logos/pes.png',
     color: '#059669',
     image: u('photo-1509391366360-2e959784a276', 1400, 900),
     about: [
@@ -116,6 +120,7 @@ export const chapters: Chapter[] = [
     slug: 'pels-ies',
     short: 'Power Electronics',
     code: 'PELS/IES',
+    logo: '/chapter-logos/pels-ies.png',
     color: '#d97706',
     image: u('photo-1518770660439-4636190af475', 1400, 900),
     about: [
@@ -140,36 +145,10 @@ export const chapters: Chapter[] = [
     tone: { text: 'text-amber-600', soft: 'bg-amber-50', bar: 'bg-amber-500' },
   },
   {
-    slug: 'ras',
-    short: 'Robotics',
-    code: 'RAS',
-    color: '#7c3aed',
-    image: u('photo-1485827404703-89b55fcc595e', 1400, 900),
-    about: [
-      'The Robotics & Automation Society builds machines that sense, think and move.',
-      'From line followers in first year to autonomous rovers and robotic arms, members work across mechanics, electronics and software in small project teams.',
-    ],
-    focus: [
-      { title: 'Autonomy', text: 'Localisation, path planning and ROS.' },
-      { title: 'Computer vision', text: 'Perception pipelines for real robots.' },
-      { title: 'Controls', text: 'PID to model-predictive control on hardware.' },
-      { title: 'Mechatronics', text: 'Actuators, sensors and mechanical design.' },
-    ],
-    activities: ['Robotics Challenge (maze & manipulation)', 'ROS workshop series', 'Inter-college robo-sumo', 'Project demo day'],
-    stats: { members: '200+', events: '18+', founded: '2016' },
-    name: 'Robotics & Automation',
-    fullName: 'IEEE Robotics & Automation Society',
-    tagline: 'Autonomous systems & intelligent machines',
-    description:
-      'Building autonomous robots, computer-vision pipelines and control systems, from maze solvers to manipulators.',
-    tracks: ['Autonomy', 'Vision', 'Controls'],
-    icon: Bot,
-    tone: { text: 'text-violet-600', soft: 'bg-violet-50', bar: 'bg-violet-500' },
-  },
-  {
     slug: 'wie',
     short: 'Women in Engineering',
     code: 'WIE',
+    logo: '/chapter-logos/wie.png',
     color: '#db2777',
     image: u('photo-1573164713714-d95e436ab8d6', 1400, 900),
     about: [
@@ -197,6 +176,7 @@ export const chapters: Chapter[] = [
     slug: 'ssit',
     short: 'Tech & Society',
     code: 'SSIT',
+    logo: '/chapter-logos/ssit.png',
     color: '#4f46e5',
     image: u('photo-1559136555-9303baea8ebd', 1400, 900),
     about: [
@@ -356,17 +336,6 @@ export const events: SiteEvent[] = [
     description: 'Threat intelligence, zero trust and incident response with industry leaders.',
     registrationUrl: '#',
   },
-  {
-    id: 'robotics-2026',
-    title: 'Robotics Challenge 2026',
-    category: 'hackathon',
-    chapter: 'ras',
-    date: '2026-02-07',
-    venue: 'BMSCE Campus',
-    image: u('photo-1485827404703-89b55fcc595e'),
-    description: 'Autonomous robots take on maze navigation, detection and manipulation rounds.',
-    registrationUrl: '#',
-  },
 ];
 
 /** An event is past once its day has ended (IST). */
@@ -392,7 +361,6 @@ export const gallery: GalleryPhoto[] = [
   g('photo-1531482615713-2afd69097998', 'Winners announced at Phase Shift', 'Phase Shift Hackathon', 'hackathon'),
   g('photo-1531746790731-6c087fecd65a', 'Students building ML models', 'AI/ML Masterclass', 'workshop'),
   g('photo-1573164713714-d95e436ab8d6', 'Panel discussion at WIE Summit', 'WIE Tech Summit', 'summit'),
-  g('photo-1485827404703-89b55fcc595e', 'Autonomous robot in competition', 'Robotics Challenge', 'hackathon'),
   g('photo-1497436072909-60f360e1d4b1', 'Smart grid demonstration', 'Power Systems Workshop', 'workshop'),
   g('photo-1519389950473-47ba0277781c', 'IEEE Day celebration', 'IEEE Day 2024', 'summit'),
   g('photo-1522202176988-66273c2fd55f', 'Students at a campus event', 'Student Outreach', 'student-life'),
@@ -435,7 +403,6 @@ export const FALLBACK_CART_CHAPTERS = [
   { id: 'demo-cs', name: 'Computer Society', code: 'CS', price: 100 },
   { id: 'demo-pes', name: 'Power & Energy Society', code: 'PES', price: 100 },
   { id: 'demo-pels', name: 'PELS & IES Joint Chapter', code: 'PELS/IES', price: 100 },
-  { id: 'demo-ras', name: 'Robotics & Automation Society', code: 'RAS', price: 100 },
   { id: 'demo-wie', name: 'Women in Engineering', code: 'WIE', price: 50 },
   { id: 'demo-ssit', name: 'Social Implications of Technology', code: 'SSIT', price: 50 },
 ];
@@ -444,7 +411,7 @@ export const chapterBySlug = (slug: string) => chapters.find((c) => c.slug === s
 
 export const pillars = [
   { title: 'Learn', text: 'Workshops and study groups taught by seniors, alumni and industry engineers.', stat: '50+', statLabel: 'sessions a year', image: u('photo-1524178232363-1fb2b075b655', 1000, 700), accent: '#18a4fe' },
-  { title: 'Build', text: 'Project teams that turn ideas into boards, robots, apps and papers.', stat: '30+', statLabel: 'active projects', image: u('photo-1518770660439-4636190af475', 1000, 700), accent: '#f26625' },
+  { title: 'Build', text: 'Project teams that turn ideas into circuit boards, software and research.', stat: '30+', statLabel: 'active projects', image: u('photo-1518770660439-4636190af475', 1000, 700), accent: '#f26625' },
   { title: 'Compete', text: 'Hackathons, IEEEXtreme and design contests, on campus and across India.', stat: '12', statLabel: 'competitions hosted', image: u('photo-1531482615713-2afd69097998', 1000, 700), accent: '#fbbf24' },
   { title: 'Lead', text: 'Run a chapter, an event or a team, and learn to lead people, not just code.', stat: '60+', statLabel: 'student leaders', image: u('photo-1540575467063-178a50c2df87', 1000, 700), accent: '#34d399' },
 ];
@@ -454,7 +421,6 @@ export const testimonials = [
   { quote: 'I joined for the hackathons and stayed for the people. My first PCB, my first paper and my internship all came through IEEE.', name: 'Final-year student', role: 'ECE · PELS/IES' },
   { quote: 'Running a workshop for 200 juniors taught me more about leadership than any course. The seniors trust you with real responsibility.', name: 'Third-year student', role: 'CSE · Computer Society' },
   { quote: 'The WIE mentorship circle connected me with an alumna at a chip company. She reviewed my resume line by line.', name: 'Second-year student', role: 'EEE · WIE' },
-  { quote: 'Our robotics team went from a line follower to an autonomous rover in a year. The lab access alone is worth the membership.', name: 'Third-year student', role: 'MECH · RAS' },
 ];
 
 export const faqs = [
@@ -466,7 +432,7 @@ export const faqs = [
   { q: 'When do I get my IEEE.org account?', a: 'Official IEEE credentials are provisioned by IEEE headquarters in batches. We email them to you as soon as they arrive.' },
 ];
 
-export const tickerItems = ['IEEE Day 2026', 'IEEEXtreme 20.0', 'Phase Shift Hackathon', 'WIE Tech Summit', 'PCB Design Bootcamp', 'Robotics Challenge', 'AI/ML Masterclass', 'Membership Drive 2026'];
+export const tickerItems = ['IEEE Day 2026', 'IEEEXtreme 20.0', 'Phase Shift Hackathon', 'WIE Tech Summit', 'PCB Design Bootcamp', 'AI/ML Masterclass', 'Membership Drive 2026'];
 
 /** Splits the calendar into upcoming (soonest first) and past (latest first). */
 export function splitEvents(filter?: (e: SiteEvent) => boolean) {
@@ -486,7 +452,6 @@ export function chapterCode(name: string) {
     [/computer/, 'CS'],
     [/pels|industrial|power electronics/, 'PELS/IES'],
     [/power & energy|power and energy|\bpes\b/, 'PES'],
-    [/robot/, 'RAS'],
     [/women/, 'WIE'],
     [/social|ssit/, 'SSIT'],
   ];
@@ -515,16 +480,16 @@ export const departments = [
 export const suggestedByDepartment: Record<string, string[]> = {
   CSE: ['CS', 'SSIT'],
   ISE: ['CS', 'SSIT'],
-  AIML: ['CS', 'RAS'],
+  AIML: ['CS', 'SSIT'],
   'CSE-DS': ['CS', 'SSIT'],
-  ECE: ['PELS/IES', 'RAS'],
+  ECE: ['PELS/IES', 'PES'],
   EEE: ['PES', 'PELS/IES'],
   ETE: ['PELS/IES', 'CS'],
-  EIE: ['PELS/IES', 'RAS'],
+  EIE: ['PELS/IES', 'PES'],
   MED: ['PELS/IES', 'SSIT'],
-  MECH: ['RAS', 'PES'],
+  MECH: ['PELS/IES', 'PES'],
   CIVIL: ['SSIT', 'PES'],
   CHEM: ['PES', 'SSIT'],
-  IEM: ['SSIT', 'RAS'],
+  IEM: ['SSIT', 'PES'],
   BT: ['SSIT', 'CS'],
 };

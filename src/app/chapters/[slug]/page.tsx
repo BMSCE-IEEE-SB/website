@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, Check, MapPin } from 'lucide-react';
 import { chapterBySlug, chapters, eventStart, isPastEvent, splitEvents } from '@/data/site';
@@ -45,9 +46,15 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
             <ArrowLeft className="h-4 w-4" /> All chapters
           </Link>
           <div className="mt-10 flex items-center gap-4">
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
-              <Icon className="h-7 w-7" />
-            </span>
+            {c.logo ? (
+              <span className="flex h-16 w-32 items-center justify-center rounded-2xl bg-white px-3 py-2">
+                <Image src={c.logo} alt={`${c.name} logo`} width={180} height={90} className="max-h-12 w-full object-contain" priority />
+              </span>
+            ) : (
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
+                <Icon className="h-7 w-7" />
+              </span>
+            )}
             <span className="rounded-full bg-white/15 px-3 py-1 text-sm font-bold tracking-wide backdrop-blur">{c.code}</span>
           </div>
           <h1 className="display mt-6 max-w-4xl text-5xl sm:text-7xl lg:text-8xl">{c.name}</h1>

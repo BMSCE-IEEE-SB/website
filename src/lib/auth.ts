@@ -182,9 +182,9 @@ const LAST = ['Sharma', 'Rao', 'Iyer', 'Hegde', 'Nair', 'Reddy', 'Kulkarni', 'Pa
 const DEPT_MIX: [string, string][] = [['CSE', 'CS'], ['CSE', 'CS'], ['ISE', 'IS'], ['AIML', 'AI'], ['ECE', 'EC'], ['ECE', 'EC'], ['EEE', 'EE'], ['MECH', 'ME'], ['CIVIL', 'CV'], ['ETE', 'ET']];
 const CHAPTER_PRICES: [string, number][] = [
   ['Computer Society', 100], ['Power & Energy Society', 100], ['PELS & IES Joint Chapter', 100],
-  ['Robotics & Automation Society', 100], ['Women in Engineering', 50], ['Social Implications of Technology', 50],
+  ['Women in Engineering', 50], ['Social Implications of Technology', 50],
 ];
-const DEPT_CHAPTERS: Record<string, number[]> = { CSE: [0, 5, 4], ISE: [0, 5], AIML: [0, 3], ECE: [2, 3, 4], EEE: [1, 2], MECH: [3, 1], CIVIL: [5, 1], ETE: [2, 0] };
+const DEPT_CHAPTERS: Record<string, number[]> = { CSE: [0, 4, 3], ISE: [0, 4], AIML: [0, 3], ECE: [2, 1, 3], EEE: [1, 2], MECH: [2, 1], CIVIL: [4, 1], ETE: [2, 0] };
 const PROOFS = [
   'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=600&auto=format&fit=crop&q=80',
@@ -380,9 +380,8 @@ export const DEFAULT_CHAPTER_SETTINGS: ChapterSetting[] = [
   { id: 'cs', name: 'IEEE Computer Society', code: 'CS', slug: 'cs', price: 100, is_active: true, display_order: 1 },
   { id: 'pes', name: 'IEEE Power & Energy Society', code: 'PES', slug: 'pes', price: 100, is_active: true, display_order: 2 },
   { id: 'pels-ies', name: 'IEEE Power & Industrial Electronics Joint Chapter', code: 'PELS/IES', slug: 'pels-ies', price: 100, is_active: true, display_order: 3 },
-  { id: 'ras', name: 'IEEE Robotics & Automation Society', code: 'RAS', slug: 'ras', price: 100, is_active: true, display_order: 4 },
-  { id: 'wie', name: 'IEEE Women in Engineering', code: 'WIE', slug: 'wie', price: 50, is_active: true, display_order: 5 },
-  { id: 'ssit', name: 'IEEE Social Implications of Technology', code: 'SSIT', slug: 'ssit', price: 50, is_active: true, display_order: 6 },
+  { id: 'wie', name: 'IEEE Women in Engineering', code: 'WIE', slug: 'wie', price: 50, is_active: true, display_order: 4 },
+  { id: 'ssit', name: 'IEEE Social Implications of Technology', code: 'SSIT', slug: 'ssit', price: 50, is_active: true, display_order: 5 },
 ];
 
 export async function loadAdminSettings(): Promise<MembershipSettings> {

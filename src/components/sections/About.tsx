@@ -68,7 +68,7 @@ export default function About() {
 
           <div className="relative hidden h-[420px] lg:col-span-5 lg:block">
             <motion.img style={{ y: y1 }} src={events[6].image} alt="Students at an AI/ML workshop" className="absolute top-0 right-0 h-64 w-72 rounded-[28px] object-cover shadow-xl" />
-            <motion.img style={{ y: y2 }} src={events[10].image} alt="Robotics challenge" className="absolute bottom-0 left-4 h-56 w-60 rounded-[28px] object-cover shadow-xl ring-8 ring-paper" />
+            <motion.img style={{ y: y2 }} src={events[10].image} alt="Students at a technical event" className="absolute bottom-0 left-4 h-56 w-60 rounded-[28px] object-cover shadow-xl ring-8 ring-paper" />
             <motion.div style={{ y: y2 }} className="absolute top-8 left-10 rounded-2xl bg-white px-4 py-3 shadow-lg">
               <p className="display text-2xl text-brand-orange">
                 <CountUp value="400,000+" />

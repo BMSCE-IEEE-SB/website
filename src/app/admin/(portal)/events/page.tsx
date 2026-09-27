@@ -34,7 +34,6 @@ const chapters = [
   { code: 'cs', name: 'Computer Society' },
   { code: 'pes', name: 'Power & Energy Society' },
   { code: 'pels-ies', name: 'PELS & IES Joint Chapter' },
-  { code: 'ras', name: 'Robotics & Automation Society' },
   { code: 'wie', name: 'Women in Engineering' },
   { code: 'ssit', name: 'Social Implications of Tech' },
 ];

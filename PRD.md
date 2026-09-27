@@ -53,7 +53,7 @@ The BMSCE IEEE Student Branch requires a unified digital presence to drive and m
 2. **Academic & Personal Profile**: Name, USN, Institutional Email, Department, Year of Study, Contact Phone, and optional IEEE Member ID.
 3. **Chapter Shopping Cart**:
    - Base membership fee fixed at ₹1,810.
-   - 6 Technical Chapters & Affinity Groups: Computer Society (₹100), Power & Energy Society (₹100), Power & Industrial Electronics (₹100), Robotics & Automation Society (₹100), Women in Engineering (₹50), and Social Implications of Technology (₹50).
+   - 5 Technical Chapters & Affinity Groups: Computer Society (₹100), Power & Energy Society (₹100), Power & Industrial Electronics (₹100), Women in Engineering (₹50), and Social Implications of Technology (₹50).
    - T-shirt size picker (`S`, `M`, `L`, `XL`, `XXL`) stored on order.
    - Real-time running total and departmental suggested bundles.
 4. **Checkout & Payment**:
@@ -95,7 +95,7 @@ The BMSCE IEEE Student Branch requires a unified digital presence to drive and m
 ```
 Public Web Routes:
 ├── /                                  (Homepage: Hero, Chapters, Events, ExeCom, Partners)
-├── /chapters/[slug]                   (Chapter Detail: CS, PES, PELS-IES, RAS, WIE, SSIT)
+├── /chapters/[slug]                   (Chapter Detail: CS, PES, PELS-IES, WIE, SSIT)
 ├── /gallery                           (Photo Gallery with Lightbox)
 ├── /membership                        (Membership Overview, Fee Slip Calculator, FAQ)
 ├── /membership/register               (Step 1: Account Creation & Sign Up)

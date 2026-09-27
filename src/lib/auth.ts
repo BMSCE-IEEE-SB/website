@@ -28,6 +28,10 @@ export interface Order {
   verified_at?: string;
   rejection_reason?: string;
   chapters?: string[];
+  /** Admin-only fields */
+  admin_note?: string;
+  credentials_sent_at?: string;
+  ieee_member_id?: string;
   student_name?: string;
   usn?: string;
   email?: string;
@@ -58,7 +62,7 @@ export const DUMMY_ADMIN_CREDENTIALS = { email: 'admin@bmsce.ac.in', password: '
 const DUMMY_USER_KEY = 'bmsce_dummy_user';
 const DUMMY_ADMIN_KEY = 'bmsce_dummy_admin';
 const DUMMY_PROFILE_KEY = 'bmsce_dummy_profiles';
-const DUMMY_ORDERS_KEY = 'bmsce_dummy_orders_v2';
+const DUMMY_ORDERS_KEY = 'bmsce_dummy_orders_v3';
 const ANNOUNCEMENT_KEY = 'bmsce_announcement';
 
 const isBrowser = () => typeof window !== 'undefined';
@@ -158,36 +162,91 @@ export function getLocalProfile(userId: string): UserProfile | null {
   return readJson<Record<string, UserProfile>>(DUMMY_PROFILE_KEY, {})[userId] ?? null;
 }
 
-const hoursAgo = (h: number) => new Date(Date.now() - h * 3600000).toISOString();
+// ---------------------------------------------------------------------------
+// Demo sample data: ~45 applications over the last five weeks so the admin
+// dashboard has something realistic to show. Deterministic (seeded).
+// ---------------------------------------------------------------------------
 
-const SAMPLE_ORDERS: Order[] = [
-  {
-    id: 'ord-demo-001', user_id: 'user-sample-01', student_name: 'Rahul Varma', usn: '1BM23CS084',
-    email: 'rahul.cs23@bmsce.ac.in', department: 'CSE', year_of_study: '2', phone: '+91 9845012345',
-    base_fee: 1810, total_amount: 2010, utr_reference: '423984572910', order_reference: 'BMSCE-X8K92A',
-    payment_screenshot_url: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80',
-    status: 'pending', created_at: hoursAgo(2), chapters: ['Computer Society', 'Power & Energy Society'],
-  },
-  {
-    id: 'ord-demo-002', user_id: 'user-sample-02', student_name: 'Pooja Hegde', usn: '1BM23EC042',
-    email: 'pooja.ec23@bmsce.ac.in', department: 'ECE', year_of_study: '3', phone: '+91 9741098765',
-    base_fee: 1810, total_amount: 1860, utr_reference: '423910293847', order_reference: 'BMSCE-P4M19Q',
-    payment_screenshot_url: 'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=600&auto=format&fit=crop&q=80',
-    status: 'pending', created_at: hoursAgo(6), chapters: ['Women in Engineering'],
-  },
-  {
-    id: 'ord-demo-003', user_id: 'user-sample-03', student_name: 'Karthik Rao', usn: '1BM22IS035',
-    email: 'karthik.is22@bmsce.ac.in', department: 'ISE', year_of_study: '3', phone: '+91 9448011223',
-    base_fee: 1810, total_amount: 1910, utr_reference: '423891029384', order_reference: 'BMSCE-Z7T33K',
-    payment_screenshot_url: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80',
-    status: 'verified', created_at: hoursAgo(24), verified_at: hoursAgo(12), chapters: ['Computer Society'],
-  },
+function seeded(seed: number) {
+  return () => {
+    seed |= 0;
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+const FIRST = ['Aarav', 'Ananya', 'Rohan', 'Diya', 'Karthik', 'Meera', 'Vikram', 'Sneha', 'Aditya', 'Isha', 'Rahul', 'Pooja', 'Nikhil', 'Kavya', 'Arjun', 'Riya', 'Siddharth', 'Tanvi', 'Harsh', 'Nandini', 'Pranav', 'Shreya', 'Varun', 'Aditi'];
+const LAST = ['Sharma', 'Rao', 'Iyer', 'Hegde', 'Nair', 'Reddy', 'Kulkarni', 'Patil', 'Menon', 'Shetty', 'Bhat', 'Gowda', 'Joshi', 'Kamath', 'Pai', 'Desai'];
+const DEPT_MIX: [string, string][] = [['CSE', 'CS'], ['CSE', 'CS'], ['ISE', 'IS'], ['AIML', 'AI'], ['ECE', 'EC'], ['ECE', 'EC'], ['EEE', 'EE'], ['MECH', 'ME'], ['CIVIL', 'CV'], ['ETE', 'ET']];
+const CHAPTER_PRICES: [string, number][] = [
+  ['Computer Society', 100], ['Power & Energy Society', 100], ['PELS & IES Joint Chapter', 100],
+  ['Robotics & Automation Society', 100], ['Women in Engineering', 50], ['Social Implications of Technology', 50],
 ];
+const DEPT_CHAPTERS: Record<string, number[]> = { CSE: [0, 5, 4], ISE: [0, 5], AIML: [0, 3], ECE: [2, 3, 4], EEE: [1, 2], MECH: [3, 1], CIVIL: [5, 1], ETE: [2, 0] };
+const PROOFS = [
+  'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1554224154-26032ffc0d07?w=600&auto=format&fit=crop&q=80',
+];
+
+function buildSampleOrders(): Order[] {
+  const rand = seeded(2026);
+  const pick = <T,>(arr: T[]) => arr[Math.floor(rand() * arr.length)];
+  const now = Date.now();
+  const out: Order[] = [];
+  const REFS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  for (let i = 0; i < 46; i++) {
+    const first = pick(FIRST);
+    const last = pick(LAST);
+    const [dept, code] = pick(DEPT_MIX);
+    const year = String(1 + Math.floor(rand() * 4));
+    const batch = String(26 - Number(year));
+    // Skew towards recent days to look like a drive in progress.
+    const daysAgo = Math.floor(Math.pow(rand(), 1.6) * 34);
+    const created = now - daysAgo * 86400000 - Math.floor(rand() * 20) * 3600000;
+    const chapterIdx = (DEPT_CHAPTERS[dept] ?? [0]).filter(() => rand() < 0.55);
+    const chapters = chapterIdx.map((k) => CHAPTER_PRICES[k][0]);
+    const total = 1810 + chapterIdx.reduce((sum, k) => sum + CHAPTER_PRICES[k][1], 0);
+    const age = (now - created) / 86400000;
+    const r = rand();
+    const status: OrderStatus = age < 3 ? (r < 0.85 ? 'pending' : 'verified') : r < 0.12 ? 'rejected' : r < 0.2 && age < 9 ? 'pending' : 'verified';
+    const verifiedAt = status === 'verified' ? new Date(created + (6 + Math.floor(rand() * 60)) * 3600000).toISOString() : undefined;
+    out.push({
+      id: `ord-sample-${String(i + 1).padStart(3, '0')}`,
+      user_id: `user-sample-${String(i + 1).padStart(3, '0')}`,
+      student_name: `${first} ${last}`,
+      usn: `1BM${batch}${code}${String(Math.floor(rand() * 180) + 1).padStart(3, '0')}`,
+      email: `${first.toLowerCase()}.${code.toLowerCase()}${batch}@bmsce.ac.in`,
+      department: dept,
+      year_of_study: year,
+      phone: `+91 9${Math.floor(100000000 + rand() * 899999999)}`,
+      base_fee: 1810,
+      total_amount: total,
+      payment_screenshot_url: pick(PROOFS),
+      utr_reference: String(Math.floor(400000000000 + rand() * 99999999999)),
+      order_reference: 'BMSCE-' + Array.from({ length: 6 }, () => REFS[Math.floor(rand() * REFS.length)]).join(''),
+      status,
+      created_at: new Date(created).toISOString(),
+      verified_at: verifiedAt,
+      rejection_reason: status === 'rejected' ? 'The screenshot is cropped and the UTR is not visible.' : undefined,
+      credentials_sent_at: status === 'verified' && age > 20 && rand() < 0.7 ? new Date(created + 10 * 86400000).toISOString() : undefined,
+      chapters,
+    });
+  }
+  // Two deliberate problems so the review tools have something to catch:
+  const pend = out.filter((o) => o.status === 'pending');
+  if (pend.length >= 2) {
+    pend[1].utr_reference = out.find((o) => o.status === 'verified')?.utr_reference; // re-used UTR
+    pend[0].total_amount = pend[0].total_amount - 100; // paid less than the total
+  }
+  return out.sort((a, b) => b.created_at.localeCompare(a.created_at));
+}
 
 /** All demo orders (admin view). Samples are seeded once, not every time the list is empty. */
 export function getLocalOrders(): Order[] {
   if (!isBrowser()) return [];
-  if (localStorage.getItem(DUMMY_ORDERS_KEY) === null) writeJson(DUMMY_ORDERS_KEY, SAMPLE_ORDERS);
+  if (localStorage.getItem(DUMMY_ORDERS_KEY) === null) writeJson(DUMMY_ORDERS_KEY, buildSampleOrders());
   const orders = readJson<Order[]>(DUMMY_ORDERS_KEY, []);
   return Array.isArray(orders) ? orders : [];
 }
@@ -209,6 +268,11 @@ export function saveLocalOrder(order: Order) {
     phone: profile?.phone ?? order.phone,
   };
   writeJson(DUMMY_ORDERS_KEY, [enriched, ...getLocalOrders().filter((o) => o.id !== order.id)]);
+}
+
+/** Replace the whole demo order list (used by admin bulk actions). */
+export function writeLocalOrders(orders: Order[]) {
+  writeJson(DUMMY_ORDERS_KEY, orders);
 }
 
 function patchLocalOrder(orderId: string, patch: (o: Order) => Order) {

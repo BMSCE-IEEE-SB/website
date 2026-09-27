@@ -11,7 +11,6 @@ import {
   removeAdminWhitelistEntry,
   type AdminWhitelistEntry,
 } from '@/lib/auth';
-import AdminNav from '@/components/admin/AdminNav';
 import { Alert, Field, Input, PageLoader, Select, Spinner } from '@/components/ui/form';
 import { cn, errorMessage } from '@/lib/utils';
 import { adminFetch } from '@/lib/admin-api';
@@ -124,16 +123,13 @@ export default function AdminTeamPage() {
   if (isLoading) return <PageLoader />;
 
   return (
-    <div>
-      <AdminNav current="team" adminEmail={adminEmail} demo={demo} />
-
-      <div className="container-page max-w-4xl py-10 sm:py-12">
-        <div>
-          <h1 className="text-2xl font-bold sm:text-3xl">Admin Team & Access Control</h1>
-          <p className="mt-1 text-sm text-muted">
-            Manage authorized executive committee members who can review membership proofs, verify orders, and publish announcements.
-          </p>
-        </div>
+    <div className="pb-10 max-w-5xl">
+      <div>
+        <h1 className="display text-4xl text-ink sm:text-5xl">Admin Team & Access</h1>
+        <p className="mt-2 text-sm text-muted">
+          Manage authorized executive committee members who can review membership proofs, verify orders, and publish announcements.
+        </p>
+      </div>
 
         {/* 1. Add New Admin */}
         <form onSubmit={handleAddAdmin} className="panel mt-8 p-6 sm:p-8 space-y-6">
@@ -251,6 +247,5 @@ export default function AdminTeamPage() {
           </div>
         )}
       </div>
-    </div>
   );
 }

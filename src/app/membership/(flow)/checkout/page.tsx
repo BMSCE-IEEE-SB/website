@@ -8,12 +8,11 @@ import { ArrowLeft, Check, Copy, Download, Smartphone } from 'lucide-react';
 import { isDemoMode, supabase } from '@/lib/supabase';
 import { getCurrentUser, saveLocalOrder, type SessionUser } from '@/lib/auth';
 import { clearCart, getOrCreateOrderRef, readCart, type CartChapter } from '@/lib/cart';
+import { FALLBACK_PAYEE, loadPayee } from '@/lib/pricing';
 import { Alert, Field, FileDrop, Input, PageLoader, Spinner } from '@/components/ui/form';
 import DemoNotice from '@/components/membership/DemoNotice';
 import { errorMessage, imageToDataUrl, validateScreenshot } from '@/lib/utils';
 
-const FALLBACK_VPA = 'bmsceieee@okhdfcbank';
-const FALLBACK_PAYEE = 'BMSCE IEEE Student Branch';
 
 function CopyButton({ value, label }: { value: string; label: string }) {
   const [copied, setCopied] = useState(false);
@@ -45,8 +44,8 @@ export default function CheckoutPage() {
   const [tshirtSize, setTshirtSize] = useState('');
   const [orderRef, setOrderRef] = useState('');
   const [checkoutIntentId, setCheckoutIntentId] = useState('');
-  const [vpa, setVpa] = useState(FALLBACK_VPA);
-  const [payee, setPayee] = useState(FALLBACK_PAYEE);
+  const [vpa, setVpa] = useState(FALLBACK_PAYEE.vpa);
+  const [payee, setPayee] = useState(FALLBACK_PAYEE.name);
   const [isLoading, setIsLoading] = useState(true);
 
   const [file, setFile] = useState<File | null>(null);
@@ -76,6 +75,11 @@ export default function CheckoutPage() {
         setChapters(cart.chapters);
         setBaseFee(cart.baseFee);
         setOrderRef(getOrCreateOrderRef());
+        const p = await loadPayee();
+        if (alive) {
+          setVpa(p.vpa);
+          setPayee(p.name);
+        }
       } else {
         if (!cart.tshirtSize || !cart.chapters.every((chapter) => /^[0-9a-f-]{36}$/i.test(chapter.id))) {
           router.replace('/membership/chapters');
@@ -99,7 +103,7 @@ export default function CheckoutPage() {
         setPayee(quote.payee_name);
       }
       if (alive) setIsLoading(false);
-      } catch (err) {
+    } catch (err) {
         if (alive) {
           setError(errorMessage(err, 'Checkout could not be loaded.'));
           setIsLoading(false);

@@ -4,37 +4,28 @@ All notable changes to the **BMSCE IEEE Student Branch Website** will be documen
 
 ---
 
-## [3.5.0] - 2026-09-27 (Security hardening & Server APIs)
+## [4.0.0] - 2026-09-27 (Unified Admin Portal & Hardened Security Architecture)
 
 ### Added
-- **Server API Mediation**: Dedicated server-side API endpoints (`/api/checkout/*` and `/api/admin/*`) eliminating direct client-side database mutations.
-- **Server-Side Checkout Intent** (`/api/checkout/intent`): Cart pricing is recalculated and validated on the server with intent expiration.
-- **Secure Proof Upload Route** (`/api/checkout/proof`): Server-enforced MIME type verification (JPEG, PNG, WebP), 5MB file size limit, and user folder path isolation.
-- **Atomic Sequential Receipt Numbering**: Created `receipt_counters` and `issued_receipts` tables generating formatted sequential receipts (`BMSCE-IEEE-YYYY-XXXX`).
-- **Comprehensive Audit Logging**: Created `admin_audit_log` recording all administrative status changes, manual receipts, settings edits, and team whitelist updates.
-- **Automated Security Test Suite**: Added `supabase/tests/security_remediation.test.sql` to verify RLS denial on direct client writes.
+- **Unified Admin Portal Shell**: Modern admin sidebar shell (`(portal)/layout.tsx`) with responsive mobile tab navigation, live pending count badge, and demo-mode indicator. Public navigation footer and announcement banner are hidden within the portal.
+- **Executive Overview Dashboard** (`/admin`): Verified funds, pending review age, verification trend charts, weekly comparisons, priority attention queues, and accessible SVG charts (daily applications, chapter signups, departments, year of study) with data table views.
+- **Enhanced Applications Manager** (`/admin/orders`): Multi-factor filtering (chapter, department, date range, warnings), pagination, bulk verify/reject/export, sliding detail drawer with zoomable signed payment proofs, timeline tracking, and private admin notes.
+- **Automated Review Warnings**: Real-time fraud detection flags for duplicate UTRs, amount discrepancies, and repeat USN submissions with verification safety confirmations.
+- **Keyboard Shortcuts**: Power-user navigation (`j`/`k` move, `Enter` open, `v` verify, `r` reject, `x` select, `/` search, `Esc` close, `?` shortcuts guide).
+- **Official PDF Receipt Generator** (`src/lib/receipt-pdf.ts` via `pdf-lib`): High-fidelity, vector-crisp A4 receipts with branch crest, student info, itemized fee breakdowns, sequential receipt numbers (`BMSCE-IEEE-YYYY-XXXX`), and treasurer credentials.
+- **On-Demand Receipt Delivery**: Decoupled receipt email dispatch with transactional delivery status tracking (`delivery_status`, `sent_at`, `last_error`) and retry capabilities.
+- **Members Directory** (`/admin/members`): Verified-member registry with chapter enrollment counters, inline IEEE member ID assignment, "credentials sent" tracking (single and bulk), and roster export for IEEE headquarters.
+- **Events & Workshops Manager** (`/admin/events`): Dynamic CRUD for campus workshops, summits, hackathons, and technical talks with chapter tagging and featured flags.
+- **Sitewide Announcement Manager** (`/admin/announcement`): Live alert banner configuration with real-time preview and safe URL verification.
+- **Executive Team Access Control** (`/admin/team`): Whitelist-based administrative privilege provisioning (`admin_whitelist`) with automatic database trigger synchronization.
+- **Fees & Payment Configuration** (`/admin/settings`): Base fee, chapter add-ons, UPI VPA/QR generator, drive status toggle (`is_drive_open`), and branch treasurer credentials.
+- **Activity & Audit Logging** (`/admin/activity`): Comprehensive record of administrative verifications, rejections, notes, settings updates, and whitelist edits.
+- **T-Shirt Merchandise Selection**: Added T-shirt size picker (`S`, `M`, `L`, `XL`, `XXL`) in checkout, tracked in `orders.tshirt_size`.
+- **Server API Mediation & Security Hardening**: Dedicated server-side API endpoints (`/api/checkout/*` and `/api/admin/*`) running via `SUPABASE_SERVICE_ROLE_KEY`. Direct client mutations are blocked by PostgreSQL Row-Level Security. Private payment screenshot storage bucket rendered via short-lived signed URLs.
 
 ### Changed
-- **Row-Level Security Hardening**: Revoked direct client `INSERT`/`UPDATE`/`DELETE` permissions on `orders`, `order_items`, `membership_config`, `announcement`, `events`, and `admin_whitelist`. All mutations are executed via `src/lib/server/supabase-admin.ts` using `SUPABASE_SERVICE_ROLE_KEY`.
-- **Payment Proof Storage**: Switched `public-assets` storage bucket to private, rendering screenshots through short-lived signed URLs for authenticated administrators.
-- **Non-Cascading Admin Verification**: Decoupled `orders.verified_by` foreign key to reference `auth.users(id)` directly with `ON DELETE SET NULL`, preserving order verification history when whitelist privileges are revoked.
-
----
-
-## [3.4.0] - 2026-09-27 (Admin suite, PDF receipts & T-shirt selection)
-
-### Added
-- **Complete Executive Admin Suite**:
-  - Events Manager (`/admin/events`) for dynamic CRUD of branch workshops, hackathons, summits, and talks.
-  - Admin Settings (`/admin/settings`) to configure drive status, base fee, UPI payee details, and treasurer credentials.
-  - Team Whitelist (`/admin/team`) for role-based access control with `admin_whitelist` provisioning.
-  - Unified admin navigation header (`AdminNav.tsx`) linking all administrative tools.
-- **Programmatic PDF Receipt Generator** (`src/lib/receipt-pdf.ts` via `pdf-lib`): Generates branded, high-fidelity A4 official PDF receipts with branch crest, student info, itemized fee breakdowns, unique receipt numbers, and treasurer credentials.
-- **On-Demand Receipt Delivery**: Decoupled receipt email dispatch from order verification. Added a dedicated "Send Receipt" button on `/admin/orders` with delivery status badges, error logs, and retry capabilities.
-- **Manual Receipt Generator** (`/api/admin/manual-receipt`): Modal interface enabling executives to issue official receipts for offline or cash payments.
-- **T-Shirt Merchandise Selection**: Added T-shirt size picker (`S`, `M`, `L`, `XL`, `XXL`) in the membership cart and checkout, tracked in `orders.tshirt_size` and displayed in the admin ledger.
-- **Chapter Expansion**: Integrated the 6th technical vertical: IEEE Robotics & Automation Society (RAS) with ₹100 fee.
-- **Treasurer Credentials**: Added treasurer name, role, phone, and signature fields in `membership_config` for receipt rendering.
+- Admin sign-in preserves return destination (`redirect` query parameter).
+- Unified `ADMIN_GUIDE.md` and complete documentation suite.
 
 ---
 

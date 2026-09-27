@@ -11,7 +11,6 @@ import {
   deleteAdminEvent,
   type AdminEvent,
 } from '@/lib/auth';
-import AdminNav from '@/components/admin/AdminNav';
 import { Alert, Field, Input, Modal, PageLoader, Select, Spinner } from '@/components/ui/form';
 import { errorMessage } from '@/lib/utils';
 import { adminFetch } from '@/lib/admin-api';
@@ -151,14 +150,12 @@ export default function AdminEventsPage() {
   if (isLoading) return <PageLoader />;
 
   return (
-    <div>
-      <AdminNav current="events" adminEmail={adminEmail} demo={demo} />
-
-      <div className="container-page py-10 sm:py-12">
+    <div className="pb-10">
+      <div>
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div>
-            <h1 className="text-2xl font-bold sm:text-3xl">Events & Hackathons</h1>
-            <p className="mt-1 text-sm text-muted">
+            <h1 className="display text-4xl text-ink sm:text-5xl">Events & Hackathons</h1>
+            <p className="mt-2 text-sm text-muted">
               Add, update, or schedule branch technical workshops, IEEEXtreme, and society summits.
             </p>
           </div>

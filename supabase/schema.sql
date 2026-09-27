@@ -67,9 +67,12 @@ CREATE TABLE IF NOT EXISTS public.orders (
   order_reference text UNIQUE NOT NULL,
   receipt_number text UNIQUE,
   drive_year int DEFAULT 2026,
+  tshirt_size text,
   receipt_sent boolean DEFAULT false,
   receipt_sent_at timestamptz,
   receipt_error text,
+  admin_note text,
+  credentials_sent_at timestamptz,
   created_at timestamptz DEFAULT now(),
   verified_at timestamptz,
   verified_by uuid REFERENCES public.admins(id),
@@ -81,6 +84,17 @@ CREATE TABLE IF NOT EXISTS public.order_items (
   order_id uuid REFERENCES public.orders(id) ON DELETE CASCADE NOT NULL,
   chapter_id uuid REFERENCES public.chapters(id) NOT NULL,
   price_at_purchase numeric NOT NULL
+);
+
+-- Audit trail of admin actions
+CREATE TABLE IF NOT EXISTS public.admin_activity (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  admin_id uuid REFERENCES public.admins(id),
+  admin_email text,
+  action text NOT NULL,
+  target text,
+  details text,
+  created_at timestamptz DEFAULT now()
 );
 
 -- Site-wide announcement banner (single row, id = 1)
@@ -220,6 +234,7 @@ ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.announcement ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.admin_activity ENABLE ROW LEVEL SECURITY;
 
 -- Chapters (Public read, admin write)
 CREATE POLICY "chapters are public" ON public.chapters FOR SELECT TO public USING (true);
@@ -248,6 +263,7 @@ CREATE POLICY "admins manage whitelist" ON public.admin_whitelist FOR ALL TO aut
 -- Profiles
 CREATE POLICY "members manage own profile" ON public.profiles FOR ALL TO authenticated USING (id = auth.uid()) WITH CHECK (id = auth.uid());
 CREATE POLICY "admins read profiles" ON public.profiles FOR SELECT TO authenticated USING (is_admin());
+CREATE POLICY "admins update profiles" ON public.profiles FOR UPDATE TO authenticated USING (is_admin()) WITH CHECK (is_admin());
 
 -- Orders: members create and read own; update if rejected; admins manage all
 CREATE POLICY "members read own orders" ON public.orders FOR SELECT TO authenticated USING (user_id = auth.uid());
@@ -263,6 +279,10 @@ CREATE POLICY "members read own items" ON public.order_items FOR SELECT TO authe
 CREATE POLICY "members add items to own orders" ON public.order_items FOR INSERT TO authenticated
   WITH CHECK (EXISTS (SELECT 1 FROM public.orders o WHERE o.id = order_id AND o.user_id = auth.uid()));
 CREATE POLICY "admins read items" ON public.order_items FOR SELECT TO authenticated USING (is_admin());
+
+-- Admin Activity Log
+CREATE POLICY "admins write activity" ON public.admin_activity FOR INSERT TO authenticated WITH CHECK (is_admin());
+CREATE POLICY "admins read activity" ON public.admin_activity FOR SELECT TO authenticated USING (is_admin());
 
 -- ---------------------------------------------------------------------------
 -- 5. Storage (Payment Screenshots)

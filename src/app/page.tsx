@@ -5,7 +5,6 @@ import About from '@/components/sections/About';
 import Chapters from '@/components/sections/Chapters';
 import Events from '@/components/sections/Events';
 import GalleryStrip from '@/components/sections/GalleryStrip';
-import Voices from '@/components/sections/Voices';
 import Team from '@/components/sections/Team';
 import Join from '@/components/sections/Join';
 import Contact from '@/components/sections/Contact';
@@ -24,7 +23,6 @@ export default function Home() {
       <Chapters />
       <Events upcoming={upcoming} past={past} />
       <GalleryStrip />
-      <Voices />
       <Team />
       <Join />
       <Contact />

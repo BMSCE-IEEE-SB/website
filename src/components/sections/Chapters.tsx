@@ -43,11 +43,11 @@ export default function Chapters() {
               <SectionLabel index="02">Chapters & affinity groups</SectionLabel>
             </Reveal>
             <Reveal delay={80}>
-              <h2 className="section-title mt-6 max-w-3xl">Find your people</h2>
+              <h2 className="section-title mt-6 max-w-3xl">Find your interest</h2>
             </Reveal>
           </div>
           <Reveal delay={120}>
-            <p className="lead max-w-md">Six communities, each with its own projects, events and mentors. Pick one or join them all when you register.</p>
+            <p className="lead max-w-md">Five communities, each with its own projects, events and mentors. Pick one or join them all when you register.</p>
           </Reveal>
         </div>
 
@@ -64,15 +64,10 @@ export default function Chapters() {
                     onFocus={() => pick(i)}
                     onClick={() => pick(i)}
                     aria-pressed={on}
-                    className="group flex w-full items-center gap-5 py-[1.35rem] text-left"
+                    className="group flex w-full items-center gap-3 py-4 text-left"
                   >
-                    <span className={cn('w-16 shrink-0 font-mono text-xs transition-colors', on ? 'text-ink' : 'text-muted')}>{c.code}</span>
-                    <span
-                      className={cn('display flex-1 text-[1.9rem] leading-none whitespace-nowrap transition-all duration-300 xl:text-[2.3rem]', on ? 'translate-x-2' : 'text-ink/30 group-hover:text-ink/60')}
-                      style={on ? { color: c.color } : undefined}
-                    >
-                      {c.short}
-                    </span>
+                    {c.logo && <span className="flex h-10 w-12 shrink-0 items-center justify-center rounded-lg bg-white p-1 ring-1 ring-ink/5"><Image src={c.logo} alt="" aria-hidden width={100} height={60} className="max-h-8 w-full object-contain" /></span>}
+                    <span className={cn('flex-1 text-sm leading-snug font-semibold transition-colors sm:text-base', on ? 'text-ink' : 'text-ink/60 group-hover:text-ink')} style={on ? { color: c.color } : undefined}>{c.name}</span>
                     <span className="relative h-8 w-8 shrink-0">
                       {on && !interacted && !reduce && (
                         <svg viewBox="0 0 36 36" className="absolute inset-0 -rotate-90">
@@ -131,7 +126,7 @@ export default function Chapters() {
                       </div>
                     </dl>
                     <Link href={`/chapters/${ch.slug}`} className="btn btn-light btn-lg">
-                      Explore {ch.code} <ArrowUpRight className="h-4 w-4" />
+                      Explore chapter <ArrowUpRight className="h-4 w-4" />
                     </Link>
                   </div>
                 </div>
@@ -149,7 +144,6 @@ export default function Chapters() {
                 <div className="relative h-40">
                   <img src={c.image} alt="" loading="lazy" className="h-full w-full object-cover" />
                   <div className="absolute inset-0" style={{ background: `linear-gradient(to top, ${c.color}, transparent 75%)` }} />
-                  <span className="absolute top-4 left-4 rounded-full bg-white/20 px-3 py-1 text-xs font-bold backdrop-blur">{c.code}</span>
                 </div>
                 <div className="flex flex-1 flex-col p-6 pt-1">
                   {c.logo ? (
@@ -158,7 +152,7 @@ export default function Chapters() {
                     </span>
                   ) : <CIcon className="h-6 w-6 opacity-80" />}
                   <h3 className="display mt-3 text-2xl">{c.name}</h3>
-                  <p className="mt-2 flex-1 text-sm text-white/80">{c.tagline}</p>
+                  <p className="mt-2 flex-1 text-sm text-white/80">{c.description}</p>
                   <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold">
                     Explore chapter <ArrowUpRight className="h-4 w-4" />
                   </span>

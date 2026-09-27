@@ -144,20 +144,20 @@ export default function Header() {
                           {chapters.map((c) => {
                             const Icon = c.icon;
                             return (
-                              <Link key={c.slug} href={`/chapters/${c.slug}`} onClick={close} className="group flex items-start gap-3 rounded-2xl p-3 transition-colors hover:bg-paper">
-                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white transition-transform group-hover:scale-110" style={{ background: c.color }}>
-                                  <Icon className="h-4.5 w-4.5" />
-                                </span>
-                                <span className="min-w-0">
-                                  <span className="block text-sm font-semibold text-ink">{c.name}</span>
-                                  <span className="block truncate text-xs text-muted">{c.tagline}</span>
-                                </span>
+                              <Link key={c.slug} href={`/chapters/${c.slug}`} onClick={close} className="group flex min-h-16 items-center gap-3 rounded-2xl p-3 transition-colors hover:bg-paper">
+                                {c.logo ? (
+                                  <span className="flex h-10 w-12 shrink-0 items-center justify-center rounded-lg bg-white p-1 ring-1 ring-ink/5">
+                                    <Image src={c.logo} alt="" aria-hidden width={100} height={60} className="max-h-8 w-full object-contain transition-transform group-hover:scale-110" />
+                                  </span>
+                                ) : (
+                                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white transition-transform group-hover:scale-110" style={{ background: c.color }}>
+                                    <Icon className="h-4.5 w-4.5" />
+                                  </span>
+                                )}
+                                <span className="min-w-0 text-sm leading-snug font-semibold text-ink">{c.name}</span>
                               </Link>
                             );
                           })}
-                          <Link href="/#chapters" onClick={close} className="col-span-2 mt-1 flex items-center justify-between rounded-2xl bg-paper px-4 py-3 text-sm font-semibold text-ink hover:bg-paper-2">
-                            Compare all chapters <ArrowRight className="h-4 w-4" />
-                          </Link>
                         </div>
                       </motion.div>
                     )}

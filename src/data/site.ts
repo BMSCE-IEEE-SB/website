@@ -15,8 +15,8 @@ export const BRANCH = {
 
 export const contactInfo = {
   address: 'Bull Temple Road, Basavanagudi, Bengaluru 560019',
-  email: 'ieee@bmsce.ac.in',
-  phone: '+91 80 2662 2130',
+  email: 'ieee.sb@bmsce.ac.in',
+  phone: '+91 7204524602',
 };
 
 export const navItems = [
@@ -31,7 +31,7 @@ export const navItems = [
 export const metrics = [
   { value: '16+', label: 'Years of technical legacy' },
   { value: '1,000+', label: 'Active members' },
-  { value: '6', label: 'Technical chapters & affinity groups' },
+  { value: '5', label: 'Technical chapters & affinity groups' },
   { value: '50+', label: 'Workshops & hackathons every year' },
 ];
 
@@ -90,13 +90,13 @@ export const chapters: Chapter[] = [
   },
   {
     slug: 'pes',
-    short: 'Power & Energy',
+    short: 'Power & Energy Society and Sensors Council',
     code: 'PES',
     logo: '/chapter-logos/pes.png',
     color: '#059669',
     image: u('photo-1509391366360-2e959784a276', 1400, 900),
     about: [
-      'The Power & Energy Society looks at how the world will generate, move and store energy as it decarbonises.',
+      'The Power & Energy Society and Sensors Council looks at how the world will generate, move and store energy as it decarbonises.',
       'Members get hands-on time in the power labs, visit substations and renewable plants, and design small microgrid and EV projects.',
     ],
     focus: [
@@ -107,8 +107,8 @@ export const chapters: Chapter[] = [
     ],
     activities: ['Power systems lab workshops', 'Industrial and substation visits', 'Renewable energy design challenge', 'PES Day celebration'],
     stats: { members: '250+', events: '15+', founded: '2014' },
-    name: 'Power & Energy Society',
-    fullName: 'IEEE Power & Energy Society',
+    name: 'Power & Energy Society and Sensors Council (PES & SC)',
+    fullName: 'IEEE Power & Energy Society and Sensors Council (PES & SC)',
     tagline: 'Clean tech, smart grids & e-mobility',
     description:
       'Renewable microgrids, energy storage, power distribution and EV powertrains, with hands-on lab sessions and industry visits.',
@@ -118,7 +118,7 @@ export const chapters: Chapter[] = [
   },
   {
     slug: 'pels-ies',
-    short: 'Power Electronics',
+    short: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)',
     code: 'PELS/IES',
     logo: '/chapter-logos/pels-ies.png',
     color: '#d97706',
@@ -135,8 +135,8 @@ export const chapters: Chapter[] = [
     ],
     activities: ['PCB design bootcamp', 'Hardware build weekends', 'Converter design contest', 'Industry automation visits'],
     stats: { members: '150+', events: '12+', founded: '2018' },
-    name: 'Power & Industrial Electronics',
-    fullName: 'IEEE PELS & IES Joint Chapter',
+    name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)',
+    fullName: 'IEEE Power Electronics Society and the Industrial Electronics Society (PELS & IES)',
     tagline: 'PCB design, drives & automation',
     description:
       'Electronic prototyping, power converter design, embedded drives, sensor interfacing and industrial automation controls.',
@@ -174,7 +174,7 @@ export const chapters: Chapter[] = [
   },
   {
     slug: 'ssit',
-    short: 'Tech & Society',
+    short: 'Society on Social Implications of Technology',
     code: 'SSIT',
     logo: '/chapter-logos/ssit.png',
     color: '#4f46e5',
@@ -383,7 +383,7 @@ export const execom: ExeComMember[] = [
 ];
 
 export const socialLinks = [
-  { key: 'linkedin', href: 'https://linkedin.com/company/bmsce-ieee', label: 'LinkedIn' },
+  { key: 'linkedin', href: 'https://www.linkedin.com/company/bmsce-ieee/', label: 'LinkedIn' },
   { key: 'instagram', href: 'https://instagram.com/bmsce_ieee', label: 'Instagram' },
   { key: 'x', href: 'https://twitter.com/bmsce_ieee', label: 'X (Twitter)' },
   { key: 'youtube', href: 'https://youtube.com/@bmsceieee', label: 'YouTube' },
@@ -401,8 +401,8 @@ export const membershipBenefits = [
 export const FALLBACK_BASE_FEE = 1810;
 export const FALLBACK_CART_CHAPTERS = [
   { id: 'demo-cs', name: 'Computer Society', code: 'CS', price: 100 },
-  { id: 'demo-pes', name: 'Power & Energy Society', code: 'PES', price: 100 },
-  { id: 'demo-pels', name: 'PELS & IES Joint Chapter', code: 'PELS/IES', price: 100 },
+  { id: 'demo-pes', name: 'Power & Energy Society and Sensors Council (PES & SC)', code: 'PES', price: 100 },
+  { id: 'demo-pels', name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', price: 100 },
   { id: 'demo-wie', name: 'Women in Engineering', code: 'WIE', price: 50 },
   { id: 'demo-ssit', name: 'Social Implications of Technology', code: 'SSIT', price: 50 },
 ];
@@ -414,13 +414,6 @@ export const pillars = [
   { title: 'Build', text: 'Project teams that turn ideas into circuit boards, software and research.', stat: '30+', statLabel: 'active projects', image: u('photo-1518770660439-4636190af475', 1000, 700), accent: '#f26625' },
   { title: 'Compete', text: 'Hackathons, IEEEXtreme and design contests, on campus and across India.', stat: '12', statLabel: 'competitions hosted', image: u('photo-1531482615713-2afd69097998', 1000, 700), accent: '#fbbf24' },
   { title: 'Lead', text: 'Run a chapter, an event or a team, and learn to lead people, not just code.', stat: '60+', statLabel: 'student leaders', image: u('photo-1540575467063-178a50c2df87', 1000, 700), accent: '#34d399' },
-];
-
-// PLACEHOLDER quotes: replace with real member testimonials before launch.
-export const testimonials = [
-  { quote: 'I joined for the hackathons and stayed for the people. My first PCB, my first paper and my internship all came through IEEE.', name: 'Final-year student', role: 'ECE · PELS/IES' },
-  { quote: 'Running a workshop for 200 juniors taught me more about leadership than any course. The seniors trust you with real responsibility.', name: 'Third-year student', role: 'CSE · Computer Society' },
-  { quote: 'The WIE mentorship circle connected me with an alumna at a chip company. She reviewed my resume line by line.', name: 'Second-year student', role: 'EEE · WIE' },
 ];
 
 export const faqs = [

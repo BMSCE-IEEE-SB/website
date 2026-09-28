@@ -557,9 +557,8 @@ export const pillars = [
 
 export const faqs = [
   { q: 'Who can become a member?', a: 'Any student currently enrolled at B.M.S. College of Engineering: undergraduate, postgraduate or research scholar, from any department.' },
-  { q: 'What does the membership cost?', a: 'A base branch membership fee plus an optional fee for each technical chapter you add. You see the exact total before you pay.' },
-  { q: 'How do I pay?', a: 'With any UPI app. Scan the QR code on the payment step, then upload the screenshot and the 12-digit UTR number.' },
-  { q: 'How long does verification take?', a: 'The treasurer matches payments against the bank statement, usually within two to three working days. You get an email once you are verified.' },
+  { q: 'How do I pay?', a: 'With any UPI app. Scan the QR code on the payment step, then upload the screenshot and the 12-digit UTR number. Cash is also accepted at our registration desk.' },
+  { q: 'How long does verification take?', a: 'We will matche the payments against the bank statement, usually within a week. You get an email once you are verified.' },
   { q: 'Can I join more chapters later?', a: 'Yes. Sign in to the member portal and start a new application with the extra chapters you want.' },
   { q: 'When do I get my IEEE.org account?', a: 'Official IEEE credentials are provisioned by IEEE headquarters in batches. We email them to you as soon as they arrive.' },
 ];

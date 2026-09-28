@@ -30,5 +30,10 @@ export async function POST(request: Request) {
     p_tshirt_size: body.tshirtSize,
   });
   if (error || !data) return jsonError('Your application could not be submitted. Refresh and try again.', 409);
-  return Response.json({ orderId: data }, { headers: { 'Cache-Control': 'no-store' } });
+  const response = Response.json({ orderId: data }, { headers: { 'Cache-Control': 'no-store' } });
+  response.headers.set(
+    'Set-Cookie',
+    'bmsce_paid=1; Path=/; Max-Age=31536000; SameSite=Lax'
+  );
+  return response;
 }

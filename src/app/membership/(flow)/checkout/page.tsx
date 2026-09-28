@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 import { ArrowLeft, Check, Copy, Download, Smartphone } from 'lucide-react';
 import { isDemoMode, supabase } from '@/lib/supabase';
-import { getCurrentUser, saveLocalOrder, type SessionUser } from '@/lib/auth';
+import { getCurrentUser, hasPaidCookie, hasUserSubmittedPayment, markPaymentSubmitted, saveLocalOrder, type SessionUser } from '@/lib/auth';
 import { clearCart, getOrCreateOrderRef, readCart, type CartChapter } from '@/lib/cart';
 import { FALLBACK_PAYEE, loadPayee } from '@/lib/pricing';
 import { Alert, Field, FileDrop, Input, PageLoader, Spinner } from '@/components/ui/form';
@@ -55,14 +55,35 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     let alive = true;
+
+    // If back button or direct navigation occurred after paying, redirect to /account
+    if (hasPaidCookie()) {
+      router.replace('/account');
+      return;
+    }
+
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (hasPaidCookie()) {
+        router.replace('/account');
+      }
+    };
+    window.addEventListener('pageshow', onPageShow);
+
     (async () => {
       try {
-      const active = await getCurrentUser().catch(() => null);
-      if (!alive) return;
-      if (!active) {
-        router.replace('/membership/register');
-        return;
-      }
+        const paid = await hasUserSubmittedPayment();
+        if (!alive) return;
+        if (paid) {
+          router.replace('/account');
+          return;
+        }
+
+        const active = await getCurrentUser().catch(() => null);
+        if (!alive) return;
+        if (!active) {
+          router.replace('/membership/register');
+          return;
+        }
       const cart = readCart();
       if (!cart) {
         // Opened checkout directly: the amount is unknown, so pick chapters first.
@@ -112,6 +133,7 @@ export default function CheckoutPage() {
     })();
     return () => {
       alive = false;
+      window.removeEventListener('pageshow', onPageShow);
     };
   }, [router, demo]);
 
@@ -192,6 +214,7 @@ export default function CheckoutPage() {
         const result = await submit.json().catch(() => null);
         if (!submit.ok) throw new Error(result?.error || 'Your application could not be submitted.');
       }
+      markPaymentSubmitted();
       clearCart();
       router.push('/account?submitted=1');
     } catch (err) {
@@ -228,8 +251,47 @@ export default function CheckoutPage() {
                 <Download className="h-3.5 w-3.5" /> Save QR
               </button>
             </div>
-            <a href={upiLink} className="btn btn-dark mt-4 w-full sm:hidden">
-              <Smartphone className="h-4 w-4" /> Open UPI app
+
+            {/* Direct UPI payment details */}
+            <div className="mt-4 w-full rounded-2xl border border-sky-100 bg-sky-50/70 p-4 text-center">
+              <p className="text-xs font-bold uppercase tracking-wider text-brand-navy">Direct Payment Details</p>
+
+              <div className="mt-3 space-y-2.5">
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white px-3 py-2 text-left ring-1 ring-line">
+                  <div className="min-w-0">
+                    <span className="block text-[11px] font-medium text-muted">UPI ID (Tap to pay in app)</span>
+                    <a
+                      href={upiLink}
+                      className="font-mono text-sm font-bold text-brand-blue underline decoration-brand-blue/40 underline-offset-4 transition-colors hover:text-brand-navy"
+                      title="Tap to open your UPI app with ₹{total} pre-filled"
+                    >
+                      {vpa}
+                    </a>
+                  </div>
+                  <CopyButton value={vpa} label="UPI ID" />
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white px-3 py-2 text-left ring-1 ring-line">
+                  <div className="min-w-0">
+                    <span className="block text-[11px] font-medium text-muted">UPI / Phone Number</span>
+                    <a
+                      href="tel:+916385525264"
+                      className="font-mono text-sm font-bold text-ink hover:text-brand-navy"
+                    >
+                      6385525264
+                    </a>
+                  </div>
+                  <CopyButton value="6385525264" label="phone number" />
+                </div>
+              </div>
+
+              <p className="mt-2.5 text-[11px] text-muted">
+                Tap the UPI ID above or enter the UPI ID / Phone number in any UPI app to pay <strong className="text-ink">₹{total}</strong>.
+              </p>
+            </div>
+
+            <a href={upiLink} className="btn btn-dark mt-3 w-full">
+              <Smartphone className="h-4 w-4" /> Open UPI app (₹{total})
             </a>
           </div>
 
@@ -243,7 +305,17 @@ export default function CheckoutPage() {
             <div className="flex items-center justify-between gap-3 py-3">
               <dt className="text-muted">UPI ID</dt>
               <dd className="flex min-w-0 items-center gap-1 font-mono text-[13px] font-medium text-ink">
-                <span className="truncate">{vpa}</span> <CopyButton value={vpa} label="UPI ID" />
+                <a href={upiLink} className="truncate text-brand-blue underline decoration-brand-blue/40 hover:text-brand-navy" title="Tap to open payment app">
+                  {vpa}
+                </a>{' '}
+                <CopyButton value={vpa} label="UPI ID" />
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-3 py-3">
+              <dt className="text-muted">Phone Number</dt>
+              <dd className="flex items-center gap-1 font-mono text-[13px] font-medium text-ink">
+                <a href="tel:+916385525264" className="hover:text-brand-navy">6385525264</a>
+                <CopyButton value="6385525264" label="phone number" />
               </dd>
             </div>
             <div className="flex items-center justify-between gap-3 py-3">

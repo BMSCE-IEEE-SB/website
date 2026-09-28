@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, LogOut, Mail, MailCheck } from 'lucide-react';
 import { isDemoMode, supabase } from '@/lib/supabase';
-import { DUMMY_CREDENTIALS, clearUserSession, setDummySession } from '@/lib/auth';
+import { DUMMY_CREDENTIALS, clearUserSession, hasPaidCookie, hasUserSubmittedPayment, setDummySession } from '@/lib/auth';
 import { useSession } from '@/lib/useSession';
 import { Alert, Field, Input, PageLoader, Spinner } from '@/components/ui/form';
 import AuthShell from '@/components/membership/AuthShell';
@@ -24,8 +24,36 @@ export default function RegisterPage() {
   const [error, setError] = useState<React.ReactNode>('');
   const [pendingEmail, setPendingEmail] = useState('');
 
+  useEffect(() => {
+    let alive = true;
+
+    if (hasPaidCookie()) {
+      router.replace('/account');
+      return;
+    }
+
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (hasPaidCookie()) {
+        router.replace('/account');
+      }
+    };
+    window.addEventListener('pageshow', onPageShow);
+
+    (async () => {
+      const paid = await hasUserSubmittedPayment();
+      if (!alive) return;
+      if (paid) {
+        router.replace('/account');
+      }
+    })();
+
+    return () => {
+      alive = false;
+      window.removeEventListener('pageshow', onPageShow);
+    };
+  }, [router]);
+
   const cleanEmail = email.trim().toLowerCase();
-  const nonCollegeEmail = cleanEmail.includes('@') && !cleanEmail.endsWith('@bmsce.ac.in');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -172,7 +200,6 @@ export default function RegisterPage() {
           label="College email"
           htmlFor="email"
           required
-          hint={nonCollegeEmail ? <span className="text-amber-700">Tip: your @bmsce.ac.in email helps us verify you faster.</span> : undefined}
         >
           <Input id="email" icon={Mail} type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="yourname.dept23@bmsce.ac.in" />
         </Field>

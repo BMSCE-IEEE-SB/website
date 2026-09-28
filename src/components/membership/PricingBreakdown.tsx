@@ -19,14 +19,15 @@ export default function PricingBreakdown() {
   }, []);
 
   const prices = pricing?.chapters.map((c) => c.price) ?? [];
-  const min = prices.length ? Math.min(...prices) : 0;
-  const max = prices.length ? Math.max(...prices) : 0;
+  const paidPrices = prices.filter((p) => p > 0);
+  const min = paidPrices.length ? Math.min(...paidPrices) : 0;
+  const max = paidPrices.length ? Math.max(...paidPrices) : 0;
 
   return (
     <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
       {/* Price as a fee slip */}
       <div className="flex items-center justify-center py-4">
-        <FeeSlip baseFee={pricing?.baseFee} minChapter={prices.length ? min : undefined} maxChapter={prices.length ? max : undefined} error={error} />
+        <FeeSlip baseFee={pricing?.baseFee} minChapter={paidPrices.length ? min : undefined} maxChapter={paidPrices.length ? max : undefined} error={error} />
       </div>
 
       {/* Enrollment details & CTA */}
@@ -57,7 +58,7 @@ export default function PricingBreakdown() {
               </span>
               <div>
                 <h4 className="text-sm font-semibold text-ink">Pick your chapters</h4>
-                <p className="mt-0.5 text-xs text-muted">Add CS, PES, PELS/IES, WIE or SSIT based on your engineering interests.</p>
+                <p className="mt-0.5 text-xs text-muted">CS and WIE & SC are included free. Add PES (₹100), PELS/IES (₹370), or SSIT (₹50) based on your interests.</p>
               </div>
             </div>
 

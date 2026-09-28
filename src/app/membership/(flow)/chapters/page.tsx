@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
 import { ArrowLeft, ArrowRight, Check, Plus, Shirt, X } from 'lucide-react';
-import { getCurrentUser, getLocalProfile } from '@/lib/auth';
+import { getCurrentUser, getLocalProfile, hasPaidCookie, hasUserSubmittedPayment } from '@/lib/auth';
 import { isDemoMode, supabase } from '@/lib/supabase';
 import { chapters as chapterInfo, departments } from '@/data/site';
 import { loadPricing } from '@/lib/pricing';
@@ -35,7 +35,27 @@ export default function ChaptersPage() {
 
   useEffect(() => {
     let alive = true;
+
+    if (hasPaidCookie()) {
+      router.replace('/account');
+      return;
+    }
+
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (hasPaidCookie()) {
+        router.replace('/account');
+      }
+    };
+    window.addEventListener('pageshow', onPageShow);
+
     (async () => {
+      const paid = await hasUserSubmittedPayment();
+      if (!alive) return;
+      if (paid) {
+        router.replace('/account');
+        return;
+      }
+
       const user = await getCurrentUser().catch(() => null);
       if (!alive) return;
       if (!user) {
@@ -64,22 +84,24 @@ export default function ChaptersPage() {
         if (p?.department) setDepartment(p.department);
       }
       // Restore the selection and T-shirt size if the student came back from checkout.
+      const freeIds = list.filter((c) => c.price === 0).map((c) => c.id);
       try {
         const prev: CartChapter[] = JSON.parse(sessionStorage.getItem(CART_KEYS.chapters) || '[]');
         const prevIds = prev.map((c) => c.id).filter((id) => list.some((c) => c.id === id));
-        const wieId = list.find((c) => c.code === 'WIE')?.id;
-        if (wieId && !prevIds.includes(wieId)) prevIds.push(wieId);
+        freeIds.forEach((fid) => {
+          if (!prevIds.includes(fid)) prevIds.push(fid);
+        });
         setSelected(prevIds);
         const savedSize = sessionStorage.getItem(CART_KEYS.tshirtSize);
         if (savedSize) setTshirtSize(savedSize);
       } catch {
-        const wieId = list.find((c) => c.code === 'WIE')?.id;
-        if (wieId) setSelected([wieId]);
+        setSelected(freeIds);
       }
       setIsLoading(false);
     })();
     return () => {
       alive = false;
+      window.removeEventListener('pageshow', onPageShow);
     };
   }, [router]);
 
@@ -91,7 +113,7 @@ export default function ChaptersPage() {
 
   const toggle = (id: string) => {
     const chapter = chapters.find((c) => c.id === id);
-    if (chapter?.code === 'WIE') return;
+    if (chapter && chapter.price === 0) return;
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
@@ -278,7 +300,7 @@ export default function ChaptersPage() {
                       </AnimatePresence>
 
                       <div className="mt-4 flex items-center justify-between">
-                        <span className="font-display text-lg font-bold" style={{ color: on ? color : undefined }}>{c.code === 'WIE' ? 'Included' : `+ ₹${c.price}`}</span>
+                        <span className="font-display text-lg font-bold" style={{ color: on ? color : undefined }}>{c.price === 0 ? 'Included' : `+ ₹${c.price}`}</span>
                         {info && (
                           <Link href={`/chapters/${info.slug}`} target="_blank" className="relative z-20 text-xs font-semibold text-muted underline-offset-2 hover:text-ink hover:underline">
                             Learn more
@@ -328,7 +350,7 @@ export default function ChaptersPage() {
                       {c.code}
                     </span>
                     <span className="flex items-center gap-2">
-                      {c.code === 'WIE' ? (
+                      {c.price === 0 ? (
                         <span className="text-xs font-bold text-emerald-700">Included</span>
                       ) : (
                         <>

@@ -2,16 +2,28 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Hash, Phone, User } from 'lucide-react';
+import { ArrowRight, Hash, Home, MapPin, Phone, User } from 'lucide-react';
 import { isDemoMode, supabase } from '@/lib/supabase';
-import { getCurrentUser, getLocalProfile, saveLocalProfile, type SessionUser, type UserProfile } from '@/lib/auth';
+import { getCurrentUser, getLocalProfile, hasPaidCookie, hasUserSubmittedPayment, saveLocalProfile, type SessionUser, type UserProfile } from '@/lib/auth';
 import { Alert, Field, Input, PageLoader, Select, Spinner } from '@/components/ui/form';
 import DemoNotice from '@/components/membership/DemoNotice';
 import { errorMessage } from '@/lib/utils';
 import { departments } from '@/data/site';
 
 type Form = Omit<UserProfile, 'id' | 'email'>;
-const empty: Form = { full_name: '', usn: '', department: '', year_of_study: '', phone: '', ieee_member_id: '' };
+const empty: Form = {
+  full_name: '',
+  usn: '',
+  department: '',
+  year_of_study: '',
+  phone: '',
+  ieee_member_id: '',
+  address_line1: '',
+  address_line2: '',
+  city: '',
+  state: '',
+  pincode: '',
+};
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -26,7 +38,27 @@ export default function ProfilePage() {
 
   useEffect(() => {
     let alive = true;
+
+    if (hasPaidCookie()) {
+      router.replace('/account');
+      return;
+    }
+
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (hasPaidCookie()) {
+        router.replace('/account');
+      }
+    };
+    window.addEventListener('pageshow', onPageShow);
+
     (async () => {
+      const paid = await hasUserSubmittedPayment();
+      if (!alive) return;
+      if (paid) {
+        router.replace('/account');
+        return;
+      }
+
       const active = await getCurrentUser().catch(() => null);
       if (!alive) return;
       if (!active) {
@@ -50,12 +82,18 @@ export default function ProfilePage() {
           year_of_study: existing.year_of_study ?? '',
           phone: existing.phone ?? '',
           ieee_member_id: existing.ieee_member_id ?? '',
+          address_line1: existing.address_line1 ?? '',
+          address_line2: existing.address_line2 ?? '',
+          city: existing.city ?? '',
+          state: existing.state ?? '',
+          pincode: existing.pincode ?? '',
         });
       }
       if (alive) setIsLoading(false);
     })();
     return () => {
       alive = false;
+      window.removeEventListener('pageshow', onPageShow);
     };
   }, [router, demo]);
 
@@ -70,6 +108,22 @@ export default function ProfilePage() {
       return;
     }
 
+    if (!form.address_line1?.trim()) {
+      setError('Please enter address line 1.');
+      return;
+    }
+
+    if (!form.city?.trim() || !form.state?.trim()) {
+      setError('Please enter your city and state.');
+      return;
+    }
+
+    const cleanPin = (form.pincode || '').replace(/\D/g, '');
+    if (!cleanPin || cleanPin.length !== 6) {
+      setError('Please enter a valid 6-digit postal pincode.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     const profile: UserProfile = {
@@ -81,6 +135,11 @@ export default function ProfilePage() {
       year_of_study: form.year_of_study,
       phone: form.phone?.trim(),
       ieee_member_id: form.ieee_member_id?.trim() || undefined,
+      address_line1: form.address_line1?.trim(),
+      address_line2: form.address_line2?.trim() || undefined,
+      city: form.city?.trim(),
+      state: form.state?.trim(),
+      pincode: cleanPin,
     };
 
     try {
@@ -173,9 +232,36 @@ export default function ProfilePage() {
           <Field label="Phone number" htmlFor="phone" required hint="Used for chapter updates and receipt confirmation.">
             <Input id="phone" icon={Phone} type="tel" required autoComplete="tel" value={form.phone} onChange={set('phone')} placeholder="+91 98765 43210" pattern="[+0-9 ()-]{10,16}" title="Enter a valid phone number" />
           </Field>
-          <Field label="Existing IEEE member ID" htmlFor="ieee_id" optional hint="Only if you are renewing.">
+          <Field label="Existing IEEE member ID" htmlFor="ieee_id" optional hint="If you are renewing.">
             <Input id="ieee_id" inputMode="numeric" value={form.ieee_member_id} onChange={set('ieee_member_id')} placeholder="98765432" />
           </Field>
+        </div>
+
+        <div className="space-y-5 rounded-2xl border border-line bg-paper/50 p-5 sm:p-6">
+          <div>
+            <h3 className="text-base font-bold text-ink">Communication address</h3>
+            <p className="mt-0.5 text-xs text-muted">Used for merchandise dispatch and chapter welcome kits.</p>
+          </div>
+
+          <Field label="Address line 1" htmlFor="address_line1" required hint="House/flat no., building, street">
+            <Input id="address_line1" icon={Home} required autoComplete="address-line1" value={form.address_line1} onChange={set('address_line1')} placeholder="Flat 302, Green Glen Layout" />
+          </Field>
+
+          <Field label="Address line 2" htmlFor="address_line2" optional hint="Area, landmark or sector">
+            <Input id="address_line2" autoComplete="address-line2" value={form.address_line2} onChange={set('address_line2')} placeholder="Basavanagudi, near BMSCE" />
+          </Field>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Field label="City" htmlFor="city" required>
+              <Input id="city" icon={MapPin} required autoComplete="address-level2" value={form.city} onChange={set('city')} placeholder="Bengaluru" />
+            </Field>
+            <Field label="State" htmlFor="state" required>
+              <Input id="state" required autoComplete="address-level1" value={form.state} onChange={set('state')} placeholder="Karnataka" />
+            </Field>
+            <Field label="Pincode" htmlFor="pincode" required>
+              <Input id="pincode" required inputMode="numeric" maxLength={6} autoComplete="postal-code" value={form.pincode} onChange={set('pincode')} placeholder="560019" />
+            </Field>
+          </div>
         </div>
 
         {demo && (
@@ -184,7 +270,21 @@ export default function ProfilePage() {
             <button
               type="button"
               className="font-semibold underline underline-offset-2"
-              onClick={() => setForm({ full_name: 'Aditya Sharma', usn: '1BM23CS012', department: 'CSE', year_of_study: '2', phone: '+91 98765 43210', ieee_member_id: '' })}
+              onClick={() =>
+                setForm({
+                  full_name: 'Aditya Sharma',
+                  usn: '1BM23CS012',
+                  department: 'CSE',
+                  year_of_study: '2',
+                  phone: '+91 98765 43210',
+                  ieee_member_id: '',
+                  address_line1: 'Flat 302, BMS Enclave',
+                  address_line2: 'Bull Temple Road',
+                  city: 'Bengaluru',
+                  state: 'Karnataka',
+                  pincode: '560019',
+                })
+              }
             >
               Fill in sample details
             </button>

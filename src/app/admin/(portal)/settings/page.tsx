@@ -140,7 +140,7 @@ export default function SettingsPage() {
             <div className="mt-5 grid gap-5 sm:grid-cols-2 [&>*]:min-w-0">
               <div>
                 <label htmlFor="vpa" className="field-label">Branch UPI ID</label>
-                <input id="vpa" value={draft.vpa} onChange={(e) => setDraft({ ...draft, vpa: e.target.value })} className="input font-mono text-sm" placeholder="bmsceieee@okhdfcbank" />
+                <input id="vpa" value={draft.vpa} onChange={(e) => setDraft({ ...draft, vpa: e.target.value })} className="input font-mono text-sm" placeholder="neharamiah2006-1@oksbi" />
               </div>
               <div>
                 <label htmlFor="payee" className="field-label">Payee name</label>

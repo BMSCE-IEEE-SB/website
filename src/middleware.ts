@@ -2,19 +2,11 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { REGISTRATION_ONLY_MODE, isLocalhostHost } from '@/config/temporary-launch';
 
 export function middleware(request: NextRequest) {
-  // If restrictions are turned off, bypass completely
-  if (!REGISTRATION_ONLY_MODE) {
-    return NextResponse.next();
-  }
-
-  const host = request.headers.get('host') || '';
-
-  // Localhost bypass: entire website works as normal
-  if (isLocalhostHost(host) || process.env.NODE_ENV === 'development') {
-    return NextResponse.next();
-  }
-
   const { pathname } = request.nextUrl;
+  const host = request.headers.get('host') || '';
+  const isLocalhost = isLocalhostHost(host) || process.env.NODE_ENV === 'development';
+  const targetHost = host === 'bmsceieee.com' ? 'www.bmsceieee.com' : host;
+  const hasPaidCookie = request.cookies.get('bmsce_paid')?.value === '1';
 
   // Always allow Next.js static bundles, assets, icons, and API routes
   if (
@@ -36,6 +28,24 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/membership/chapters') ||
     pathname.startsWith('/membership/checkout');
 
+  // If the user has already paid, redirect any registration or onboarding attempt to /account
+  if (hasPaidCookie && (isRegistrationWorkflow || (!isLocalhost && pathname === '/'))) {
+    const redirectUrl = isLocalhost
+      ? new URL('/account', request.url)
+      : new URL('/account', `https://${targetHost}`);
+    return NextResponse.redirect(redirectUrl, { status: 307 });
+  }
+
+  // If restrictions are turned off, bypass completely
+  if (!REGISTRATION_ONLY_MODE) {
+    return NextResponse.next();
+  }
+
+  // Localhost bypass: entire website works as normal
+  if (isLocalhost) {
+    return NextResponse.next();
+  }
+
   // Member account & verification portal
   const isMemberPortal = pathname.startsWith('/login') || pathname.startsWith('/account');
 
@@ -46,8 +56,6 @@ export function middleware(request: NextRequest) {
   const isLegalPolicy = pathname === '/terms' || pathname === '/privacy' || pathname === '/refund';
 
   const isAllowed = isRegistrationWorkflow || isMemberPortal || isAdmin || isLegalPolicy;
-
-  const targetHost = host === 'bmsceieee.com' ? 'www.bmsceieee.com' : host;
 
   // Any off-limits page (including '/', '/membership', '/chapters/*') redirects to register
   if (!isAllowed) {

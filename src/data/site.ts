@@ -87,13 +87,13 @@ export const chapters: Chapter[] = [
   },
   {
     slug: 'pes',
-    short: 'Power & Energy Society and Sensors Council',
+    short: 'Power & Energy Society',
     code: 'PES',
     logo: '/chapter-logos/pes.png',
     color: '#059669',
     image: u('photo-1509391366360-2e959784a276', 1400, 900),
     about: [
-      'The Power & Energy Society and Sensors Council looks at how the world will generate, move and store energy as it decarbonises.',
+      'The Power & Energy Society looks at how the world will generate, move and store energy as it decarbonises.',
       'Members get hands-on time in the power labs, visit substations and renewable plants, and design small microgrid and EV projects.',
     ],
     focus: [
@@ -104,8 +104,8 @@ export const chapters: Chapter[] = [
     ],
     activities: ['Power systems lab workshops', 'Industrial and substation visits', 'Renewable energy design challenge', 'PES Day celebration'],
     stats: { members: '250+', events: '15+', founded: '2014' },
-    name: 'Power & Energy Society and Sensors Council (PES & SC)',
-    fullName: 'IEEE Power & Energy Society and Sensors Council (PES & SC)',
+    name: 'Power & Energy Society (PES)',
+    fullName: 'IEEE Power & Energy Society (PES)',
     tagline: 'Clean tech, smart grids & e-mobility',
     description:
       'Renewable microgrids, energy storage, power distribution and EV powertrains, with hands-on lab sessions and industry visits.',
@@ -143,25 +143,25 @@ export const chapters: Chapter[] = [
   },
   {
     slug: 'wie',
-    short: 'Women in Engineering',
-    code: 'WIE',
+    short: 'Women in Engineering & Sensors Council',
+    code: 'WIE & SC',
     logo: '/chapter-logos/wie.png',
     color: '#db2777',
     image: u('photo-1573164713714-d95e436ab8d6', 1400, 900),
     about: [
-      'Women in Engineering is an affinity group that builds a stronger, more inclusive engineering community on campus and beyond.',
-      'The group runs mentorship circles with alumni and industry leaders, leadership programmes, and STEM outreach in local schools. Everyone is welcome.',
+      'Women in Engineering and Sensors Council brings together community leadership and sensor technologies on campus and beyond.',
+      'The group runs mentorship circles with alumni, sensor build workshops, leadership programmes, and STEM outreach in local schools. Everyone is welcome.',
     ],
     focus: [
       { title: 'Mentorship', text: 'Paired mentoring with alumni and industry engineers.' },
+      { title: 'Sensors & IoT', text: 'Sensor interfacing, transducer circuits and smart sensing.' },
       { title: 'Leadership', text: 'Workshops on public speaking, negotiation and leading teams.' },
       { title: 'STEM outreach', text: 'Hands-on science sessions for school students.' },
-      { title: 'Research', text: 'Support for papers, grants and conference travel.' },
     ],
-    activities: ['WIE Tech Summit', 'Mentorship circles', 'School outreach days', 'Resume and interview clinics'],
-    stats: { members: '180+', events: '12+', founded: '2012' },
-    name: 'Women in Engineering',
-    fullName: 'IEEE Women in Engineering',
+    activities: ['WIE Tech Summit', 'Sensors build nights', 'Mentorship circles', 'School outreach days'],
+    stats: { members: '220+', events: '16+', founded: '2012' },
+    name: 'Women in Engineering & Sensors Council (WIE & SC)',
+    fullName: 'IEEE Women in Engineering & Sensors Council (WIE & SC)',
     tagline: 'Mentorship, leadership & STEM outreach',
     description:
       'A global affinity group empowering women technologists through mentorship, leadership programmes and research initiatives.',
@@ -403,10 +403,10 @@ export const membershipBenefits = [
 /** Used by the chapter cart when the database has no chapters configured yet. */
 export const FALLBACK_BASE_FEE = 1810;
 export const FALLBACK_CART_CHAPTERS = [
-  { id: 'demo-cs', name: 'Computer Society', code: 'CS', price: 100 },
-  { id: 'demo-pes', name: 'Power & Energy Society and Sensors Council (PES & SC)', code: 'PES', price: 100 },
-  { id: 'demo-pels', name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', price: 100 },
-  { id: 'demo-wie', name: 'Women in Engineering', code: 'WIE', price: 0 },
+  { id: 'demo-cs', name: 'Computer Society', code: 'CS', price: 0 },
+  { id: 'demo-pes', name: 'Power & Energy Society', code: 'PES', price: 100 },
+  { id: 'demo-pels', name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', price: 370 },
+  { id: 'demo-wie', name: 'Women in Engineering & Sensors Council', code: 'WIE & SC', price: 0 },
   { id: 'demo-ssit', name: 'Society on Social Implications of Technology', code: 'SSIT', price: 50 },
 ];
 
@@ -448,7 +448,7 @@ export function chapterCode(name: string) {
     [/computer/, 'CS'],
     [/pels|industrial|power electronics/, 'PELS/IES'],
     [/power & energy|power and energy|\bpes\b/, 'PES'],
-    [/women/, 'WIE'],
+    [/women|sensors|wie/, 'WIE & SC'],
     [/social|ssit/, 'SSIT'],
   ];
   return rules.find(([re]) => re.test(n))?.[1] ?? name;

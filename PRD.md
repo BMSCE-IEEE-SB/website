@@ -48,20 +48,22 @@ The BMSCE IEEE Student Branch requires a unified digital presence to drive and m
 
 ### 3.1 Student Membership Flow
 1. **Authentication**: Supabase Auth (email + password) with email verification screen and password reset (`/login/reset`). Demo mode provides 1-click test credentials when unconfigured.
-2. **Academic & Personal Profile**: Name, USN, Institutional Email, Department, Year of Study, Contact Phone, and optional IEEE Member ID.
+2. **Academic & Personal Profile**: Name, USN, Institutional Email, Department, Year of Study, Contact Phone, Communication Address (Line 1, Line 2, City, State, Pincode), and optional IEEE Member ID.
 3. **Chapter Shopping Cart**:
    - Base membership fee fixed at ₹1,810.
-   - 5 Technical Chapters & Affinity Groups: Computer Society (₹100), Power & Energy Society (₹100), Power & Industrial Electronics (₹100), Women in Engineering (₹0, included with base), and Social Implications of Technology (₹50).
+   - 5 Technical Chapters & Affinity Groups: Computer Society (₹0, included with base), Power & Energy Society (₹100), Power & Industrial Electronics (₹370), Women in Engineering & Sensors Council (₹0, included with base), and Social Implications of Technology (₹50).
    - T-shirt size picker (`XS`, `S`, `M`, `L`, `XL`, `2XL`, `3XL`) stored on order.
    - Real-time running total with dedicated chapter logo visual branding cards.
 4. **Checkout & Payment**:
    - Server-validated checkout intent (`/api/checkout/intent`) recalculating prices on the server.
    - Dynamic client-side UPI intent QR generation (`upi://pay?pa=...&am=...&tn=...`).
-   - Single-click Copy UPI ID, Copy Amount, and Download QR PNG buttons.
+   - Direct UPI payment box below QR: clickable UPI ID hyperlink (`neharamiah2006-1@oksbi`) with amount pre-filled, UPI Phone number (`6385525264`), single-tap mobile payment button, and copy buttons.
+   - Single-click Copy UPI ID, Copy Amount, Copy Phone Number, and Download QR PNG buttons.
    - Secure payment proof screenshot upload (`/api/checkout/proof`) with server-side MIME and size checks (5MB limit).
-   - Final submission via `/api/checkout/submit` creating order with `pending` status.
-5. **Member Account Portal (`/account`)**:
-   - Real-time status badge (`Pending Verification`, `Verified`, `Action Required`).
+   - Final submission via `/api/checkout/submit` creating order with `pending` status, setting `bmsce_paid=1` cookie & local state.
+5. **Member Account Portal (`/account`) & Post-Payment Protection**:
+   - Status tracker with 3-step progress (`Submitted`, `Under review: Usually 2–3 working days`, `Verified member`).
+   - Payment persistence: Users with completed payments (`bmsce_paid=1` cookie or active order record) navigating to `/membership/register` or clicking the browser back button are automatically redirected to `/account`.
    - Interactive resubmission modal (`/api/checkout/resubmit`) allowing rejected applicants to re-upload proof and correct UTR without losing order continuity.
 
 ### 3.2 Executive Admin Management Suite

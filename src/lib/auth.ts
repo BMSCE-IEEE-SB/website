@@ -9,6 +9,11 @@ export interface UserProfile {
   year_of_study?: string;
   phone?: string;
   ieee_member_id?: string;
+  address_line1?: string;
+  address_line2?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
 }
 
 export type OrderStatus = 'pending' | 'verified' | 'rejected';
@@ -114,7 +119,69 @@ export function setDummySession(email: string = DUMMY_CREDENTIALS.email): Sessio
   return user;
 }
 
+export const PAID_COOKIE_NAME = 'bmsce_paid';
+
+export function markPaymentSubmitted() {
+  if (!isBrowser()) return;
+  document.cookie = `${PAID_COOKIE_NAME}=1; path=/; max-age=31536000; SameSite=Lax`;
+  try {
+    localStorage.setItem(PAID_COOKIE_NAME, '1');
+  } catch {}
+}
+
+export function clearPaidCookie() {
+  if (!isBrowser()) return;
+  document.cookie = `${PAID_COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax`;
+  try {
+    localStorage.removeItem(PAID_COOKIE_NAME);
+  } catch {}
+}
+
+export function hasPaidCookie(): boolean {
+  if (!isBrowser()) return false;
+  const cookieMatches = document.cookie
+    .split(';')
+    .some((item) => item.trim() === `${PAID_COOKIE_NAME}=1`);
+  if (cookieMatches) return true;
+  try {
+    if (localStorage.getItem(PAID_COOKIE_NAME) === '1') return true;
+  } catch {}
+  return false;
+}
+
+export async function hasUserSubmittedPayment(userId?: string): Promise<boolean> {
+  if (hasPaidCookie()) return true;
+  if (!userId) {
+    const user = await getCurrentUser().catch(() => null);
+    if (!user) return false;
+    userId = user.id;
+  }
+  if (!userId) return false;
+
+  if (isDemoMode()) {
+    const orders = getLocalOrdersForUser(userId);
+    if (orders.length > 0) {
+      markPaymentSubmitted();
+      return true;
+    }
+  } else {
+    try {
+      const { data } = await supabase
+        .from('orders')
+        .select('id, status')
+        .eq('user_id', userId)
+        .limit(1);
+      if (data && data.length > 0) {
+        markPaymentSubmitted();
+        return true;
+      }
+    } catch {}
+  }
+  return false;
+}
+
 export async function clearUserSession() {
+  clearPaidCookie();
   if (isBrowser()) localStorage.removeItem(DUMMY_USER_KEY);
   if (!isDemoMode()) await supabase.auth.signOut().catch(() => {});
   if (isBrowser()) window.dispatchEvent(new Event('bmsce-auth-change'));
@@ -268,6 +335,7 @@ export function saveLocalOrder(order: Order) {
     phone: profile?.phone ?? order.phone,
   };
   writeJson(DUMMY_ORDERS_KEY, [enriched, ...getLocalOrders().filter((o) => o.id !== order.id)]);
+  markPaymentSubmitted();
 }
 
 /** Replace the whole demo order list (used by admin bulk actions). */
@@ -367,20 +435,20 @@ const CHAPTERS_KEY = 'bmsce_admin_chapters';
 
 export const DEFAULT_SETTINGS: MembershipSettings = {
   base_fee: 1810,
-  payee_vpa: 'bmsceieee@okhdfcbank',
+  payee_vpa: 'neharamiah2006-1@oksbi',
   payee_name: 'BMSCE IEEE Student Branch',
   drive_year: 2026,
   is_drive_open: true,
   treasurer_name: 'Neha Ramiah',
   treasurer_role: 'Treasurer and MDC',
-  treasurer_phone: '+91 6385525264',
+  treasurer_phone: '6385525264',
 };
 
 export const DEFAULT_CHAPTER_SETTINGS: ChapterSetting[] = [
-  { id: 'cs', name: 'IEEE Computer Society', code: 'CS', slug: 'cs', price: 100, is_active: true, display_order: 1 },
-  { id: 'pes', name: 'IEEE Power & Energy Society and Sensors Council (PES & SC)', code: 'PES & SC', slug: 'pes', price: 100, is_active: true, display_order: 2 },
-  { id: 'pels-ies', name: 'IEEE Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', slug: 'pels-ies', price: 100, is_active: true, display_order: 3 },
-  { id: 'wie', name: 'IEEE Women in Engineering', code: 'WIE', slug: 'wie', price: 50, is_active: true, display_order: 4 },
+  { id: 'cs', name: 'IEEE Computer Society', code: 'CS', slug: 'cs', price: 0, is_active: true, display_order: 1 },
+  { id: 'pes', name: 'IEEE Power & Energy Society', code: 'PES', slug: 'pes', price: 100, is_active: true, display_order: 2 },
+  { id: 'pels-ies', name: 'IEEE Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', slug: 'pels-ies', price: 370, is_active: true, display_order: 3 },
+  { id: 'wie', name: 'IEEE Women in Engineering & Sensors Council', code: 'WIE & SC', slug: 'wie', price: 0, is_active: true, display_order: 4 },
   { id: 'ssit', name: 'IEEE Society on Social Implications of Technology', code: 'SSIT', slug: 'ssit', price: 50, is_active: true, display_order: 5 },
 ];
 

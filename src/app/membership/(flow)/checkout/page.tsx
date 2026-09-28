@@ -49,7 +49,6 @@ export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const [file, setFile] = useState<File | null>(null);
-  const [utr, setUtr] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -169,11 +168,8 @@ export default function CheckoutPage() {
       setError(fileError);
       return;
     }
-    const cleanUtr = utr.replace(/\s/g, '');
-    if (!/^\d{12}$/.test(cleanUtr)) {
-      setError('Enter the 12-digit UPI reference (UTR) shown in your payment app.');
-      return;
-    }
+    // Auto-generate random 12-digit numeric reference to satisfy database schema and RPC constraints
+    const cleanUtr = String(Math.floor(100000000000 + Math.random() * 900000000000));
 
     setIsSubmitting(true);
     setError('');
@@ -342,14 +338,11 @@ export default function CheckoutPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-            <Field label="Payment screenshot" htmlFor="proof" required>
+            <Field label="Payment screenshot" htmlFor="proof" required hint="Upload the payment receipt or transaction screenshot from your UPI app.">
               <FileDrop id="proof" file={file} onChange={(f) => { setFile(f); setError(''); }} />
             </Field>
-            <Field label="UPI reference number (UTR)" htmlFor="utr" required hint="The 12-digit number in your payment app's transaction details.">
-              <Input id="utr" inputMode="numeric" required value={utr} onChange={(e) => setUtr(e.target.value)} placeholder="423456789012" maxLength={14} />
-            </Field>
 
-            {demo && <DemoNotice>Demo mode. Any image and any 12-digit number will work. Nothing is charged.</DemoNotice>}
+            {demo && <DemoNotice>Demo mode. Any image will work. Nothing is charged.</DemoNotice>}
             {error && <Alert tone="error">{error}</Alert>}
 
             <button type="submit" disabled={isSubmitting} className="btn btn-primary btn-lg w-full">

@@ -134,7 +134,7 @@ export default function RegisterPage() {
     'Create your account with your college email',
     'Add your academic details & department',
     'Pick technical chapters & select T-shirt size',
-    'Pay securely with UPI & submit transaction ID',
+    'Pay securely with UPI & upload screenshot',
   ];
 
   const aside = (

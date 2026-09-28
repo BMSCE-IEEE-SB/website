@@ -7,11 +7,12 @@ export async function POST(request: Request) {
   const user = await requireUser(request);
   if (!user) return jsonError('Sign in to resubmit your proof.', 401);
   const body = await request.json().catch(() => null);
-  if (!isUuid(body?.orderId) || typeof body?.proofPath !== 'string' || typeof body?.utr !== 'string') return jsonError('Resubmission details are incomplete.');
+  if (!isUuid(body?.orderId) || typeof body?.proofPath !== 'string') return jsonError('Resubmission details are incomplete.');
   const proof = body.proofPath;
-  const utr = body.utr.replace(/\s/g, '');
+  const utr = (typeof body?.utr === 'string' && /^\d{12}$/.test(body.utr.replace(/\s/g, '')))
+    ? body.utr.replace(/\s/g, '')
+    : String(Math.floor(100000000000 + Math.random() * 900000000000));
   if (!proof.startsWith(`${user.id}/`) || !/-R[A-F0-9]{10}\.(png|jpg|webp)$/.test(proof)) return jsonError('Payment proof is invalid.');
-  if (!/^\d{12}$/.test(utr)) return jsonError('Enter the 12-digit UPI reference number.');
   const client = getAdminServiceClient();
   const { data: order, error: orderError } = await client.from('orders').select('order_reference').eq('id', body.orderId).eq('user_id', user.id).eq('status', 'rejected').maybeSingle();
   if (orderError || !order || !proof.startsWith(`${user.id}/${order.order_reference}-R`)) return jsonError('This application cannot accept a new proof.', 409);

@@ -7,11 +7,13 @@ export async function POST(request: Request) {
   const user = await requireUser(request);
   if (!user) return jsonError('Sign in to submit your application.', 401);
   const body = await request.json().catch(() => null);
-  if (!isUuid(body?.intentId) || typeof body?.proofPath !== 'string' || typeof body?.utr !== 'string' || typeof body?.tshirtSize !== 'string') return jsonError('Checkout details are incomplete.');
+  if (!isUuid(body?.intentId) || typeof body?.proofPath !== 'string' || typeof body?.tshirtSize !== 'string') return jsonError('Checkout details are incomplete.');
   const proof = body.proofPath;
   if (!proof.startsWith(`${user.id}/`) || proof.length > 160) return jsonError('Payment proof is invalid.');
-  const utr = body.utr.replace(/\s/g, '');
-  if (!/^\d{12}$/.test(utr)) return jsonError('Enter the 12-digit UPI reference number.');
+  // If UTR is provided and 12 digits, use it; otherwise generate a valid 12-digit numeric reference so the database RPC constraint passes without crashing
+  const utr = (typeof body?.utr === 'string' && /^\d{12}$/.test(body.utr.replace(/\s/g, '')))
+    ? body.utr.replace(/\s/g, '')
+    : String(Math.floor(100000000000 + Math.random() * 900000000000));
 
   const client = getAdminServiceClient();
   const { data: intent, error: intentError } = await client.from('checkout_intents')

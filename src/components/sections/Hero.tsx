@@ -98,10 +98,6 @@ export default function Hero() {
             <span className="text-brand-orange">.</span>
           </motion.h1>
 
-          <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.25 }} className="lead mx-auto mt-8 max-w-xl">
-            The IEEE Student Branch of B.M.S. College of Engineering, Bengaluru. Six technical chapters and a
-            community of 1,000+ students who make things.
-          </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.35 }} className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
             <Link href="/membership" className="btn btn-primary btn-lg">

@@ -565,7 +565,21 @@ export const faqs = [
   { q: 'When do I get my IEEE.org account?', a: 'Official IEEE credentials are provisioned by IEEE headquarters in batches. We email them to you as soon as they arrive.' },
 ];
 
-export const tickerItems = ['IEEE Day 2026', 'IEEEXtreme 20.0', 'Phase Shift Hackathon', 'WIE Tech Summit', 'PCB Design Bootcamp', 'AI/ML Masterclass', 'Membership Drive 2026'];
+export const tickerItems = [
+  'Special Interest Groups',
+  'IEEEXtreme',
+  'IEEE Week',
+  'WIE Day',
+  'NEXUS',
+  'DATAVERSE',
+  'STARTOPOLIS',
+  'Sensors Week',
+  'PES Day',
+  'PELS & IES Week',
+  'Beyond Basics & Geeks Biz',
+  'Yellarigu Electronics',
+  'Industry Academia Conclave',
+];
 
 /** Splits the calendar into upcoming (soonest first) and past (latest first). */
 export function splitEvents(filter?: (e: SiteEvent) => boolean) {

@@ -1,10 +1,3 @@
--- Add communication address fields to public.profiles
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS address_line1 text;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS address_line2 text;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS city text;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS state text;
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS pincode text;
-
 -- Update chapter pricing and structure:
 -- 1. IEEE Computer Society (CS) is FREE (price = 0)
 UPDATE public.chapters SET price = 0 WHERE code = 'CS';

@@ -17,11 +17,6 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   year_of_study text,
   phone text,
   ieee_member_id text,
-  address_line1 text,
-  address_line2 text,
-  city text,
-  state text,
-  pincode text,
   created_at timestamptz DEFAULT now()
 );
 

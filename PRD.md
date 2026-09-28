@@ -48,7 +48,7 @@ The BMSCE IEEE Student Branch requires a unified digital presence to drive and m
 
 ### 3.1 Student Membership Flow
 1. **Authentication**: Supabase Auth (email + password) with email verification screen and password reset (`/login/reset`). Demo mode provides 1-click test credentials when unconfigured.
-2. **Academic & Personal Profile**: Name, USN, Institutional Email, Department, Year of Study, Contact Phone, Communication Address (Line 1, Line 2, City, State, Pincode), and optional IEEE Member ID.
+2. **Academic & Personal Profile**: Name, USN, Institutional Email, Department, Year of Study, Contact Phone, and optional IEEE Member ID.
 3. **Chapter Shopping Cart**:
    - Base membership fee fixed at ₹1,810.
    - 5 Technical Chapters & Affinity Groups: Computer Society (₹0, included with base), Power & Energy Society (₹100), Power & Industrial Electronics (₹370), Women in Engineering & Sensors Council (₹0, included with base), and Social Implications of Technology (₹50).

@@ -272,12 +272,6 @@ export default function AccountPage() {
                   ['Year', profile.year_of_study],
                   ['Phone', profile.phone],
                   ['IEEE member ID', profile.ieee_member_id],
-                  [
-                    'Address',
-                    [profile.address_line1, profile.address_line2, profile.city, profile.state, profile.pincode]
-                      .filter(Boolean)
-                      .join(', '),
-                  ],
                 ]
                   .filter(([, v]) => v)
                   .map(([k, v]) => (

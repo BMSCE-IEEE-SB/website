@@ -9,11 +9,6 @@ export interface UserProfile {
   year_of_study?: string;
   phone?: string;
   ieee_member_id?: string;
-  address_line1?: string;
-  address_line2?: string;
-  city?: string;
-  state?: string;
-  pincode?: string;
 }
 
 export type OrderStatus = 'pending' | 'verified' | 'rejected';

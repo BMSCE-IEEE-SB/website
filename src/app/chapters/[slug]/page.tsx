@@ -6,7 +6,6 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { chapterBySlug, chapters } from '@/data/site';
 import Reveal from '@/components/site/Reveal';
-import CountUp from '@/components/site/CountUp';
 import { Sails } from '@/components/site/BrandShapes';
 
 export const dynamicParams = false;
@@ -61,19 +60,6 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
               Join {c.code} with your membership <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          {!c.comingSoon && Boolean(c.stats.members) && (
-            <dl className="mt-16 grid max-w-2xl grid-cols-2 gap-6 border-t border-white/20 pt-8">
-              {[
-                [c.stats.members, 'members'],
-                [c.stats.founded, 'founded'],
-              ].map(([v, l]) => (
-                <div key={l}>
-                  <dd className="display text-4xl sm:text-5xl">{l === 'founded' ? v : <CountUp value={v} />}</dd>
-                  <dt className="mt-1 text-sm text-white/70">{l}</dt>
-                </div>
-              ))}
-            </dl>
-          )}
         </div>
       </section>
 

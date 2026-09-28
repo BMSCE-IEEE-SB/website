@@ -587,23 +587,37 @@ function Drawer({
           {order.status === 'rejected' && order.rejection_reason && <p className="rounded-xl bg-paper px-3 py-2 text-sm text-ink-soft">Reason given: {order.rejection_reason}</p>}
 
           <div>
-            <p className="mb-2 text-xs font-semibold tracking-wide text-muted uppercase">Payment proof</p>
-            <button type="button" onClick={() => proof && setZoom((z) => !z)} className={cn('relative block w-full overflow-hidden rounded-2xl bg-paper', zoom ? 'cursor-zoom-out' : 'cursor-zoom-in')}>
-              {proof === undefined ? (
-                <div className="flex h-56 items-center justify-center"><Spinner className="h-6 w-6 text-muted" /></div>
-              ) : proof ? (
-                <>
-                  <img src={proof} alt="Payment screenshot" className={cn('w-full object-contain transition-all', zoom ? 'max-h-none' : 'max-h-72')} />
-                  {!zoom && <span className="absolute right-3 bottom-3 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-ink"><ZoomIn className="h-3.5 w-3.5" /> Zoom</span>}
-                </>
-              ) : (
-                <p className="p-8 text-center text-sm text-muted">No screenshot could be loaded.</p>
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-xs font-semibold tracking-wide text-muted uppercase">Payment proof</p>
+              {order.payment_method === 'CASH' && (
+                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700 uppercase tracking-wide">Cash</span>
               )}
-            </button>
+            </div>
+
+            {order.payment_method === 'CASH' ? (
+              <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 p-8 text-center">
+                <p className="text-sm font-medium text-emerald-800">Cash Payment</p>
+                <p className="mt-1 text-xs text-emerald-600">Please verify that you have collected the cash from the student at the registration desk before verifying this application.</p>
+              </div>
+            ) : (
+              <button type="button" onClick={() => proof && setZoom((z) => !z)} className={cn('relative block w-full overflow-hidden rounded-2xl bg-paper', zoom ? 'cursor-zoom-out' : 'cursor-zoom-in')}>
+                {proof === undefined ? (
+                  <div className="flex h-56 items-center justify-center"><Spinner className="h-6 w-6 text-muted" /></div>
+                ) : proof ? (
+                  <>
+                    <img src={proof} alt="Payment screenshot" className={cn('w-full object-contain transition-all', zoom ? 'max-h-none' : 'max-h-72')} />
+                    {!zoom && <span className="absolute right-3 bottom-3 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-ink"><ZoomIn className="h-3.5 w-3.5" /> Zoom</span>}
+                  </>
+                ) : (
+                  <p className="p-8 text-center text-sm text-muted">No screenshot could be loaded.</p>
+                )}
+              </button>
+            )}
+
             <div className="mt-3 flex items-center justify-between rounded-xl bg-paper px-4 py-3">
               <div>
-                <p className="text-xs text-muted">UTR / reference</p>
-                <p className="font-mono text-sm font-semibold text-ink">{order.utr_reference ?? '—'}</p>
+                <p className="text-xs text-muted">{order.payment_method === 'CASH' ? 'Method' : 'UTR / reference'}</p>
+                <p className="font-mono text-sm font-semibold text-ink">{order.payment_method === 'CASH' ? 'CASH' : (order.utr_reference ?? '—')}</p>
               </div>
               {order.utr_reference && (
                 <button

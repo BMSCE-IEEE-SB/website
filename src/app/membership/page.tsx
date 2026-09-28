@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, BookOpen, Globe, Handshake, Trophy, Users, Zap } from 'lucide-react';
+import { ArrowRight, Briefcase, Compass, Sparkles, Trophy, Users, Zap } from 'lucide-react';
 import Reveal from '@/components/site/Reveal';
 import NetworkCanvas from '@/components/site/NetworkCanvas';
 import { SectionLabel } from '@/components/site/BrandShapes';
@@ -13,12 +13,36 @@ export const metadata: Metadata = {
 };
 
 const benefits = [
-  { icon: BookOpen, title: 'IEEE Xplore access', text: 'Millions of papers, standards and conference proceedings for your projects and research.' },
-  { icon: Trophy, title: 'Competitions', text: 'IEEEXtreme, hackathons and design contests, with member-only discounts on entry.' },
-  { icon: Users, title: 'Mentorship', text: 'Seniors, alumni and industry engineers who answer your questions and review your work.' },
-  { icon: Zap, title: 'Hands-on workshops', text: 'Lab sessions and bootcamps every month, from PCB design to machine learning.' },
-  { icon: Handshake, title: 'Industry connections', text: 'Talks, visits and recruiter access through our partner companies.' },
-  { icon: Globe, title: 'A global network', text: 'IEEE.org membership connects you to 400,000+ engineers in 160 countries.' },
+  {
+    icon: Users,
+    title: 'Networking & Mentorship',
+    text: 'Connect with peers, professionals, and researchers, and get guidance from experienced engineers through IEEE programs.',
+  },
+  {
+    icon: Briefcase,
+    title: 'Career Growth',
+    text: 'Use job boards, resume reviews, internship openings, and a globally respected credential to stand out to employers.',
+  },
+  {
+    icon: Trophy,
+    title: 'Events & Competitions',
+    text: 'Attend conferences at discounted student rates and take part in hackathons, design challenges, and project showcases.',
+  },
+  {
+    icon: Zap,
+    title: 'Skills & Workshops',
+    text: 'Join hands-on sessions on AI, VLSI, IoT, and robotics, and get exposure to cutting-edge research and chances to publish.',
+  },
+  {
+    icon: Compass,
+    title: 'Leadership & Service',
+    text: 'Build leadership skills by running branch events and committees, and contribute to community and humanitarian projects.',
+  },
+  {
+    icon: Sparkles,
+    title: 'Funding & Savings',
+    text: 'Become eligible for scholarships, grants, and awards, and save on software, tools, books, and event registrations.',
+  },
 ];
 
 const steps = [

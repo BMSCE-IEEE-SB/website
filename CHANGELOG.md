@@ -1,9 +1,27 @@
-## [Unreleased]
-- Temporarily disabled and removed the Events feature from the frontend and admin portal (database schema preserved).
-
 # Changelog
 
 All notable changes to the **BMSCE IEEE Student Branch Website** will be documented in this file.
+
+---
+
+## [Unreleased]
+
+### Added
+- **Official Treasurer Signature**: Configured authorized high-resolution treasurer signature asset (`public/brand/signature.png`) automatically stamped on official generated PDF receipts.
+- **Comprehensive Branch Options**: Expanded department selection across registration and admin portal to 19 standardized engineering and postgraduate branches.
+- **Scratch & Test Ignore Rules**: Configured `.gitignore` rules for local exploratory scripts (`test-*.mjs`, `test-*.js`, `test-*.ts`).
+
+### Changed
+- **Chapter Card Visuals**: Replaced stock laptop photography with official chapter logos embedded directly in card backgrounds; removed redundant corner logo badges.
+- **Women in Engineering (WIE) Fee**: Updated WIE chapter add-on price to ₹0 (included with base branch membership).
+- **Security & Error Handling**: Refactored database RPC security definer checks to use `auth.role()` and surfaced detailed error responses from checkout intent endpoints.
+
+### Removed
+- **Executive Login Footer Button**: Removed direct admin sign-in link from the public website footer (portal access is maintained via `/admin` and `/admin/login`).
+- **Twitter / X Social Link**: Removed nonexistent X (Twitter) profile from site metadata and footer social icons.
+- **Suggested Chapters System**: Removed suggested chapters recommendations, departmental bundles, and badge overlays from the membership flow.
+- **Photo Gallery**: Removed gallery pages and routes from the public frontend.
+- **Events Feature**: Temporarily disabled and removed the Events feature from the frontend and admin portal (database schema preserved).
 
 ---
 

@@ -34,14 +34,25 @@ export default function Join() {
               <div className="rounded-3xl border border-white/20 bg-white/10 p-6 backdrop-blur-md sm:p-8">
                 <h3 className="text-xl font-bold text-white">What you get</h3>
                 <ul className="mt-5 space-y-3.5">
-                  {membershipBenefits.map((b) => (
-                    <li key={b} className="flex items-start gap-3 text-white/95 text-sm sm:text-base">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-brand-orange">
-                        <Check className="h-3.5 w-3.5" strokeWidth={3} />
-                      </span>
-                      <span>{b}</span>
-                    </li>
-                  ))}
+                  {membershipBenefits.map((b) => {
+                    const [title, desc] = b.split(' – ');
+                    return (
+                      <li key={b} className="flex items-start gap-3 text-white/95 text-sm sm:text-base">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white text-brand-orange">
+                          <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                        </span>
+                        <span>
+                          {desc ? (
+                            <>
+                              <strong className="font-semibold text-white">{title}</strong> — {desc}
+                            </>
+                          ) : (
+                            b
+                          )}
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             </Reveal>

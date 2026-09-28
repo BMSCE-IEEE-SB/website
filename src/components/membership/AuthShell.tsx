@@ -20,7 +20,15 @@ function RotatingBenefit() {
       <AnimatePresence mode="wait">
         <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35 }}>
           <p className="text-xs font-semibold tracking-wider text-brand-orange uppercase">Member Benefit</p>
-          <p className="mt-2 text-base leading-relaxed text-white/90">{benefit}</p>
+          <p className="mt-2 text-base leading-relaxed text-white/90">
+            {benefit && benefit.includes(' – ') ? (
+              <>
+                <strong className="font-semibold text-white">{benefit.split(' – ')[0]}</strong> — {benefit.split(' – ')[1]}
+              </>
+            ) : (
+              benefit
+            )}
+          </p>
         </motion.div>
       </AnimatePresence>
     </div>

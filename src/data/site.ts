@@ -522,11 +522,12 @@ export const socialLinks = [
 ] as const;
 
 export const membershipBenefits = [
-  'Full access to the IEEE Xplore digital library',
-  'Discounted entry to conferences, workshops and hackathons',
-  'Leadership roles in branch and chapter committees',
-  'Mentorship on research and technical projects',
-  'Global IEEE credentials and the IEEE.org network',
+  'Networking & Mentorship – Connect with peers, researchers, and experienced engineers',
+  'Career Growth – Job boards, resume reviews, internship openings, and global credentials',
+  'Events & Competitions – Discounted conference rates, hackathons, and project showcases',
+  'Skills & Workshops – Hands-on sessions on AI, VLSI, IoT, robotics, and publishing',
+  'Leadership & Service – Lead branch events, committees, and community projects',
+  'Funding & Savings – Scholarships, grants, awards, and savings on software and tools',
 ];
 
 /** Used by the chapter cart when the database has no chapters configured yet. */

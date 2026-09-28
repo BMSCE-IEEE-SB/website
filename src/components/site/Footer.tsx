@@ -1,36 +1,51 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { BRANCH, chapters, contactInfo, socialLinks } from '@/data/site';
 import SocialIcon from './SocialIcon';
 import { BrandDots } from './BrandShapes';
-
-const columns = [
-  {
-    title: 'Explore',
-    links: [
-      { label: 'About', href: '/#about' },
-      { label: 'IEEE Bangalore Section', href: 'https://ieeebangalore.org/' },
-      { label: 'Team', href: '/#team' },
-      { label: 'Contact', href: '/#contact' },
-    ],
-  },
-  {
-    title: 'Chapters',
-    links: chapters.map((c) => ({ label: c.name, href: `/chapters/${c.slug}` })),
-  },
-  {
-    title: 'Membership',
-    links: [
-      { label: 'Become a member', href: '/membership' },
-      { label: 'Member portal', href: '/login' },
-      { label: 'Privacy policy', href: '/privacy' },
-      { label: 'Terms of membership', href: '/terms' },
-      { label: 'Refund policy', href: '/refund' },
-    ],
-  },
-];
+import { REGISTRATION_ONLY_MODE } from '@/config/temporary-launch';
 
 export default function Footer() {
+  const [isLocalhost, setIsLocalhost] = useState(false);
+
+  useEffect(() => {
+    const h = window.location.hostname;
+    setIsLocalhost(h === 'localhost' || h === '127.0.0.1' || h === '::1');
+  }, []);
+
+  const isRestricted = REGISTRATION_ONLY_MODE && !isLocalhost;
+
+  const columns = [
+    {
+      title: 'Explore',
+      links: [
+        { label: isRestricted ? 'About (Coming soon)' : 'About', href: isRestricted ? '/membership/register' : '/#about' },
+        { label: 'IEEE Bangalore Section', href: 'https://ieeebangalore.org/' },
+        { label: isRestricted ? 'Team (Coming soon)' : 'Team', href: isRestricted ? '/membership/register' : '/#team' },
+        { label: isRestricted ? 'Contact (Coming soon)' : 'Contact', href: isRestricted ? '/membership/register' : '/#contact' },
+      ],
+    },
+    {
+      title: 'Chapters',
+      links: chapters.map((c) => ({
+        label: isRestricted ? `${c.short} (Coming soon)` : c.name,
+        href: isRestricted ? '/membership/register' : `/chapters/${c.slug}`,
+      })),
+    },
+    {
+      title: 'Membership',
+      links: [
+        { label: 'Become a member', href: '/membership/register' },
+        { label: 'Member portal', href: '/login' },
+        { label: 'Privacy policy', href: '/privacy' },
+        { label: 'Terms of membership', href: '/terms' },
+        { label: 'Refund policy', href: '/refund' },
+      ],
+    },
+  ];
   return (
     <footer className="relative overflow-hidden bg-night text-white/70">
       <div className="container-page pt-20 pb-10">

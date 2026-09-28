@@ -2,11 +2,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, BookOpen, Globe, Handshake, Trophy, Users, Zap } from 'lucide-react';
 import Reveal from '@/components/site/Reveal';
-import Tilt from '@/components/site/Tilt';
-import MembershipCard from '@/components/site/MembershipCard';
 import NetworkCanvas from '@/components/site/NetworkCanvas';
 import { SectionLabel } from '@/components/site/BrandShapes';
-import CardPreview from '@/components/membership/CardPreview';
+import PricingBreakdown from '@/components/membership/PricingBreakdown';
 import Faq from '@/components/membership/Faq';
 
 export const metadata: Metadata = {
@@ -48,7 +46,7 @@ export default function MembershipPage() {
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link href="#pricing" className="btn btn-primary btn-lg">
-                See pricing & try your card <ArrowRight className="h-4 w-4" />
+                See pricing & register <ArrowRight className="h-4 w-4" />
               </Link>
               <Link href="/login" className="btn btn-ghost btn-lg bg-white/60">
                 Already applied? Sign in
@@ -56,9 +54,50 @@ export default function MembershipPage() {
             </div>
           </div>
           <div className="mx-auto w-full max-w-md">
-            <Tilt className="rounded-[22px]" max={12}>
-              <MembershipCard data={{ name: 'Your Name', usn: '1BM26XX000', department: 'Your dept', chapters: ['CS', 'WIE'], status: 'verified' }} />
-            </Tilt>
+            <div className="panel grain relative overflow-hidden bg-night p-7 text-white shadow-2xl sm:p-9">
+              <div aria-hidden className="pointer-events-none absolute inset-0">
+                <div className="absolute -top-16 -right-10 h-56 w-56 rounded-full bg-brand-sky/25 blur-3xl" />
+                <div className="absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-brand-orange/25 blur-3xl" />
+              </div>
+              <div className="relative">
+                <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                  <div>
+                    <p className="text-xs font-semibold tracking-wider text-brand-orange uppercase">BMSCE IEEE · Branch 06261</p>
+                    <h3 className="mt-1 font-display text-2xl font-bold">Annual Membership</h3>
+                  </div>
+                  <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300">
+                    2026–27 Open
+                  </span>
+                </div>
+                <ul className="mt-6 space-y-3.5 text-sm text-white/85">
+                  <li className="flex items-center gap-3">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-orange text-xs font-bold text-white">✓</span>
+                    <span>IEEE global student credentials & network</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-orange text-xs font-bold text-white">✓</span>
+                    <span>Full access to 5 technical chapters & affinity groups</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-orange text-xs font-bold text-white">✓</span>
+                    <span>Official IEEE Student Branch T-Shirt included</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-orange text-xs font-bold text-white">✓</span>
+                    <span>IEEE Xplore research library & paper access</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-orange text-xs font-bold text-white">✓</span>
+                    <span>Discounted entry to conferences, workshops & contests</span>
+                  </li>
+                </ul>
+                <div className="mt-8 border-t border-white/10 pt-5">
+                  <Link href="#pricing" className="btn btn-primary w-full justify-center">
+                    View fee breakdown & enroll <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -88,10 +127,10 @@ export default function MembershipPage() {
           <Reveal>
             <SectionLabel index="02">Pricing</SectionLabel>
             <h2 className="section-title mt-6">One simple price</h2>
-            <p className="lead mt-4 max-w-xl">Pay once for the year. Add chapters later in registration, and try on your card while you&apos;re here.</p>
+            <p className="lead mt-4 max-w-xl">Pay once for the year. Add chapters in registration, with an official branch T-shirt and global IEEE benefits included.</p>
           </Reveal>
           <div className="mt-12">
-            <CardPreview />
+            <PricingBreakdown />
           </div>
         </div>
       </section>

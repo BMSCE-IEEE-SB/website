@@ -19,7 +19,7 @@ The BMSCE IEEE Student Branch requires a unified digital presence to drive and m
    - Dynamic chapter cart with fee slip calculator and T-shirt merchandise size selection (`/membership/chapters`).
    - Server-validated checkout intent and dynamic client-side UPI QR code generation (`/membership/checkout`).
    - Private payment screenshot proof upload and UTR reference submission.
-   - Member self-service portal (`/account`) with real-time status tracking, digital membership card, and interactive resubmission for rejected orders.
+   - Member self-service portal (`/account`) with real-time status tracking, receipt verification, and interactive resubmission for rejected orders.
 3. **Executive Admin Management Suite**:
    - Orders verification dashboard (`/admin/orders`) with payment proof inspection via secure signed URLs.
    - Decoupled receipt email workflow: approve applications immediately, and dispatch official receipts on-demand.
@@ -39,7 +39,7 @@ The BMSCE IEEE Student Branch requires a unified digital presence to drive and m
 | User Role | Permissions & Core Workflows |
 |---|---|
 | **Prospective Member** | Browse landing page, calculate fees, create an account, fill profile details, select chapters and T-shirt size, scan UPI QR to pay, upload screenshot proof, and submit order. |
-| **Enrolled / Verified Member** | Sign in at `/login`, view digital membership card and verification status at `/account`, resubmit corrected proof/UTR if rejected, and receive official PDF receipt via email. |
+| **Enrolled / Verified Member** | Sign in at `/login`, view membership and verification status at `/account`, resubmit corrected proof/UTR if rejected, and receive official PDF receipt via email. |
 | **Branch Executive / Chair** | Sign into `/admin/login`, review pending orders and inspect proofs, approve or reject applications, dispatch official PDF receipts, generate manual receipts for offline dues, manage team whitelist, configure drive parameters, and publish announcements. |
 
 ---

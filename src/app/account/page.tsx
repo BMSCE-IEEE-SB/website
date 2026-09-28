@@ -18,9 +18,6 @@ import {
 import { adminFetch } from '@/lib/admin-api';
 import { Alert, Field, FileDrop, Input, Modal, PageLoader, Spinner, StatusBadge } from '@/components/ui/form';
 import { cn, errorMessage, formatDateTime, imageToDataUrl, validateScreenshot } from '@/lib/utils';
-import MembershipCard from '@/components/site/MembershipCard';
-import Tilt from '@/components/site/Tilt';
-import { chapterCode } from '@/data/site';
 import { confetti } from '@/lib/confetti';
 
 type OrderRow = Order & { order_items?: { chapters: { name: string } | null }[] };
@@ -156,7 +153,6 @@ export default function AccountPage() {
     },
     { label: 'Verified member', done: latest?.status === 'verified', detail: latest?.verified_at ? formatDateTime(latest.verified_at) : 'Welcome email follows' },
   ];
-  const cardChapters = (latest?.chapters ?? []).map(chapterCode).slice(0, 4);
 
   return (
     <div className="relative">
@@ -180,30 +176,18 @@ export default function AccountPage() {
         )}
         {loadError && <Alert tone="error" className="mt-8">{loadError}</Alert>}
 
-        {/* Card + tracker */}
-        <div className="mt-10 grid items-stretch gap-6 lg:grid-cols-[440px_1fr]">
-          <div className="panel flex flex-col justify-between gap-6 p-6">
-            <Tilt className="rounded-[22px]" max={10}>
-              <MembershipCard
-                data={{
-                  name: profile?.full_name,
-                  usn: profile?.usn,
-                  department: profile?.department,
-                  year: profile?.year_of_study,
-                  chapters: cardChapters,
-                  status: latest ? latest.status : 'draft',
-                  reference: latest?.order_reference,
-                }}
-              />
-            </Tilt>
-            <p className="text-center text-sm text-muted">
-              {latest?.status === 'verified' ? 'Your membership is active. Show this card on campus.' : 'Your card activates once your payment is verified.'}
-            </p>
-          </div>
-
+        {/* Tracker */}
+        <div className="mt-10">
           <div className="panel p-6 sm:p-8">
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="text-lg font-bold">Application status</h2>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-ink">Application status</h2>
+                {latest && (
+                  <p className="mt-0.5 text-xs text-muted">
+                    Order reference: <span className="font-mono font-semibold text-brand-navy">{latest.order_reference}</span>
+                  </p>
+                )}
+              </div>
               {latest && <StatusBadge status={latest.status} />}
             </div>
             {latest ? (

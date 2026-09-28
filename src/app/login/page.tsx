@@ -13,7 +13,7 @@ import PasswordField from '@/components/membership/PasswordField';
 import DemoNotice from '@/components/membership/DemoNotice';
 import { errorMessage } from '@/lib/utils';
 
-const perks = ['Track your application status', 'See your digital membership card', 'Add chapters any time'];
+const perks = ['Track your application status', 'View your membership details & receipts', 'Add chapters any time'];
 
 function LoginForm() {
   const router = useRouter();

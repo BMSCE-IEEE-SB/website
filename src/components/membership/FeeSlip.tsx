@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { chapters } from '@/data/site';
 import AnimatedNumber from '@/components/site/AnimatedNumber';
 
-const lines = ['IEEE student membership (global)', 'BMSCE branch membership', 'Workshops & branch activities', 'Digital member card'];
+const lines = ['IEEE student membership (global)', 'BMSCE branch membership', 'Workshops & branch activities', 'Official IEEE T-Shirt & kit'];
 
 // Fixed pattern so server and browser render the same barcode.
 const BARS = [3, 1, 2, 1, 1, 3, 1, 2, 2, 1, 3, 1, 1, 2, 1, 3, 2, 1, 1, 2, 3, 1, 2, 1, 1, 3, 1, 1, 2, 2, 1, 3, 1, 2, 1, 1, 2, 3, 1, 2];

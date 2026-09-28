@@ -11,7 +11,6 @@ import { Alert, Field, Input, PageLoader, Spinner } from '@/components/ui/form';
 import AuthShell from '@/components/membership/AuthShell';
 import PasswordField from '@/components/membership/PasswordField';
 import DemoNotice from '@/components/membership/DemoNotice';
-import { LiveCard } from '@/components/membership/Draft';
 import { errorMessage } from '@/lib/utils';
 
 export default function RegisterPage() {
@@ -103,7 +102,22 @@ export default function RegisterPage() {
     }
   }
 
-  const aside = <LiveCard caption="" />;
+  const steps = [
+    'Create your account with your college email',
+    'Add your academic details & department',
+    'Pick technical chapters & select T-shirt size',
+    'Pay securely with UPI & submit transaction ID',
+  ];
+
+  const aside = (
+    <ul className="space-y-3">
+      {steps.map((s, i) => (
+        <li key={s} className="flex items-center gap-3 text-white/85">
+          <span className="font-mono text-xs text-brand-orange">0{i + 1}</span> {s}
+        </li>
+      ))}
+    </ul>
+  );
 
   if (user === undefined) return <PageLoader />;
 

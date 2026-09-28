@@ -6,10 +6,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
 import { ArrowLeft, ArrowRight, Check, Plus, Shirt, X } from 'lucide-react';
-import { getCurrentUser } from '@/lib/auth';
+import { getCurrentUser, getLocalProfile } from '@/lib/auth';
+import { isDemoMode, supabase } from '@/lib/supabase';
 import { chapters as chapterInfo, departments } from '@/data/site';
 import { loadPricing } from '@/lib/pricing';
-import { LiveCard, readDraft, useDraft } from '@/components/membership/Draft';
 import AnimatedNumber from '@/components/site/AnimatedNumber';
 import { Alert, PageLoader, Spinner, Modal } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
@@ -21,7 +21,7 @@ const infoFor = (code: string) => chapterInfo.find((c) => c.code === code);
 
 export default function ChaptersPage() {
   const router = useRouter();
-  const { update } = useDraft();
+  const demo = isDemoMode();
   const [chapters, setChapters] = useState<CartChapter[]>([]);
   const [baseFee, setBaseFee] = useState(0);
   const [selected, setSelected] = useState<string[]>([]);
@@ -56,7 +56,13 @@ export default function ChaptersPage() {
       if (!alive) return;
       setChapters(list);
       setBaseFee(fee);
-      setDepartment(readDraft().department ?? '');
+      if (demo) {
+        const p = getLocalProfile(user.id);
+        if (p?.department) setDepartment(p.department);
+      } else {
+        const { data: p } = await supabase.from('profiles').select('department').eq('id', user.id).maybeSingle();
+        if (p?.department) setDepartment(p.department);
+      }
       // Restore the selection and T-shirt size if the student came back from checkout.
       try {
         const prev: CartChapter[] = JSON.parse(sessionStorage.getItem(CART_KEYS.chapters) || '[]');
@@ -82,10 +88,6 @@ export default function ChaptersPage() {
   const ordered = chapters;
   const picked = useMemo(() => selected.map((id) => chapters.find((c) => c.id === id)).filter((c): c is CartChapter => Boolean(c)), [selected, chapters]);
   const total = baseFee + picked.reduce((s, c) => s + c.price, 0);
-
-  useEffect(() => {
-    if (!isLoading) update({ chapters: picked.map((c) => c.code) });
-  }, [picked, isLoading, update]);
 
   const toggle = (id: string) => {
     const chapter = chapters.find((c) => c.id === id);
@@ -292,9 +294,6 @@ export default function ChaptersPage() {
         </div>
 
         <aside className="space-y-5 lg:sticky lg:top-24">
-          <div className="hidden sm:block">
-            <LiveCard caption="Chapters you add appear on your card." />
-          </div>
           <div className="panel p-6">
             <div className="flex items-baseline justify-between">
               <h2 className="text-lg font-bold">Your total</h2>

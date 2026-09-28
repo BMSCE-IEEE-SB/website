@@ -7,10 +7,8 @@ import { isDemoMode, supabase } from '@/lib/supabase';
 import { getCurrentUser, getLocalProfile, saveLocalProfile, type SessionUser, type UserProfile } from '@/lib/auth';
 import { Alert, Field, Input, PageLoader, Select, Spinner } from '@/components/ui/form';
 import DemoNotice from '@/components/membership/DemoNotice';
-import { LiveCard, readDraft, useDraft } from '@/components/membership/Draft';
 import { errorMessage } from '@/lib/utils';
 import { departments } from '@/data/site';
-
 
 type Form = Omit<UserProfile, 'id' | 'email'>;
 const empty: Form = { full_name: '', usn: '', department: '', year_of_study: '', phone: '', ieee_member_id: '' };
@@ -24,14 +22,7 @@ export default function ProfilePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const { update } = useDraft();
   const set = (key: keyof Form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm((f) => ({ ...f, [key]: e.target.value }));
-
-  // Mirror the form into the live card preview (after loading, so we don't wipe a saved draft).
-  useEffect(() => {
-    if (isLoading) return;
-    update({ name: form.full_name, usn: form.usn?.toUpperCase(), department: form.department, year: form.year_of_study });
-  }, [form.full_name, form.usn, form.department, form.year_of_study, update, isLoading]);
 
   useEffect(() => {
     let alive = true;
@@ -50,11 +41,6 @@ export default function ProfilePage() {
       } else {
         const { data } = await supabase.from('profiles').select('*').eq('id', active.id).maybeSingle();
         existing = data;
-      }
-      if (alive && !existing) {
-        // New member: start from what they typed into the card preview on /membership.
-        const d = readDraft();
-        setForm((f) => ({ ...f, full_name: d.name ?? '', department: d.department ?? '' }));
       }
       if (alive && existing) {
         setForm({
@@ -114,12 +100,28 @@ export default function ProfilePage() {
   if (isLoading) return <PageLoader />;
 
   return (
-    <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[1fr_400px]">
+    <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[1fr_380px]">
       <div className="lg:order-2 lg:sticky lg:top-24">
-        <h1 className="text-3xl font-bold sm:text-4xl">Tell us about yourself</h1>
-        <p className="mt-3 text-ink-soft">We use these details to verify your enrollment and register you with IEEE.</p>
-        <div className="mt-8 hidden sm:block">
-          <LiveCard />
+        <div className="panel p-6 sm:p-8">
+          <span className="text-xs font-semibold tracking-wider text-brand-orange uppercase">Step 2 of 4</span>
+          <h2 className="mt-2 text-2xl font-bold text-ink">Academic details</h2>
+          <p className="mt-3 text-sm leading-relaxed text-ink-soft">
+            We use your USN, department, and contact info to verify your enrollment with BMSCE and register your profile on the IEEE global roster.
+          </p>
+          <div className="mt-6 space-y-3.5 border-t border-line pt-5 text-xs text-muted">
+            <div className="flex items-start gap-2.5">
+              <span className="font-bold text-brand-orange">✓</span>
+              <span>Your name should match your official college records.</span>
+            </div>
+            <div className="flex items-start gap-2.5">
+              <span className="font-bold text-brand-orange">✓</span>
+              <span>Phone number is used for chapter announcements and payment verification.</span>
+            </div>
+            <div className="flex items-start gap-2.5">
+              <span className="font-bold text-brand-orange">✓</span>
+              <span>Existing members renewing can enter their 8-digit IEEE Member ID.</span>
+            </div>
+          </div>
         </div>
       </div>
 

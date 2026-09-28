@@ -11,7 +11,7 @@ export async function POST(request: Request) {
   const proof = body.proofPath;
   const utr = (typeof body?.utr === 'string' && /^\d{12}$/.test(body.utr.replace(/\s/g, '')))
     ? body.utr.replace(/\s/g, '')
-    : String(Math.floor(100000000000 + Math.random() * 900000000000));
+    : null;
   if (!proof.startsWith(`${user.id}/`) || !/-R[A-F0-9]{10}\.(png|jpg|webp)$/.test(proof)) return jsonError('Payment proof is invalid.');
   const client = getAdminServiceClient();
   const { data: order, error: orderError } = await client.from('orders').select('order_reference').eq('id', body.orderId).eq('user_id', user.id).eq('status', 'rejected').maybeSingle();

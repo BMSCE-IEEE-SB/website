@@ -5,7 +5,7 @@ import { isDemoMode, supabase } from './supabase';
 export type Pricing = { baseFee: number; chapters: CartChapter[] };
 export type Payee = { vpa: string; name: string };
 
-export const FALLBACK_PAYEE: Payee = { vpa: 'neharamiah2006-1@oksbi', name: 'BMSCE IEEE Student Branch' };
+export const FALLBACK_PAYEE: Payee = { vpa: 'neharamiah2006-1@oksbi', name: 'Neha Ramiah' };
 
 /** Demo-mode settings saved from /admin/settings. */
 export type DemoSettings = { baseFee: number; vpa: string; payeeName: string; prices: Record<string, number> };

@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS public.events (
 -- ---------------------------------------------------------------------------
 
 INSERT INTO public.membership_config (id, base_fee, payee_vpa, payee_name, drive_year, is_drive_open, treasurer_name, treasurer_role, treasurer_phone)
-VALUES (1, 1810, 'neharamiah2006-1@oksbi', 'BMSCE IEEE Student Branch', 2026, true, 'Neha Ramiah', 'Treasurer and MDC', '6385525264')
+VALUES (1, 1850, 'neharamiah2006-1@oksbi', 'Neha Ramiah', 2026, true, 'Neha Ramiah', 'Treasurer and MDC', '6385525264')
 ON CONFLICT (id) DO UPDATE SET
   base_fee = EXCLUDED.base_fee,
   payee_vpa = EXCLUDED.payee_vpa,
@@ -142,8 +142,9 @@ INSERT INTO public.chapters (name, code, slug, price, description, is_active, di
   ('IEEE Computer Society', 'CS', 'cs', 0, 'Focus on software architectures, algorithms, AI systems & IEEEXtreme programming competition.', true, 1),
   ('IEEE Power & Energy Society', 'PES', 'pes', 100, 'Clean technology, microgrids, electric vehicles, and renewable power infrastructure.', true, 2),
   ('IEEE Power & Industrial Electronics Joint Chapter', 'PELS/IES', 'pels-ies', 370, 'Hands-on hardware, power drives, PCB fabrication, and industrial automation systems.', true, 3),
-  ('IEEE Women in Engineering & Sensors Council', 'WIE', 'wie', 0, 'Global network dedicated to promoting women engineers, leadership, sensors & STEM mentorship.', true, 4),
-  ('IEEE Social Implications of Technology', 'SSIT', 'ssit', 50, 'Exploring ethical, legal, environmental, and humanitarian impacts of emerging technologies.', true, 5)
+  ('IEEE Women in Engineering', 'WIE', 'wie', 0, 'Global network dedicated to promoting women engineers, leadership, & STEM mentorship.', true, 4),
+  ('IEEE Sensors Council', 'SC', 'sc', 0, 'Focusing on the theory, design, and application of devices for sensing and transducing physical, chemical, and biological phenomena.', true, 5),
+  ('IEEE Social Implications of Technology', 'SSIT', 'ssit', 50, 'Exploring ethical, legal, environmental, and humanitarian impacts of emerging technologies.', true, 6)
 ON CONFLICT (code) DO UPDATE SET
   name = EXCLUDED.name,
   slug = EXCLUDED.slug,
@@ -152,7 +153,7 @@ ON CONFLICT (code) DO UPDATE SET
   is_active = EXCLUDED.is_active,
   display_order = EXCLUDED.display_order;
 
-DELETE FROM public.chapters WHERE code NOT IN ('CS', 'PES', 'PELS/IES', 'WIE', 'SSIT');
+DELETE FROM public.chapters WHERE code NOT IN ('CS', 'PES', 'PELS/IES', 'WIE', 'SC', 'SSIT');
 
 INSERT INTO public.announcement (id, message, link_url, is_active)
 VALUES (1, 'Membership Drive 2026 is live. Register today to join IEEE and its technical chapters.', '/membership', true)

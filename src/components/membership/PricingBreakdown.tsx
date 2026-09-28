@@ -58,7 +58,7 @@ export default function PricingBreakdown() {
               </span>
               <div>
                 <h4 className="text-sm font-semibold text-ink">Pick your chapters</h4>
-                <p className="mt-0.5 text-xs text-muted">CS and WIE & SC are included free. Add PES (₹100), PELS/IES (₹370), or SSIT (₹50) based on your interests.</p>
+                <p className="mt-0.5 text-xs text-muted">CS, WIE, and SC are included free. Add PES (₹100), PELS/IES (₹370), or SSIT (₹50) based on your interests.</p>
               </div>
             </div>
 

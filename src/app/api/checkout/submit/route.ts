@@ -10,10 +10,9 @@ export async function POST(request: Request) {
   if (!isUuid(body?.intentId) || typeof body?.proofPath !== 'string' || typeof body?.tshirtSize !== 'string') return jsonError('Checkout details are incomplete.');
   const proof = body.proofPath;
   if (!proof.startsWith(`${user.id}/`) || proof.length > 160) return jsonError('Payment proof is invalid.');
-  // If UTR is provided and 12 digits, use it; otherwise generate a valid 12-digit numeric reference so the database RPC constraint passes without crashing
   const utr = (typeof body?.utr === 'string' && /^\d{12}$/.test(body.utr.replace(/\s/g, '')))
     ? body.utr.replace(/\s/g, '')
-    : String(Math.floor(100000000000 + Math.random() * 900000000000));
+    : null;
 
   const client = getAdminServiceClient();
   const { data: intent, error: intentError } = await client.from('checkout_intents')

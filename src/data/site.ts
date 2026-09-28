@@ -143,31 +143,59 @@ export const chapters: Chapter[] = [
   },
   {
     slug: 'wie',
-    short: 'Women in Engineering & Sensors Council',
-    code: 'WIE & SC',
+    short: 'Women in Engineering',
+    code: 'WIE',
     logo: '/chapter-logos/wie.png',
     color: '#db2777',
     image: u('photo-1573164713714-d95e436ab8d6', 1400, 900),
     about: [
-      'Women in Engineering and Sensors Council brings together community leadership and sensor technologies on campus and beyond.',
-      'The group runs mentorship circles with alumni, sensor build workshops, leadership programmes, and STEM outreach in local schools. Everyone is welcome.',
+      'Women in Engineering brings together community leadership and technology on campus and beyond.',
+      'The group runs mentorship circles with alumni, leadership programmes, and STEM outreach in local schools. Everyone is welcome.',
     ],
     focus: [
       { title: 'Mentorship', text: 'Paired mentoring with alumni and industry engineers.' },
-      { title: 'Sensors & IoT', text: 'Sensor interfacing, transducer circuits and smart sensing.' },
       { title: 'Leadership', text: 'Workshops on public speaking, negotiation and leading teams.' },
       { title: 'STEM outreach', text: 'Hands-on science sessions for school students.' },
+      { title: 'Tech Summits', text: 'Annual summits celebrating women in technology.' },
     ],
-    activities: ['WIE Tech Summit', 'Sensors build nights', 'Mentorship circles', 'School outreach days'],
+    activities: ['WIE Tech Summit', 'Mentorship circles', 'School outreach days', 'Leadership workshops'],
     stats: { members: '220+', events: '16+', founded: '2012' },
-    name: 'Women in Engineering & Sensors Council (WIE & SC)',
-    fullName: 'IEEE Women in Engineering & Sensors Council (WIE & SC)',
+    name: 'Women in Engineering (WIE)',
+    fullName: 'IEEE Women in Engineering (WIE)',
     tagline: 'Mentorship, leadership & STEM outreach',
     description:
       'A global affinity group empowering women technologists through mentorship, leadership programmes and research initiatives.',
     tracks: ['Mentorship', 'Leadership', 'Outreach'],
     icon: Users,
     tone: { text: 'text-pink-600', soft: 'bg-pink-50', bar: 'bg-pink-500' },
+  },
+  {
+    slug: 'sc',
+    short: 'Sensors Council',
+    code: 'SC',
+    logo: '/chapter-logos/pes.png',
+    color: '#14b8a6',
+    image: u('photo-1518770660439-4636190af475', 1400, 900),
+    about: [
+      'The Sensors Council brings together sensor technologies on campus and beyond.',
+      'The group runs sensor build workshops, transducer circuit designs, and smart sensing projects.',
+    ],
+    focus: [
+      { title: 'Sensors & IoT', text: 'Sensor interfacing, transducer circuits and smart sensing.' },
+      { title: 'Data Acquisition', text: 'Building data loggers and real-time monitoring systems.' },
+      { title: 'Signal Processing', text: 'Filtering and analyzing sensor data.' },
+      { title: 'Smart Systems', text: 'Integrating sensors into larger automation systems.' },
+    ],
+    activities: ['Sensors build nights', 'IoT workshops', 'Data acquisition contests', 'Industry visits'],
+    stats: { members: '100+', events: '8+', founded: '2016' },
+    name: 'Sensors Council (SC)',
+    fullName: 'IEEE Sensors Council (SC)',
+    tagline: 'Sensor technologies & IoT',
+    description:
+      'Focusing on the theory, design, and application of devices for sensing and transducing physical, chemical, and biological phenomena.',
+    tracks: ['Sensors', 'IoT', 'Signal Processing'],
+    icon: CircuitBoard,
+    tone: { text: 'text-teal-600', soft: 'bg-teal-50', bar: 'bg-teal-500' },
   },
   {
     slug: 'ssit',
@@ -401,12 +429,13 @@ export const membershipBenefits = [
 ];
 
 /** Used by the chapter cart when the database has no chapters configured yet. */
-export const FALLBACK_BASE_FEE = 1810;
+export const FALLBACK_BASE_FEE = 1850;
 export const FALLBACK_CART_CHAPTERS = [
   { id: 'demo-cs', name: 'Computer Society', code: 'CS', price: 0 },
   { id: 'demo-pes', name: 'Power & Energy Society', code: 'PES', price: 100 },
   { id: 'demo-pels', name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', price: 370 },
-  { id: 'demo-wie', name: 'Women in Engineering & Sensors Council', code: 'WIE & SC', price: 0 },
+  { id: 'demo-wie', name: 'Women in Engineering', code: 'WIE', price: 0 },
+  { id: 'demo-sc', name: 'Sensors Council', code: 'SC', price: 0 },
   { id: 'demo-ssit', name: 'Society on Social Implications of Technology', code: 'SSIT', price: 50 },
 ];
 
@@ -448,7 +477,8 @@ export function chapterCode(name: string) {
     [/computer/, 'CS'],
     [/pels|industrial|power electronics/, 'PELS/IES'],
     [/power & energy|power and energy|\bpes\b/, 'PES'],
-    [/women|sensors|wie/, 'WIE & SC'],
+    [/women|wie/, 'WIE'],
+    [/sensors|\bsc\b/, 'SC'],
     [/social|ssit/, 'SSIT'],
   ];
   return rules.find(([re]) => re.test(n))?.[1] ?? name;

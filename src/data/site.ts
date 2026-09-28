@@ -320,9 +320,8 @@ export const chapters: Chapter[] = [
     stats: { members: '', events: '', founded: '' },
     name: 'Society on Social Implications of Technology (SSIT)',
     fullName: 'IEEE Society on Social Implications of Technology',
-    tagline: 'Tech ethics, policy & civic tech',
-    description:
-      'Exploring ethical, legal, environmental, and humanitarian impacts of emerging technologies.',
+    tagline: 'Technical chapter',
+    description: 'Official chapter details and event records are currently being updated.',
     tracks: ['AI Ethics', 'Policy', 'Humanitarian Tech'],
     icon: Compass,
     tone: { text: 'text-indigo-600', soft: 'bg-indigo-50', bar: 'bg-indigo-500' },
@@ -561,8 +560,7 @@ export const pillars = [
 export const faqs = [
   { q: 'Who can become a member?', a: 'Any student currently enrolled at B.M.S. College of Engineering: undergraduate, postgraduate or research scholar, from any department.' },
   { q: 'How do I pay?', a: 'With any UPI app. Scan the QR code on the payment step, then upload the screenshot and the 12-digit UTR number. Cash is also accepted at our registration desk.' },
-  { q: 'How long does verification take?', a: 'We will matche the payments against the bank statement, usually within a week. You get an email once you are verified.' },
-  { q: 'Can I join more chapters later?', a: 'Yes. Sign in to the member portal and start a new application with the extra chapters you want.' },
+  { q: 'How long does verification take?', a: 'We will match the payments against the bank statement, usually within a week. You get an email once you are verified.' },
   { q: 'When do I get my IEEE.org account?', a: 'Official IEEE credentials are provisioned by IEEE headquarters in batches. We email them to you as soon as they arrive.' },
 ];
 

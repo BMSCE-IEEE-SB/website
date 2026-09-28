@@ -263,7 +263,7 @@ export default function ChaptersPage() {
               const color = c.code === 'SC' ? '#14b8a6' : (info?.color ?? '#0b1b33');
               const chapterTitle = c.name.replace(/\s*joint chapter\s*/gi, ' ').replace(/\s{2,}/g, ' ').trim();
               const heroText = info
-                ? (info.comingSoon ? info.description : `${info.tagline}. ${info.description}`)
+                ? (info.tagline ? `${info.tagline}. ${info.description}` : info.description)
                 : '';
               return (
                 <motion.li key={c.id} layout transition={{ type: 'spring', stiffness: 300, damping: 30 }}>

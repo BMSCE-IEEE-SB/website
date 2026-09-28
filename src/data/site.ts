@@ -80,8 +80,9 @@ export const chapters: Chapter[] = [
     stats: { members: '', events: '', founded: '' },
     name: 'Computer Society (CS)',
     fullName: 'IEEE Computer Society',
-    tagline: 'Technical chapter',
-    description: 'Official chapter details and event records are currently being updated.',
+    tagline: 'Software, algorithms & AI systems',
+    description:
+      'Focusing on software architectures, algorithms, AI systems, web & cloud, and the 24-hour IEEEXtreme programming competition on campus.',
     tracks: ['AI/ML', 'Web & Cloud', 'Systems'],
     icon: Cpu,
     tone: { text: 'text-sky-600', soft: 'bg-sky-50', bar: 'bg-sky-500' },
@@ -319,8 +320,9 @@ export const chapters: Chapter[] = [
     stats: { members: '', events: '', founded: '' },
     name: 'Society on Social Implications of Technology (SSIT)',
     fullName: 'IEEE Society on Social Implications of Technology',
-    tagline: 'Technical chapter',
-    description: 'Official chapter details and event records are currently being updated.',
+    tagline: 'Tech ethics, policy & civic tech',
+    description:
+      'Exploring ethical, legal, environmental, and humanitarian impacts of emerging technologies.',
     tracks: ['AI Ethics', 'Policy', 'Humanitarian Tech'],
     icon: Compass,
     tone: { text: 'text-indigo-600', soft: 'bg-indigo-50', bar: 'bg-indigo-500' },

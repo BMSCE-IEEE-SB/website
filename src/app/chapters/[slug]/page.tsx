@@ -57,7 +57,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
           </div>
           <h1 className="display mt-6 max-w-4xl text-5xl sm:text-7xl lg:text-8xl">{c.title ?? c.name}</h1>
           <p className="mt-6 max-w-2xl text-lg text-white/85 sm:text-xl">
-            {c.comingSoon ? c.description : `${c.tagline}. ${c.description}`}
+            {c.tagline ? `${c.tagline}. ${c.description}` : c.description}
           </p>
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
             <Link href="/membership" className="btn btn-lg bg-white text-ink hover:-translate-y-0.5">

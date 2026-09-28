@@ -14,14 +14,14 @@ This checklist turns **PRD §10** into an actionable, non-technical punch list o
   - [x] IEEE Computer Society (CS): ₹100
   - [x] IEEE Power & Energy Society (PES): ₹100
   - [x] IEEE Power & Industrial Electronics Joint Chapter (PELS/IES): ₹100
-  - [x] IEEE Women in Engineering (WIE): ₹50
+  - [x] IEEE Women in Engineering (WIE): ₹0 (included with base membership)
   - [x] IEEE Social Implications of Technology (SSIT): ₹50
 
 ### 2. Branch Treasurer Credentials (Printed on Official PDF Receipts)
 - [ ] **Treasurer Full Name**: Current branch treasurer (default: `Neha Ramiah`).
 - [ ] **Treasurer Designation**: Official title (default: `Treasurer and MDC`).
 - [ ] **Treasurer Contact Phone**: Official contact number for billing inquiries (default: `+91 6385525264`).
-- [ ] **Treasurer Digital Signature**: Transparent PNG image of authorized signature for PDF receipt stamping (optional).
+- [x] **Treasurer Digital Signature**: High-resolution PNG image configured in `public/brand/signature.png` for automatic PDF receipt stamping.
 
 ### 3. T-Shirt Merchandise Logistics
 - [x] **Available Sizes**: `S`, `M`, `L`, `XL`, `XXL` (integrated in cart & order tracking).

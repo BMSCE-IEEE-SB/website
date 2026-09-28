@@ -62,7 +62,7 @@ export default function About() {
             </Reveal>
             <Reveal delay={140}>
               <p className="lead mt-8 max-w-2xl">
-                We are Branch {BRANCH.branchCode} of {BRANCH.region}, part of the {BRANCH.section}. Membership connects you to IEEE&apos;s
+                We are part of {BRANCH.region}, under the {BRANCH.section}. Membership connects you to IEEE&apos;s
                 400,000+ members worldwide, and to seniors on campus who will happily spend a Saturday debugging your circuit.
               </p>
             </Reveal>

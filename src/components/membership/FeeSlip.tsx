@@ -20,7 +20,7 @@ function Stamp() {
       <text fill="currentColor" fontSize="10" fontWeight="700" fontFamily="var(--font-mono)">
         {/* textLength spreads the text evenly around the whole circle (2πr ≈ 289). */}
         <textPath href="#stamp-circle" textLength="285" lengthAdjust="spacing">
-          BMSCE IEEE · BRANCH 06261 ·
+          BMSCE IEEE · STUDENT BRANCH ·
         </textPath>
       </text>
       <text x="60" y="57" textAnchor="middle" fill="currentColor" fontSize="11" fontWeight="800" fontFamily="var(--font-display)">
@@ -52,7 +52,7 @@ export default function FeeSlip({ baseFee, minChapter, maxChapter, error }: { ba
             <p className="font-display text-lg font-extrabold tracking-tight" style={{ fontStretch: '115%' }}>
               <span className="text-brand-orange">BMSCE</span> <span className="text-brand-navy">IEEE</span>
             </p>
-            <p className="mt-0.5 text-[11px] text-muted">Student Branch 06261 · Bengaluru</p>
+            <p className="mt-0.5 text-[11px] text-muted">Student Branch · Bengaluru</p>
           </div>
           <p className="text-right text-[11px] leading-tight text-muted">
             FEE SLIP

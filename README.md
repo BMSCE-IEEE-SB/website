@@ -1,6 +1,6 @@
 # BMSCE IEEE Student Branch Website
 
-Official website for the **IEEE Student Branch at B.M.S. College of Engineering (Branch 06261, Region 10)**. Built with Next.js 16 (App Router), Tailwind CSS v4, and Supabase for the 2026 Annual Membership Drive.
+Official website for the **IEEE Student Branch at B.M.S. College of Engineering (Region 10)**. Built with Next.js 16 (App Router), Tailwind CSS v4, and Supabase for the 2026 Annual Membership Drive.
 
 The public landing page (chapters, team, partnerships) and the membership registration flow live in one site. Every "Become a member" button leads to `/membership/register`.
 
@@ -166,4 +166,4 @@ The service-role key must remain server-only: never rename it with a `NEXT_PUBLI
 ---
 
 ## 📄 License
-Maintained by **BMSCE IEEE Student Branch** (Branch 06261, Region 10).
+Maintained by **BMSCE IEEE Student Branch** (Region 10).

@@ -62,7 +62,7 @@ export default function MembershipPage() {
               <div className="relative">
                 <div className="flex items-center justify-between border-b border-white/10 pb-4">
                   <div>
-                    <p className="text-xs font-semibold tracking-wider text-brand-orange uppercase">BMSCE IEEE · Branch 06261</p>
+                    <p className="text-xs font-semibold tracking-wider text-brand-orange uppercase">BMSCE IEEE</p>
                     <h3 className="mt-1 font-display text-2xl font-bold">Annual Membership</h3>
                   </div>
                   <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300">

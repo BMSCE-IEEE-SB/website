@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPolicyPage() {
   return (
-    <LegalShell title="Privacy policy" subtitle="Last updated September 2026 · BMSCE IEEE Student Branch (Branch 06261)">
+    <LegalShell title="Privacy policy" subtitle="Last updated September 2026 · BMSCE IEEE Student Branch">
         <section>
           <h2>1. Information We Collect</h2>
           <p>

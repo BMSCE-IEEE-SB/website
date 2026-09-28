@@ -56,7 +56,7 @@ export default function Footer() {
               <Image src="/brand/logo.png" alt="BMSCE IEEE" width={816} height={334} className="h-9 w-auto" />
             </div>
             <p className="mt-6 max-w-sm text-sm leading-relaxed">
-              The IEEE Student Branch of {BRANCH.college}, Bengaluru. Branch {BRANCH.branchCode} · {BRANCH.region} · {BRANCH.section}.
+              The IEEE Student Branch of {BRANCH.college}, Bengaluru. {BRANCH.region} · {BRANCH.section}.
             </p>
             <div className="mt-6 space-y-1.5 text-sm">
               <a href={`mailto:${contactInfo.email}`} className="block hover:text-white">{contactInfo.email}</a>

@@ -7,7 +7,6 @@ export const BRANCH = {
   name: 'BMSCE IEEE Student Branch',
   shortName: 'BMSCE IEEE',
   college: 'B.M.S. College of Engineering',
-  branchCode: '06261',
   region: 'IEEE Region 10',
   section: 'Bangalore Section',
   established: '2009',

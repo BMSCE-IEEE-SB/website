@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <LegalShell title="Terms of membership" subtitle="BMSCE IEEE Student Branch (Branch 06261, Region 10)">
+    <LegalShell title="Terms of membership" subtitle="BMSCE IEEE Student Branch (Region 10)">
         <section>
           <h2>1. Eligibility & Registration</h2>
           <p>

@@ -35,7 +35,7 @@ export default function AuthShell({ title, children, top }: { title: React.React
         <NetworkCanvas className="absolute inset-0 h-full w-full opacity-40" density={0.00006} />
         <Sails className="absolute -right-16 -bottom-16 h-72 w-72 animate-spin-slow opacity-10" />
         <div className="relative">
-          <p className="text-xs font-semibold tracking-[0.18em] text-brand-orange uppercase">BMSCE IEEE · Branch 06261</p>
+          <p className="text-xs font-semibold tracking-[0.18em] text-brand-orange uppercase">BMSCE IEEE</p>
           <h2 className="display mt-5 text-5xl leading-[0.95]">{title}</h2>
         </div>
         <div className="relative space-y-10">

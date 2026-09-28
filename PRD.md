@@ -1,6 +1,6 @@
 # PRD — BMSCE IEEE Student Branch Website & Membership Portal
 
-**Prepared for:** BMSCE IEEE Student Branch (Branch 06261, Region 10)  
+**Prepared for:** BMSCE IEEE Student Branch (Region 10)  
 **Production Site:** https://sb-website-theta.vercel.app/  
 **Repository:** https://github.com/BMSCE-IEEE-SB/website  
 **Target Ship Date:** 27 September 2026 (Annual Membership Drive)  

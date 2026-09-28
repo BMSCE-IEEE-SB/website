@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function RefundPolicyPage() {
   return (
-    <LegalShell title="Refund &amp; cancellation policy" subtitle="BMSCE IEEE Student Branch (Branch 06261, Region 10)">
+    <LegalShell title="Refund &amp; cancellation policy" subtitle="BMSCE IEEE Student Branch (Region 10)">
         <p className="rounded-2xl bg-sky-50 px-5 py-4 text-sm text-sky-900">Please review this policy before making UPI payments. All dues collected directly support student branch operations, technical symposiums, and global IEEE chapter enrollments.</p>
 
         <section>
@@ -48,7 +48,7 @@ export default function RefundPolicyPage() {
           </p>
           <div className="mt-3 space-y-1 rounded-2xl bg-paper p-5 text-sm">
             <p className="font-semibold text-ink">Treasurer / Executive Committee</p>
-            <p>BMSCE IEEE Student Branch (Branch 06261)</p>
+            <p>BMSCE IEEE Student Branch</p>
             <p>Email: ieee.sb@bmsce.ac.in</p>
             <p>Address: B.M.S. College of Engineering, Bull Temple Road, Bengaluru 560019</p>
           </div>

@@ -293,14 +293,9 @@ export default function ChaptersPage() {
                       <AnimatePresence initial={false}>
                         {on && info && (
                           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
-                            <ul className="mt-4 space-y-1.5 border-t border-line pt-4 text-sm text-ink-soft">
-                              {info.activities.slice(0, 3).map((a) => (
-                                <li key={a} className="flex items-start gap-2">
-                                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: color }} />
-                                  {a}
-                                </li>
-                              ))}
-                            </ul>
+                            <p className="mt-4 border-t border-line pt-4 text-xs sm:text-sm leading-relaxed text-ink-soft">
+                              {info.comingSoon ? info.description : `${info.tagline}. ${info.description}`}
+                            </p>
                           </motion.div>
                         )}
                       </AnimatePresence>

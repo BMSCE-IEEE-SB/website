@@ -91,7 +91,6 @@ export default function Footer() {
           <p className="flex items-center gap-3">
             <BrandDots /> © {new Date().getFullYear()} {BRANCH.name}. Operates under IEEE bylaws.
           </p>
-          <Link href="/admin/login" className="text-white/40 hover:text-white">Executive login</Link>
         </div>
       </div>
     </footer>

@@ -566,19 +566,19 @@ export const faqs = [
 ];
 
 export const tickerItems = [
-  'Special Interest Groups',
-  'IEEEXtreme',
   'IEEE Week',
-  'WIE Day',
   'NEXUS',
-  'DATAVERSE',
-  'STARTOPOLIS',
+  'Special Interest Groups',
   'Sensors Week',
-  'PES Day',
-  'PELS & IES Week',
+  'IEEEXtreme',
   'Beyond Basics & Geeks Biz',
-  'Yellarigu Electronics',
+  'WIE Day',
   'Industry Academia Conclave',
+  'DATAVERSE',
+  'PELS & IES Week',
+  'STARTOPOLIS',
+  'PES Day',
+  'Yellarigu Electronics',
 ];
 
 /** Splits the calendar into upcoming (soonest first) and past (latest first). */

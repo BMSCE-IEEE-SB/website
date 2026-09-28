@@ -23,7 +23,7 @@
  * TO REVERT BACK TO THE FULL SITE:
  * Simply set `REGISTRATION_ONLY_MODE = false;` below.
  */
-export const REGISTRATION_ONLY_MODE = true;
+export const REGISTRATION_ONLY_MODE = false;
 
 /**
  * Determines whether a host string is a local development environment.

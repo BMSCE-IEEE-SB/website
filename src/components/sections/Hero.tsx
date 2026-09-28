@@ -18,14 +18,18 @@ function RotatingWord() {
   }, [reduce]);
 
   return (
-    <span className="relative inline-flex flex-col overflow-hidden text-brand-orange">
-      <span className="invisible" aria-hidden>
-        {WORDS[0]}
+    <motion.span
+      layout
+      transition={{ layout: { duration: 0.35, ease: 'easeOut' } }}
+      className="relative inline-flex flex-col overflow-hidden text-brand-orange align-baseline px-2"
+    >
+      <span className="invisible select-none whitespace-nowrap" aria-hidden>
+        {WORDS[i]}
       </span>
       {WORDS.map((w, index) => (
         <motion.span
           key={w}
-          className="absolute inset-0 flex items-center justify-center"
+          className="absolute inset-0 flex items-center justify-center whitespace-nowrap"
           initial={false}
           animate={{
             y: index === i ? '0%' : index < i ? '-100%' : '100%',
@@ -38,7 +42,7 @@ function RotatingWord() {
           {w}
         </motion.span>
       ))}
-    </span>
+    </motion.span>
   );
 }
 

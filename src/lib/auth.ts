@@ -20,6 +20,7 @@ export interface Order {
   total_amount: number;
   payment_screenshot_url?: string;
   utr_reference?: string;
+  payment_method?: string;
   order_reference: string;
   receipt_number?: string;
   tshirt_size?: string;

@@ -45,12 +45,7 @@ const benefits = [
   },
 ];
 
-const steps = [
-  ['Create an account', 'Use your college email. It takes 30 seconds.'],
-  ['Add your details', 'Name, USN, department and year.'],
-  ['Choose chapters', 'Add the communities you want to be part of.'],
-  ['Pay with UPI', 'Scan, pay and upload the screenshot. We verify within 2–3 days.'],
-];
+
 
 export default function MembershipPage() {
   return (
@@ -159,28 +154,10 @@ export default function MembershipPage() {
         </div>
       </section>
 
-      <section className="bg-white py-20 sm:py-28">
-        <div className="container-page">
-          <Reveal>
-            <SectionLabel index="03">How it works</SectionLabel>
-            <h2 className="section-title mt-6">Four steps, five minutes</h2>
-          </Reveal>
-          <ol className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {steps.map(([t, d], i) => (
-              <Reveal as="li" key={t} delay={i * 90} className="relative">
-                <span className="display text-7xl text-brand-orange/20">0{i + 1}</span>
-                <h3 className="mt-2 text-xl font-bold text-ink">{t}</h3>
-                <p className="mt-2 text-ink-soft">{d}</p>
-              </Reveal>
-            ))}
-          </ol>
-        </div>
-      </section>
-
       <section className="py-20 sm:py-28">
         <div className="container-page grid gap-12 lg:grid-cols-12">
           <Reveal className="lg:col-span-4">
-            <SectionLabel index="04">FAQ</SectionLabel>
+            <SectionLabel index="03">FAQ</SectionLabel>
             <h2 className="section-title mt-6">Questions, answered</h2>
             <p className="lead mt-5">Still unsure? Write to us at ieee.sb@bmsce.ac.in.</p>
           </Reveal>

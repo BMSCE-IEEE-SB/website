@@ -2,7 +2,7 @@
 
 Official website for the **IEEE Student Branch at B.M.S. College of Engineering (Branch 06261, Region 10)**. Built with Next.js 16 (App Router), Tailwind CSS v4, and Supabase for the 2026 Annual Membership Drive.
 
-The public landing page (chapters, gallery, team, partnerships) and the membership registration flow live in one site. Every "Become a member" button leads to `/membership/register`.
+The public landing page (chapters, team, partnerships) and the membership registration flow live in one site. Every "Become a member" button leads to `/membership/register`.
 
 ### Demo mode vs live mode
 - **Demo mode** runs when `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` are not set. Everything is stored in the browser's localStorage with sample admin data, any login works, and a blue "Demo mode" note appears on the forms.
@@ -11,9 +11,8 @@ The public landing page (chapters, gallery, team, partnerships) and the membersh
 ### Main pages
 | Page | What it is |
 |---|---|
-| `/` | Landing page (Hero, About, Chapters, Gallery preview, ExeCom, Partners) |
+| `/` | Landing page (Hero, About, Chapters, ExeCom, Partners) |
 | `/chapters/[slug]` | Chapter detail pages (`cs`, `pes`, `pels-ies`, `wie`, `ssit`) |
-| `/gallery` | Full photo gallery with interactive lightbox |
 | `/membership` | "Become a member": benefits, fee slip calculator, FAQ |
 | `/membership/register` → `/profile` → `/chapters` → `/checkout` | The four-step registration flow (includes T-shirt size selection) |
 | `/login` | Member portal sign in |
@@ -27,7 +26,7 @@ The public landing page (chapters, gallery, team, partnerships) and the membersh
 | `/privacy`, `/terms`, `/refund` | Official student branch legal & policy pages |
 
 ### Where to edit site content
-All landing-page text, chapters, gallery photos, testimonials, FAQs and ExeCom members are in `src/data/site.ts`. The testimonials there are **placeholders**. Chapter prices for payment come from the `chapters` table in live mode.
+All landing-page text, chapters, testimonials, FAQs and ExeCom members are in `src/data/site.ts`. The testimonials there are **placeholders**. Chapter prices for payment come from the `chapters` table in live mode.
 
 ---
 
@@ -35,11 +34,12 @@ All landing-page text, chapters, gallery photos, testimonials, FAQs and ExeCom m
 
 ### 🎓 1. Multi-Step Student Membership Flow
 - **Minimal Initial Sign-Up** (`/membership/register`): Email, password, and confirm password with an email verification gate.
-- **Academic & Personal Profile** (`/membership/profile`): Full Name, USN, Department, Year of Study, Contact Info, and optional IEEE Member ID with auto-fill sample testing helper.
+- **Academic & Personal Profile** (`/membership/profile`): Full Name, USN, Department (19 standardized engineering branches), Year of Study, Contact Info, and optional IEEE Member ID with auto-fill sample testing helper.
 - **Dynamic Chapters Shopping Cart** (`/membership/chapters`):
   - Fixed Base Branch Membership fee (₹1,810).
-  - Interactive add/remove for all 5 technical chapters and affinity groups (Computer Society, PES, PELS/IES, WIE, SSIT) with real-time total calculation.
-  - **T-Shirt Size Selector**: Members select their merchandise size ('S', 'M', 'L', 'XL', 'XXL') directly in the cart.
+  - Visual branding tiles embedding each chapter's official logo directly in the card background.
+  - Interactive add/remove for all 5 technical chapters and affinity groups (Computer Society, PES, PELS/IES, WIE, SSIT; WIE included with base membership at ₹0).
+  - **T-Shirt Size Selector**: Members select their merchandise size ('XS', 'S', 'M', 'L', 'XL', '2XL', '3XL') directly in the cart.
 - **Dynamic UPI QR Checkout** (`/membership/checkout`):
   - Server-verified checkout intent (`/api/checkout/intent`) enforcing server-side price validation and expiration.
   - Client-side generated UPI payment QR code (`qrcode.react`) encoding the exact total and a unique order reference (`BMSCE-XXXXXX`).

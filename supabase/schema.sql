@@ -140,10 +140,10 @@ ON CONFLICT (id) DO UPDATE SET
 
 INSERT INTO public.chapters (name, code, slug, price, description, is_active, display_order) VALUES
   ('IEEE Computer Society', 'CS', 'cs', 0, 'Focus on software architectures, algorithms, AI systems & IEEEXtreme programming competition.', true, 1),
-  ('IEEE Power & Energy Society', 'PES', 'pes', 100, 'Clean technology, microgrids, electric vehicles, and renewable power infrastructure.', true, 2),
-  ('IEEE Power & Industrial Electronics Joint Chapter', 'PELS/IES', 'pels-ies', 370, 'Hands-on hardware, power drives, PCB fabrication, and industrial automation systems.', true, 3),
+  ('IEEE Power & Energy Society', 'PES', 'pes', 100, 'Electrical Power & Energy, Electronics, Robotics & Sensors. Bridging the gap between academic concepts and real-world applications through hands-on projects, technical workshops, industry interactions, research opportunities, and mentorship.', true, 2),
+  ('IEEE Power & Industrial Electronics', 'PELS/IES', 'pels-ies', 370, 'Power electronics, industrial electronics, VLSI, embedded systems & robotics. Creating opportunities for students to explore power electronics, industrial electronics, VLSI, embedded systems, robotics and emerging technologies.', true, 3),
   ('IEEE Women in Engineering', 'WIE', 'wie', 0, 'Global network dedicated to promoting women engineers, leadership, & STEM mentorship.', true, 4),
-  ('IEEE Sensors Council', 'SC', 'sc', 0, 'Focusing on the theory, design, and application of devices for sensing and transducing physical, chemical, and biological phenomena.', true, 5),
+  ('IEEE Sensors Council', 'SC', 'sc', 0, 'Electrical Power & Energy, Electronics, Robotics & Sensors. Bridging the gap between academic concepts and real-world applications through hands-on projects, technical workshops, industry interactions, research opportunities, and mentorship.', true, 5),
   ('IEEE Social Implications of Technology', 'SSIT', 'ssit', 50, 'Exploring ethical, legal, environmental, and humanitarian impacts of emerging technologies.', true, 6)
 ON CONFLICT (code) DO UPDATE SET
   name = EXCLUDED.name,

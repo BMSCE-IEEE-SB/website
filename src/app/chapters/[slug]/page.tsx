@@ -11,7 +11,11 @@ import { Sails } from '@/components/site/BrandShapes';
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return chapters.map((c) => ({ slug: c.slug }));
+  const slugs = new Set(chapters.map((c) => c.slug));
+  slugs.add('pes');
+  slugs.add('sc');
+  slugs.add('pels');
+  return Array.from(slugs).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

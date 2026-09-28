@@ -162,11 +162,11 @@ export const chapters: Chapter[] = [
     color: '#d97706',
     image: u('photo-1518770660439-4636190af475', 1400, 900),
     about: [
-      'BMSCE IEEE PELS & IES is the joint student chapter of the IEEE Power Electronics Society and IEEE Industrial Electronics Society, focused on creating opportunities for students to explore power electronics, industrial electronics, VLSI, embedded systems, robotics and emerging technologies.',
+      'BMSCE IEEE PELS & IES is the student chapter of the IEEE Power Electronics Society and IEEE Industrial Electronics Society, focused on creating opportunities for students to explore power electronics, industrial electronics, VLSI, embedded systems, robotics and emerging technologies.',
       'Through technical workshops, competitions, industry interactions, projects and research-oriented initiatives, the chapters encourage students to learn, innovate and apply engineering beyond the classroom.',
     ],
     aboutUs: [
-      'BMSCE IEEE PELS & IES is the joint student chapter of the IEEE Power Electronics Society and IEEE Industrial Electronics Society, focused on creating opportunities for students to explore power electronics, industrial electronics, VLSI, embedded systems, robotics and emerging technologies. Through technical workshops, competitions, industry interactions, projects and research-oriented initiatives, the chapters encourage students to learn, innovate and apply engineering beyond the classroom.',
+      'BMSCE IEEE PELS & IES is the student chapter of the IEEE Power Electronics Society and IEEE Industrial Electronics Society, focused on creating opportunities for students to explore power electronics, industrial electronics, VLSI, embedded systems, robotics and emerging technologies. Through technical workshops, competitions, industry interactions, projects and research-oriented initiatives, the chapters encourage students to learn, innovate and apply engineering beyond the classroom.',
     ],
     whatWeDo: [
       'We conduct hands-on technical workshops, ideathons, competitions, professional meets, industry visits and outreach initiatives. Our activities cover areas including VLSI and semiconductor technology, GPU computing, robotics, embedded systems, automation and AI-driven technologies. Through initiatives such as Yellarigu Electronics, we also take electronics beyond the campus by engaging school students in interactive, hands-on activities and introducing them to the fundamentals of electronics and engineering. We provide students with opportunities to participate in projects, research, student congresses, competitions and collaborative technical events.',

@@ -13,7 +13,7 @@ This checklist turns **PRD §10** into an actionable, non-technical punch list o
 - [x] **Chapter Add-on Prices** (Configured in database seed):
   - [x] IEEE Computer Society (CS): ₹100
   - [x] IEEE Power & Energy Society (PES): ₹100
-  - [x] IEEE Power & Industrial Electronics Joint Chapter (PELS/IES): ₹100
+  - [x] IEEE Power & Industrial Electronics (PELS/IES): ₹370
   - [x] IEEE Women in Engineering (WIE): ₹0 (included with base membership)
   - [x] IEEE Social Implications of Technology (SSIT): ₹50
 

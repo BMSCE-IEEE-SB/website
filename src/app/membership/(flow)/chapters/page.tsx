@@ -17,7 +17,13 @@ import { CART_KEYS, type CartChapter } from '@/lib/cart';
 
 const TSHIRT_SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'] as const;
 
-const infoFor = (code: string) => chapterInfo.find((c) => c.code === code);
+const infoFor = (code: string) =>
+  chapterInfo.find(
+    (c) =>
+      c.code === code ||
+      (c.code === 'PES & SC' && (code === 'PES' || code === 'SC')) ||
+      (c.code === 'PELS/IES' && (code === 'PELS' || code === 'IES'))
+  );
 
 export default function ChaptersPage() {
   const router = useRouter();
@@ -245,7 +251,7 @@ export default function ChaptersPage() {
             {ordered.map((c) => {
               const info = infoFor(c.code);
               const on = selected.includes(c.id);
-              const color = info?.color ?? '#0b1b33';
+              const color = c.code === 'SC' ? '#14b8a6' : (info?.color ?? '#0b1b33');
               return (
                 <motion.li key={c.id} layout transition={{ type: 'spring', stiffness: 300, damping: 30 }}>
                   <div
@@ -260,7 +266,7 @@ export default function ChaptersPage() {
                       type="button"
                       onClick={() => toggle(c.id)}
                       aria-pressed={on}
-                      aria-label={`${on ? 'Remove' : 'Add'} ${info?.name ?? c.name}, ₹${c.price}`}
+                      aria-label={`${on ? 'Remove' : 'Add'} ${c.name}, ₹${c.price}`}
                       className="absolute inset-0 z-10 cursor-pointer rounded-[26px]"
                     />
                     <div className="relative h-28 overflow-hidden bg-white">
@@ -272,7 +278,7 @@ export default function ChaptersPage() {
                     <div className="p-5">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <h3 className="font-bold leading-snug text-ink">{info?.name ?? c.name}</h3>
+                          <h3 className="font-bold leading-snug text-ink">{c.name}</h3>
                         </div>
                         <motion.span
                           animate={on ? { scale: [1, 1.25, 1], rotate: [0, -8, 0] } : { scale: 1 }}

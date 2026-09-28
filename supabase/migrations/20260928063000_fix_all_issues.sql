@@ -10,9 +10,9 @@ SET name = 'IEEE Women in Engineering'
 WHERE code = 'WIE';
 
 -- 2. Insert SC (Sensors Council), free
-INSERT INTO public.chapters (name, code, price, display_order)
-VALUES ('IEEE Sensors Council', 'SC', 0, 10)
-ON CONFLICT (code) DO UPDATE SET price = 0, name = 'IEEE Sensors Council';
+INSERT INTO public.chapters (id, name, code, slug, price, display_order, is_active)
+VALUES ('00000000-0000-0000-0000-00000000005c', 'IEEE Sensors Council', 'SC', 'sc', 0, 5, true)
+ON CONFLICT (code) DO UPDATE SET price = 0, name = 'IEEE Sensors Council', slug = 'sc', is_active = true, display_order = 5;
 
 -- Fix RPCs: Allow XS tshirt size, allow UTR to be optional, fix empty string jsonb cast crash
 

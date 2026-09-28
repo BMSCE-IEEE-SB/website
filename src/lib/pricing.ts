@@ -21,6 +21,14 @@ export function readDemoSettings(): DemoSettings | null {
   }
 }
 
+export const SENSORS_COUNCIL_UUID = '00000000-0000-0000-0000-00000000005c';
+export const SENSORS_COUNCIL_CHAPTER: CartChapter = {
+  id: SENSORS_COUNCIL_UUID,
+  name: 'IEEE Sensors Council',
+  code: 'SC',
+  price: 0,
+};
+
 /** Base fee and chapter prices: from Supabase in live mode, sample (or admin-edited) prices in demo mode. */
 export async function loadPricing(): Promise<Pricing> {
   if (isDemoMode()) {
@@ -37,9 +45,18 @@ export async function loadPricing(): Promise<Pricing> {
   if (chaptersRes.error || configRes.error || !configRes.data) {
     throw new Error('Membership pricing is not available right now. Please try again later or contact the branch.');
   }
+  const list = (chaptersRes.data ?? []).map((c) => ({ ...c, price: Number(c.price) }));
+  if (!list.some((c) => c.code === 'SC')) {
+    const ssitIndex = list.findIndex((c) => c.code === 'SSIT');
+    if (ssitIndex >= 0) {
+      list.splice(ssitIndex, 0, SENSORS_COUNCIL_CHAPTER);
+    } else {
+      list.push(SENSORS_COUNCIL_CHAPTER);
+    }
+  }
   return {
     baseFee: Number(configRes.data.base_fee),
-    chapters: (chaptersRes.data ?? []).map((c) => ({ ...c, price: Number(c.price) })),
+    chapters: list,
   };
 }
 

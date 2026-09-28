@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useInView, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import { BookOpen, Trophy, Users, Wrench } from 'lucide-react';
-import { BRANCH, events, metrics, pillars } from '@/data/site';
+import { BRANCH, events, pillars } from '@/data/site';
 import Reveal from '@/components/site/Reveal';
 import CountUp from '@/components/site/CountUp';
 import { SectionLabel } from '@/components/site/BrandShapes';
@@ -143,17 +143,6 @@ export default function About() {
             );
           })}
         </div>
-
-        <dl className="mt-16 grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-4">
-          {metrics.map((m, i) => (
-            <Reveal key={m.label} delay={i * 80}>
-              <dd className="display text-5xl text-ink sm:text-6xl">
-                <CountUp value={m.value} />
-              </dd>
-              <dt className="mt-2 max-w-[14rem] text-sm text-muted">{m.label}</dt>
-            </Reveal>
-          ))}
-        </dl>
       </div>
     </section>
   );

@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, ShieldCheck, Sparkles, Zap } from 'lucide-react';
+import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import FeeSlip from './FeeSlip';
+import { SectionLabel } from '@/components/site/BrandShapes';
+import Reveal from '@/components/site/Reveal';
 import { loadPricing, type Pricing } from '@/lib/pricing';
 import { useSession } from '@/lib/useSession';
 
@@ -25,70 +27,51 @@ export default function PricingBreakdown() {
 
   return (
     <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
-      {/* Price as a fee slip */}
-      <div className="flex items-center justify-center py-4">
-        <FeeSlip baseFee={pricing?.baseFee} minChapter={paidPrices.length ? min : undefined} maxChapter={paidPrices.length ? max : undefined} error={error} />
-      </div>
+      {/* Left side: Section header & registration CTA */}
+      <Reveal>
+        <SectionLabel index="02">Pricing</SectionLabel>
+        <h2 className="section-title mt-6">One simple price</h2>
+        <p className="lead mt-4 max-w-xl">
+          Pay once for the year. Add chapters in registration, with an official branch T-shirt and global IEEE benefits included.
+        </p>
 
-      {/* Enrollment details & CTA */}
-      <div className="panel flex flex-col justify-between p-7 sm:p-9">
-        <div>
-          <div className="flex items-center gap-2 text-sm font-semibold text-brand-orange">
-            <Sparkles className="h-4 w-4" /> Simple & transparent
-          </div>
-          <h3 className="mt-2 text-2xl font-bold text-ink">Ready to join BMSCE IEEE?</h3>
-          <p className="mt-3 text-ink-soft">
-            Registration takes about 5 minutes. Everything is verified directly by the branch executive team.
-          </p>
+        <ul className="mt-8 space-y-3.5 text-sm text-ink-soft">
+          <li className="flex items-center gap-3">
+            <CheckCircle2 className="h-5 w-5 shrink-0 text-brand-orange" />
+            <span>IEEE global student credentials & network</span>
+          </li>
+          <li className="flex items-center gap-3">
+            <CheckCircle2 className="h-5 w-5 shrink-0 text-brand-orange" />
+            <span>CS, WIE & SC chapters included at no extra cost</span>
+          </li>
+          <li className="flex items-center gap-3">
+            <CheckCircle2 className="h-5 w-5 shrink-0 text-brand-orange" />
+            <span>Official BMSCE IEEE branch T-shirt & welcome kit</span>
+          </li>
+        </ul>
 
-          <div className="mt-6 space-y-4">
-            <div className="flex items-start gap-3.5">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-paper text-brand-navy">
-                <CheckCircle2 className="h-4 w-4 text-brand-orange" />
-              </span>
-              <div>
-                <h4 className="text-sm font-semibold text-ink">One annual fee</h4>
-                <p className="mt-0.5 text-xs text-muted">Covers global IEEE dues, BMSCE branch membership, and official welcome kit.</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3.5">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-paper text-brand-navy">
-                <Zap className="h-4 w-4 text-brand-orange" />
-              </span>
-              <div>
-                <h4 className="text-sm font-semibold text-ink">Pick your chapters</h4>
-                <p className="mt-0.5 text-xs text-muted">CS, WIE, and SC are included free. Add PES (₹100), PELS/IES (₹370), or SSIT (₹50) based on your interests.</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3.5">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-paper text-brand-navy">
-                <ShieldCheck className="h-4 w-4 text-brand-orange" />
-              </span>
-              <div>
-                <h4 className="text-sm font-semibold text-ink">Instant UPI & fast verification</h4>
-                <p className="mt-0.5 text-xs text-muted">Scan to pay with any UPI app and submit your reference for 2–3 day verification.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-8 border-t border-line pt-6">
+        <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
           <Link
             href={user ? '/membership/profile' : '/membership/register'}
-            className="btn btn-primary btn-lg w-full justify-center"
+            className="btn btn-primary btn-lg"
           >
             {user ? 'Continue registration' : 'Start registration'} <ArrowRight className="h-4 w-4" />
           </Link>
-          <p className="mt-3 text-center text-xs text-muted">
-            Already applied?{' '}
-            <Link href="/login" className="font-semibold text-brand-navy underline hover:text-brand-orange">
-              Sign in to Member Portal
-            </Link>
-          </p>
+          <Link href="/login" className="btn btn-ghost btn-lg bg-white/60">
+            Sign in to Member Portal
+          </Link>
         </div>
-      </div>
+      </Reveal>
+
+      {/* Right side: Fee slip receipt */}
+      <Reveal delay={100} className="flex items-center justify-center py-4">
+        <FeeSlip
+          baseFee={pricing?.baseFee}
+          minChapter={paidPrices.length ? min : undefined}
+          maxChapter={paidPrices.length ? max : undefined}
+          error={error}
+        />
+      </Reveal>
     </div>
   );
 }

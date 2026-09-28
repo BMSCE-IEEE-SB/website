@@ -1,10 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { chapters } from '@/data/site';
 import AnimatedNumber from '@/components/site/AnimatedNumber';
 
-const lines = ['IEEE student membership (global)', 'BMSCE branch membership', 'Workshops & branch activities', 'Official IEEE T-Shirt & kit'];
+const lines = [
+  'IEEE student membership (global)',
+  'BMSCE branch membership',
+  'CS, WIE & SC chapters',
+  'Official IEEE T-Shirt & kit',
+];
+
+const chapterBadges = [
+  { code: 'CS', color: '#0284c7', slug: 'cs' },
+  { code: 'PES', color: '#059669', slug: 'pes-sc' },
+  { code: 'PELS/IES', color: '#d97706', slug: 'pels-ies' },
+  { code: 'WIE', color: '#db2777', slug: 'wie' },
+  { code: 'SC', color: '#0d9488', slug: 'pes-sc' },
+  { code: 'SSIT', color: '#4f46e5', slug: 'ssit' },
+];
 
 // Fixed pattern so server and browser render the same barcode.
 const BARS = [3, 1, 2, 1, 1, 3, 1, 2, 2, 1, 3, 1, 1, 2, 1, 3, 2, 1, 1, 2, 3, 1, 2, 1, 1, 3, 1, 1, 2, 2, 1, 3, 1, 2, 1, 1, 2, 3, 1, 2];
@@ -98,10 +111,10 @@ export default function FeeSlip({ baseFee, minChapter, maxChapter, error }: { ba
           <span className="flex-1 translate-y-[-3px] border-b border-dotted border-ink/25" />
           <span>{range ? `${range} ea.` : '—'}</span>
         </p>
-        <p className="mt-1.5 font-sans text-xs text-muted">Picked in step 3, after your details.</p>
+        <p className="mt-1.5 font-sans text-xs text-muted">Selected during registration.</p>
         <div className="mt-3 flex flex-wrap gap-1.5 font-sans">
-          {chapters.map((c) => (
-            <Link key={c.slug} href={`/chapters/${c.slug}`} className="rounded-md px-2 py-0.5 text-[11px] font-bold text-white transition-transform hover:-translate-y-0.5" style={{ background: c.color }}>
+          {chapterBadges.map((c) => (
+            <Link key={c.code} href={`/chapters/${c.slug}`} className="rounded-md px-2 py-0.5 text-[11px] font-bold text-white transition-transform hover:-translate-y-0.5" style={{ background: c.color }}>
               {c.code}
             </Link>
           ))}
@@ -114,9 +127,9 @@ export default function FeeSlip({ baseFee, minChapter, maxChapter, error }: { ba
             ))}
           </div>
           <p className="text-right text-[10px] leading-tight text-muted">
-            Pay via UPI
+            Pay via UPI or Cash
             <br />
-            at step 4
+            at checkout
           </p>
         </div>
       </div>

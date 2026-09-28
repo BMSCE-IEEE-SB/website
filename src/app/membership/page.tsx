@@ -143,14 +143,7 @@ export default function MembershipPage() {
 
       <section id="pricing" className="py-20 sm:py-28">
         <div className="container-page">
-          <Reveal>
-            <SectionLabel index="02">Pricing</SectionLabel>
-            <h2 className="section-title mt-6">One simple price</h2>
-            <p className="lead mt-4 max-w-xl">Pay once for the year. Add chapters in registration, with an official branch T-shirt and global IEEE benefits included.</p>
-          </Reveal>
-          <div className="mt-12">
-            <PricingBreakdown />
-          </div>
+          <PricingBreakdown />
         </div>
       </section>
 

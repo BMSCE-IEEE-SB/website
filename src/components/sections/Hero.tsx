@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 import NetworkCanvas from '@/components/site/NetworkCanvas';
-import CountUp from '@/components/site/CountUp';
 
 const WORDS = ['build', 'lead', 'compete', 'publish', 'mentor', 'belong'];
 
@@ -108,21 +107,6 @@ export default function Hero() {
               Explore chapters
             </Link>
           </motion.div>
-
-          <motion.dl initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.5 }} className="mt-14 flex justify-center gap-8 sm:gap-16">
-            {[
-              ['16+', 'years on campus'],
-              ['1,000+', 'members'],
-            ].map(([v, l]) => (
-              <div key={l} className="border-l-2 border-brand-orange/60 pl-4 text-left">
-                <dt className="sr-only">{l}</dt>
-                <dd className="display text-3xl text-ink sm:text-4xl">
-                  <CountUp value={v} />
-                </dd>
-                <dd className="mt-1.5 text-xs text-muted sm:text-sm">{l}</dd>
-              </div>
-            ))}
-          </motion.dl>
         </div>
       </div>
     </section>

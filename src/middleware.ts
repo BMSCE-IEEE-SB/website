@@ -60,7 +60,7 @@ export function middleware(request: NextRequest) {
   const isAdmin = pathname.startsWith('/admin');
 
   // Legal & compliance documentation required for payments
-  const isLegalPolicy = pathname === '/terms' || pathname === '/privacy' || pathname === '/refund';
+  const isLegalPolicy = pathname === '/privacy' || pathname === '/refund';
 
   const isAllowed = isRegistrationWorkflow || isMemberPortal || isAdmin || isLegalPolicy;
 

@@ -389,7 +389,6 @@ export const execom: ExeComMember[] = [
 export const socialLinks = [
   { key: 'linkedin', href: 'https://www.linkedin.com/company/bmsce-ieee/', label: 'LinkedIn' },
   { key: 'instagram', href: 'https://instagram.com/bmsce_ieee', label: 'Instagram' },
-  { key: 'x', href: 'https://twitter.com/bmsce_ieee', label: 'X (Twitter)' },
   { key: 'youtube', href: 'https://youtube.com/@bmsceieee', label: 'YouTube' },
 ] as const;
 

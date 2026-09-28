@@ -48,68 +48,110 @@ export type Chapter = {
   stats: { members: string; events: string; founded: string };
   name: string;
   fullName: string;
+  title?: string;
   tagline: string;
   description: string;
   tracks: string[];
   icon: LucideIcon;
   /** Tailwind classes for the accent colour (text + soft background). */
   tone: { text: string; soft: string; bar: string };
+  aboutTitle?: string;
+  aboutUs?: string[];
+  whatWeDo?: string[];
+  pastEvents?: string[];
+  flagshipEvents?: { title: string; description?: string }[];
+  otherInitiatives?: string[];
+  majorEvents?: string[];
+  futureEvents?: { title: string; description?: string }[];
+  futureEventsTitle?: string;
+  comingSoon?: boolean;
 };
 
 export const chapters: Chapter[] = [
   {
     slug: 'cs',
-    short: 'Computer Society',
+    short: 'Computer Society (CS)',
     code: 'CS',
     logo: '/chapter-logos/cs.png',
     color: '#0284c7',
     image: u('photo-1517694712202-14dd9538aa97', 1400, 900),
-    about: [
-      'The Computer Society is the largest chapter in the branch. It is where students learn to ship real software, from their first pull request to production systems.',
-      'Members run coding sprints, host the 24-hour IEEEXtreme challenge on campus and work with industry mentors on AI, cloud and systems projects.',
-    ],
-    focus: [
-      { title: 'AI & machine learning', text: 'Study groups and build nights on LLMs, vision and MLOps.' },
-      { title: 'Web & cloud', text: 'Full-stack bootcamps, cloud credits and deployment clinics.' },
-      { title: 'Competitive programming', text: 'Weekly practice rounds leading up to IEEEXtreme.' },
-      { title: 'Open source', text: 'Contribution drives and mentoring for first-time contributors.' },
-    ],
-    activities: ['IEEEXtreme 24-hour programming challenge', 'Phase Shift inter-college hackathon', 'Weekly DSA practice rounds', 'Industry tech talks'],
-    stats: { members: '400+', events: '20+', founded: '2011' },
-    name: 'Computer Society',
+    about: [],
+    focus: [],
+    activities: [],
+    stats: { members: '', events: '', founded: '' },
+    name: 'Computer Society (CS)',
     fullName: 'IEEE Computer Society',
-    tagline: 'Software, algorithms & AI systems',
-    description:
-      'Workshops, hackathons and industry sessions on software engineering, AI/ML and cloud. Home of the 24-hour IEEEXtreme programming challenge on campus.',
+    tagline: 'Technical chapter',
+    description: 'Official chapter details and event records are currently being updated.',
     tracks: ['AI/ML', 'Web & Cloud', 'Systems'],
     icon: Cpu,
     tone: { text: 'text-sky-600', soft: 'bg-sky-50', bar: 'bg-sky-500' },
+    comingSoon: true,
   },
   {
-    slug: 'pes',
-    short: 'Power & Energy Society',
-    code: 'PES',
+    slug: 'pes-sc',
+    short: 'Power & Energy Society & Sensors Council (PES & SC)',
+    code: 'PES & SC',
     logo: '/chapter-logos/pes.png',
     color: '#059669',
     image: u('photo-1509391366360-2e959784a276', 1400, 900),
     about: [
-      'The Power & Energy Society looks at how the world will generate, move and store energy as it decarbonises.',
-      'Members get hands-on time in the power labs, visit substations and renewable plants, and design small microgrid and EV projects.',
+      'BMSCE IEEE PES & Sensors Council focuses on advancements in Electrical Power & Energy, Electronics, Robotics, and Sensors.',
+      'We aim to bridge the gap between academic concepts and real-world applications through hands-on projects, technical workshops, industry interactions, research opportunities, and mentorship.',
     ],
-    focus: [
-      { title: 'Smart grids', text: 'Grid automation, protection and demand response.' },
-      { title: 'Renewables', text: 'Solar and wind integration, storage and microgrids.' },
-      { title: 'E-mobility', text: 'EV powertrains, battery management and charging.' },
-      { title: 'Energy policy', text: 'How regulation and markets shape the grid.' },
+    aboutTitle: 'About the Chapter',
+    aboutUs: [
+      'BMSCE IEEE PES & Sensors Council focuses on advancements in Electrical Power & Energy, Electronics, Robotics, and Sensors. We aim to bridge the gap between academic concepts and real-world applications through hands-on projects, technical workshops, industry interactions, research opportunities, and mentorship.',
     ],
-    activities: ['Power systems lab workshops', 'Industrial and substation visits', 'Renewable energy design challenge', 'PES Day celebration'],
-    stats: { members: '250+', events: '15+', founded: '2014' },
-    name: 'Power & Energy Society (PES)',
-    fullName: 'IEEE Power & Energy Society (PES)',
-    tagline: 'Clean tech, smart grids & e-mobility',
+    focus: [],
+    activities: [
+      'Sensors Enclave – 24-hour hardware hackathon focused on solving real-world problems with industry guidance.',
+      'Sensors Week – A week-long series of technical workshops, expert talks, and hardware challenges.',
+      'PES Day – Annual celebration featuring technical, collaborative, and awareness-driven activities.',
+      'Industry Academia Conclave – A platform connecting students with industry leaders, entrepreneurs, professors, and IEEE professionals.',
+      'National-Level Conference on Standards, Codes & Regulations in Lighting.',
+    ],
+    flagshipEvents: [
+      {
+        title: 'Sensors Enclave',
+        description: '24-hour hardware hackathon focused on solving real-world problems with industry guidance.',
+      },
+      {
+        title: 'Sensors Week',
+        description: 'A week-long series of technical workshops, expert talks, and hardware challenges.',
+      },
+      {
+        title: 'PES Day',
+        description: 'Annual celebration featuring technical, collaborative, and awareness-driven activities.',
+      },
+      {
+        title: 'Industry Academia Conclave',
+        description: 'A platform connecting students with industry leaders, entrepreneurs, professors, and IEEE professionals.',
+      },
+      {
+        title: 'National-Level Conference on Standards, Codes & Regulations in Lighting',
+      },
+    ],
+    otherInitiatives: [
+      'Campus to Corporate – Industry-oriented value-added course focused on placement readiness and professional skills.',
+      'Embedded Systems & Analog Design Workshops',
+      'Technical sessions, hands-on projects, and industry interactions.',
+    ],
+    futureEventsTitle: 'Upcoming Events',
+    futureEvents: [
+      {
+        title: 'Upcoming Academic Year',
+        description: 'More technical workshops, hackathons, industry interactions, and hands-on learning opportunities are lined up for the upcoming academic year.',
+      },
+    ],
+    stats: { members: '350+', events: '20+', founded: '2014' },
+    name: 'Power & Energy Society & Sensors Council (PES & SC)',
+    fullName: 'IEEE Power & Energy Society & Sensors Council (PES & SC)',
+    title: 'BMSCE IEEE PES & Sensors Council',
+    tagline: 'Electrical Power & Energy, Electronics, Robotics & Sensors',
     description:
-      'Renewable microgrids, energy storage, power distribution and EV powertrains, with hands-on lab sessions and industry visits.',
-    tracks: ['Smart Grids', 'Clean Tech', 'EV Systems'],
+      'Bridging the gap between academic concepts and real-world applications through hands-on projects, technical workshops, industry interactions, research opportunities, and mentorship.',
+    tracks: ['Power & Energy', 'Robotics & Sensors', 'Electronics'],
     icon: Zap,
     tone: { text: 'text-emerald-600', soft: 'bg-emerald-50', bar: 'bg-emerald-500' },
   },
@@ -121,23 +163,58 @@ export const chapters: Chapter[] = [
     color: '#d97706',
     image: u('photo-1518770660439-4636190af475', 1400, 900),
     about: [
-      'The PELS and IES joint chapter is for students who like to hold their work in their hands: boards, converters, motors and controllers.',
-      'Members learn PCB design from schematic to fabrication, build power converters and program the embedded systems that drive industry.',
+      'BMSCE IEEE PELS & IES is the joint student chapter of the IEEE Power Electronics Society and IEEE Industrial Electronics Society, focused on creating opportunities for students to explore power electronics, industrial electronics, VLSI, embedded systems, robotics and emerging technologies.',
+      'Through technical workshops, competitions, industry interactions, projects and research-oriented initiatives, the chapters encourage students to learn, innovate and apply engineering beyond the classroom.',
     ],
-    focus: [
-      { title: 'PCB design', text: 'Schematic capture, layout and in-house fabrication.' },
-      { title: 'Power converters', text: 'DC-DC and inverter topologies, simulation to hardware.' },
-      { title: 'Embedded drives', text: 'Motor control and real-time firmware.' },
-      { title: 'Industrial IoT', text: 'Sensors, PLCs and factory automation.' },
+    aboutUs: [
+      'BMSCE IEEE PELS & IES is the joint student chapter of the IEEE Power Electronics Society and IEEE Industrial Electronics Society, focused on creating opportunities for students to explore power electronics, industrial electronics, VLSI, embedded systems, robotics and emerging technologies. Through technical workshops, competitions, industry interactions, projects and research-oriented initiatives, the chapters encourage students to learn, innovate and apply engineering beyond the classroom.',
     ],
-    activities: ['PCB design bootcamp', 'Hardware build weekends', 'Converter design contest', 'Industry automation visits'],
-    stats: { members: '150+', events: '12+', founded: '2018' },
+    whatWeDo: [
+      'We conduct hands-on technical workshops, ideathons, competitions, professional meets, industry visits and outreach initiatives. Our activities cover areas including VLSI and semiconductor technology, GPU computing, robotics, embedded systems, automation and AI-driven technologies. Through initiatives such as Yellarigu Electronics, we also take electronics beyond the campus by engaging school students in interactive, hands-on activities and introducing them to the fundamentals of electronics and engineering. We provide students with opportunities to participate in projects, research, student congresses, competitions and collaborative technical events.',
+    ],
+    focus: [],
+    activities: [
+      'PELS & IES Week 2025 (17+ events)',
+      'Beyond Basics and Geeks Biz (Flagship events of PELS and IES Week)',
+      'GPU Unlocked',
+      'Beyond Maps — SLAM in Robotics (Phaseshift)',
+      'Project Planet Ideathon',
+      'OR(BIT)² (Workshop and Codeathon)',
+      'Tech-Connect',
+      'The Last Message (Utsav)',
+      'Yellarigu Electronics (Outreach event)',
+      'VLSI Workshop with ChipEdge',
+    ],
+    majorEvents: [
+      'PELS & IES Week 2025 (17+ events)',
+      'Beyond Basics and Geeks Biz (Flagship events of PELS and IES Week)',
+      'GPU Unlocked',
+      'Beyond Maps — SLAM in Robotics (Phaseshift)',
+      'Project Planet Ideathon',
+      'OR(BIT)² (Workshop and Codeathon)',
+      'Tech-Connect',
+      'The Last Message (Utsav)',
+      'Yellarigu Electronics (Outreach event)',
+      'VLSI Workshop with ChipEdge',
+    ],
+    futureEvents: [
+      {
+        title: 'Yellarigu Electronics 2.0',
+      },
+      {
+        title: 'PELS & IES Week 2026',
+        description:
+          'A three-day series of technical and interactive events featuring competitions, hands-on workshops, seminars, games and other engaging activities, providing students with opportunities to learn, compete, collaborate and explore emerging technologies.',
+      },
+    ],
+    stats: { members: '150+', events: '17+', founded: '2018' },
     name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)',
     fullName: 'IEEE Power Electronics Society and the Industrial Electronics Society (PELS & IES)',
-    tagline: 'PCB design, drives & automation',
+    title: 'BMSCE IEEE PELS & IES',
+    tagline: 'Power electronics, industrial electronics, VLSI, embedded systems & robotics',
     description:
-      'Electronic prototyping, power converter design, embedded drives, sensor interfacing and industrial automation controls.',
-    tracks: ['PCB Design', 'Embedded', 'Industrial IoT'],
+      'Creating opportunities for students to explore power electronics, industrial electronics, VLSI, embedded systems, robotics and emerging technologies.',
+    tracks: ['Power Electronics', 'VLSI & Robotics', 'Embedded Systems'],
     icon: CircuitBoard,
     tone: { text: 'text-amber-600', soft: 'bg-amber-50', bar: 'bg-amber-500' },
   },
@@ -149,81 +226,106 @@ export const chapters: Chapter[] = [
     color: '#db2777',
     image: u('photo-1573164713714-d95e436ab8d6', 1400, 900),
     about: [
-      'Women in Engineering brings together community leadership and technology on campus and beyond.',
-      'The group runs mentorship circles with alumni, leadership programmes, and STEM outreach in local schools. Everyone is welcome.',
+      'BMSCE IEEE Women in Engineering (WIE) is a vibrant community dedicated to empowering students through technical learning, leadership, innovation, collaboration, and community engagement.',
+      'Through workshops, hackathons, competitions, panel discussions, awareness initiatives, and collaborative events, WIE provides students with opportunities to explore technology, develop real-world skills, and grow beyond the classroom.',
     ],
-    focus: [
-      { title: 'Mentorship', text: 'Paired mentoring with alumni and industry engineers.' },
-      { title: 'Leadership', text: 'Workshops on public speaking, negotiation and leading teams.' },
-      { title: 'STEM outreach', text: 'Hands-on science sessions for school students.' },
-      { title: 'Tech Summits', text: 'Annual summits celebrating women in technology.' },
+    aboutTitle: 'About Us',
+    aboutUs: [
+      'BMSCE IEEE Women in Engineering (WIE) is a vibrant community dedicated to empowering students through technical learning, leadership, innovation, collaboration, and community engagement. Through workshops, hackathons, competitions, panel discussions, awareness initiatives, and collaborative events, WIE provides students with opportunities to explore technology, develop real-world skills, and grow beyond the classroom.',
     ],
-    activities: ['WIE Tech Summit', 'Mentorship circles', 'School outreach days', 'Leadership workshops'],
+    focus: [],
+    activities: [
+      'WIE DAY – Flagship annual celebration featuring technical, creative, and scientific events',
+      'NEXUS – Two-day technical summit with workshops and hackathons',
+      'DATAVERSE – 8-hour data hackathon solving real-world challenges',
+      'STARTOPOLIS – Startup-focused innovative idea showcase',
+      'BrainRush 3.0 – Quick-thinking strategy challenge',
+    ],
+    pastEvents: [
+      'Eco-Bid – A strategy-based environmental debate conducted in collaboration with IEEE SSIT as part of IMPACT 1.0.',
+      'Fire Safety, Chemical Safety & BLS Training – A practical safety and emergency-response training initiative conducted with IQAC and the Department of Chemistry.',
+      'Spark Grid – An engaging PES Day event combining precision challenges with sensor-based activities.',
+      'Mind Market: Decode, Trade & Dominate – A strategy competition combining fault-finding, communication, and resource trading.',
+      'Walkathon – A 5 km community initiative promoting women’s leadership, wellness, and awareness.',
+      'Menstrual Wellness & Sustainable Products – An awareness initiative exploring menstrual health and sustainable menstrual products.',
+      'Cyber Talk – An introductory session exploring cybersecurity and its growing relevance in the technology landscape.',
+      'WIE Day 2026 – A multi-event celebration featuring technical, creative, scientific, cybersecurity, AI, web development, and awareness-focused initiatives.',
+    ],
+    flagshipEvents: [
+      {
+        title: 'WIE DAY',
+        description:
+          'Our flagship annual celebration featuring a diverse range of technical, creative, scientific, and awareness-driven events through collaborations with IEEE chapters and student organizations.',
+      },
+      {
+        title: 'NEXUS',
+        description:
+          'A two-day technical summit featuring workshops, panel discussions, startup competitions, and hackathons.',
+      },
+      {
+        title: 'DATAVERSE',
+        description:
+          'An 8-hour data hackathon where participants use analytics, data science, and machine learning to solve real-world problems.',
+      },
+      {
+        title: 'STARTOPOLIS',
+        description:
+          'A startup-focused initiative that encourages students to explore, develop, and present innovative ideas.',
+      },
+    ],
+    futureEventsTitle: 'Upcoming Events',
+    futureEvents: [
+      {
+        title: 'BrainRush 3.0',
+        description: 'A fun, game-based challenge built around quick thinking, strategy, and teamwork.',
+      },
+      {
+        title: 'Game Development Event',
+        description: 'An interactive session introducing students to the world of game development.',
+      },
+      {
+        title: 'AR/VR Session',
+        description: 'An introduction to immersive technologies and their applications.',
+      },
+      {
+        title: 'Cybersecurity Workshop',
+        description: 'A practical introduction to cybersecurity concepts and emerging technologies.',
+      },
+      {
+        title: 'Outreach Initiative',
+        description: 'A community-focused initiative aimed at creating meaningful social impact.',
+      },
+    ],
     stats: { members: '220+', events: '16+', founded: '2012' },
     name: 'Women in Engineering (WIE)',
     fullName: 'IEEE Women in Engineering (WIE)',
-    tagline: 'Mentorship, leadership & STEM outreach',
+    title: 'BMSCE IEEE Women in Engineering (WIE)',
+    tagline: 'Technical learning, leadership & innovation',
     description:
-      'A global affinity group empowering women technologists through mentorship, leadership programmes and research initiatives.',
-    tracks: ['Mentorship', 'Leadership', 'Outreach'],
+      'A vibrant community dedicated to empowering students through technical learning, leadership, innovation, collaboration, and community engagement.',
+    tracks: ['Leadership', 'Technical Learning', 'Community Outreach'],
     icon: Users,
     tone: { text: 'text-pink-600', soft: 'bg-pink-50', bar: 'bg-pink-500' },
   },
   {
-    slug: 'sc',
-    short: 'Sensors Council',
-    code: 'SC',
-    logo: '/chapter-logos/pes.png',
-    color: '#14b8a6',
-    image: u('photo-1518770660439-4636190af475', 1400, 900),
-    about: [
-      'The Sensors Council brings together sensor technologies on campus and beyond.',
-      'The group runs sensor build workshops, transducer circuit designs, and smart sensing projects.',
-    ],
-    focus: [
-      { title: 'Sensors & IoT', text: 'Sensor interfacing, transducer circuits and smart sensing.' },
-      { title: 'Data Acquisition', text: 'Building data loggers and real-time monitoring systems.' },
-      { title: 'Signal Processing', text: 'Filtering and analyzing sensor data.' },
-      { title: 'Smart Systems', text: 'Integrating sensors into larger automation systems.' },
-    ],
-    activities: ['Sensors build nights', 'IoT workshops', 'Data acquisition contests', 'Industry visits'],
-    stats: { members: '100+', events: '8+', founded: '2016' },
-    name: 'Sensors Council (SC)',
-    fullName: 'IEEE Sensors Council (SC)',
-    tagline: 'Sensor technologies & IoT',
-    description:
-      'Focusing on the theory, design, and application of devices for sensing and transducing physical, chemical, and biological phenomena.',
-    tracks: ['Sensors', 'IoT', 'Signal Processing'],
-    icon: CircuitBoard,
-    tone: { text: 'text-teal-600', soft: 'bg-teal-50', bar: 'bg-teal-500' },
-  },
-  {
     slug: 'ssit',
-    short: 'Society on Social Implications of Technology',
+    short: 'Society on Social Implications of Technology (SSIT)',
     code: 'SSIT',
     logo: '/chapter-logos/ssit.png',
     color: '#4f46e5',
     image: u('photo-1559136555-9303baea8ebd', 1400, 900),
-    about: [
-      'The Society on Social Implications of Technology asks what technology should do, not just what it can do.',
-      'Members debate AI ethics and policy, study sustainable design, and build civic-tech projects with NGOs and local communities.',
-    ],
-    focus: [
-      { title: 'AI ethics', text: 'Bias, accountability and responsible AI.' },
-      { title: 'Tech policy', text: 'How law and regulation keep up with engineering.' },
-      { title: 'Sustainability', text: 'Designing for the planet and its resources.' },
-      { title: 'Civic tech', text: 'Projects built with and for local communities.' },
-    ],
-    activities: ['Ethics in engineering debates', 'Civic-tech build-a-thon', 'Policy reading circles', 'Sustainability audits'],
-    stats: { members: '100+', events: '8+', founded: '2021' },
-    name: 'Social Implications of Technology',
+    about: [],
+    focus: [],
+    activities: [],
+    stats: { members: '', events: '', founded: '' },
+    name: 'Society on Social Implications of Technology (SSIT)',
     fullName: 'IEEE Society on Social Implications of Technology',
-    tagline: 'Tech ethics, policy & civic tech',
-    description:
-      'Engineering ethics, AI governance, sustainability and civic technology built for humanitarian and social progress.',
+    tagline: 'Technical chapter',
+    description: 'Official chapter details and event records are currently being updated.',
     tracks: ['AI Ethics', 'Policy', 'Humanitarian Tech'],
     icon: Compass,
     tone: { text: 'text-indigo-600', soft: 'bg-indigo-50', bar: 'bg-indigo-500' },
+    comingSoon: true,
   },
 ];
 
@@ -261,7 +363,7 @@ export const events: SiteEvent[] = [
     id: 'pes-lab-2026',
     title: 'Power Systems Lab Workshop',
     category: 'workshop',
-    chapter: 'pes',
+    chapter: 'pes-sc',
     date: '2026-10-17',
     time: '14:00',
     venue: 'EEE Power Lab',
@@ -431,15 +533,21 @@ export const membershipBenefits = [
 /** Used by the chapter cart when the database has no chapters configured yet. */
 export const FALLBACK_BASE_FEE = 1850;
 export const FALLBACK_CART_CHAPTERS = [
-  { id: 'demo-cs', name: 'Computer Society', code: 'CS', price: 0 },
+  { id: 'demo-cs', name: 'Computer Society (CS)', code: 'CS', price: 0 },
   { id: 'demo-pes', name: 'Power & Energy Society', code: 'PES', price: 100 },
   { id: 'demo-pels', name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', price: 370 },
-  { id: 'demo-wie', name: 'Women in Engineering', code: 'WIE', price: 0 },
+  { id: 'demo-wie', name: 'Women in Engineering (WIE)', code: 'WIE', price: 0 },
   { id: 'demo-sc', name: 'Sensors Council', code: 'SC', price: 0 },
-  { id: 'demo-ssit', name: 'Society on Social Implications of Technology', code: 'SSIT', price: 50 },
+  { id: 'demo-ssit', name: 'Society on Social Implications of Technology (SSIT)', code: 'SSIT', price: 50 },
 ];
 
-export const chapterBySlug = (slug: string) => chapters.find((c) => c.slug === slug);
+export const chapterBySlug = (slug: string) =>
+  chapters.find(
+    (c) =>
+      c.slug === slug ||
+      ((slug === 'pes' || slug === 'sc') && c.slug === 'pes-sc') ||
+      (slug === 'pels' && c.slug === 'pels-ies')
+  );
 
 export const pillars = [
   { title: 'Learn', text: 'Workshops and study groups taught by seniors, alumni and industry engineers.', stat: '50+', statLabel: 'sessions a year', image: u('photo-1524178232363-1fb2b075b655', 1000, 700), accent: '#18a4fe' },
@@ -476,9 +584,9 @@ export function chapterCode(name: string) {
   const rules: [RegExp, string][] = [
     [/computer/, 'CS'],
     [/pels|industrial|power electronics/, 'PELS/IES'],
+    [/sensors|\bsc\b/, 'SC'],
     [/power & energy|power and energy|\bpes\b/, 'PES'],
     [/women|wie/, 'WIE'],
-    [/sensors|\bsc\b/, 'SC'],
     [/social|ssit/, 'SSIT'],
   ];
   return rules.find(([re]) => re.test(n))?.[1] ?? name;
@@ -506,3 +614,4 @@ export const departments = [
   ['AIDS', 'Artificial Intelligence and Data Science'],
   ['OTHER', 'Other'],
 ];
+

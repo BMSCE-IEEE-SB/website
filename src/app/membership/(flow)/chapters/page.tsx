@@ -5,9 +5,9 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowLeft, ArrowRight, Check, Plus, Shirt, Sparkles, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Plus, Shirt, X } from 'lucide-react';
 import { getCurrentUser } from '@/lib/auth';
-import { chapters as chapterInfo, departments, suggestedByDepartment } from '@/data/site';
+import { chapters as chapterInfo, departments } from '@/data/site';
 import { loadPricing } from '@/lib/pricing';
 import { LiveCard, readDraft, useDraft } from '@/components/membership/Draft';
 import AnimatedNumber from '@/components/site/AnimatedNumber';
@@ -77,14 +77,9 @@ export default function ChaptersPage() {
     };
   }, [router]);
 
-  const suggested = useMemo(() => suggestedByDepartment[department] ?? [], [department]);
   const deptLabel = departments.find(([code]) => code === department)?.[1];
 
-  // Suggested chapters first, then the rest in their usual order.
-  const ordered = useMemo(
-    () => [...chapters].sort((a, b) => Number(suggested.includes(b.code)) - Number(suggested.includes(a.code))),
-    [chapters, suggested],
-  );
+  const ordered = chapters;
   const picked = useMemo(() => selected.map((id) => chapters.find((c) => c.id === id)).filter((c): c is CartChapter => Boolean(c)), [selected, chapters]);
   const total = baseFee + picked.reduce((s, c) => s + c.price, 0);
 
@@ -96,11 +91,6 @@ export default function ChaptersPage() {
     const chapter = chapters.find((c) => c.id === id);
     if (chapter?.code === 'WIE') return;
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
-  };
-
-  const addSuggested = () => {
-    const ids = chapters.filter((c) => suggested.includes(c.code) && c.code !== 'WIE').map((c) => c.id);
-    setSelected((prev) => [...prev, ...ids.filter((id) => !prev.includes(id))]);
   };
 
   const handleSelectSize = (size: string) => {
@@ -133,8 +123,6 @@ export default function ChaptersPage() {
 
   if (error) return <Alert tone="error" className="mx-auto max-w-xl">{error}</Alert>;
 
-  const allSuggestedPicked = suggested.length > 0 && suggested.every((code) => picked.some((p) => p.code === code));
-
   return (
     <div className="mx-auto max-w-6xl pb-28 lg:pb-0">
       <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
@@ -142,23 +130,6 @@ export default function ChaptersPage() {
           <h1 className="display text-4xl text-ink sm:text-5xl">Pick your chapters</h1>
           <p className="lead mt-3 max-w-xl">Base membership is already included. Add any communities you want, as many as you like.</p>
         </div>
-        {suggested.length > 0 && !allSuggestedPicked && (
-          <motion.button
-            type="button"
-            onClick={addSuggested}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="group flex items-center gap-3 self-start rounded-2xl bg-white p-3 pr-4 text-left shadow-sm ring-1 ring-ink/5 transition hover:-translate-y-0.5 hover:shadow-md lg:self-auto"
-          >
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-orange/10 text-brand-orange">
-              <Sparkles className="h-5 w-5" />
-            </span>
-            <span>
-              <span className="block text-sm font-semibold text-ink">Add the picks for {department}</span>
-              <span className="block text-xs text-muted">{suggested.join(' + ')}</span>
-            </span>
-          </motion.button>
-        )}
       </div>
 
       <div className="mt-10 grid items-start gap-8 lg:grid-cols-[1fr_380px]">
@@ -250,7 +221,6 @@ export default function ChaptersPage() {
             {ordered.map((c) => {
               const info = infoFor(c.code);
               const on = selected.includes(c.id);
-              const isSuggested = suggested.includes(c.code);
               const color = info?.color ?? '#0b1b33';
               return (
                 <motion.li key={c.id} layout transition={{ type: 'spring', stiffness: 300, damping: 30 }}>

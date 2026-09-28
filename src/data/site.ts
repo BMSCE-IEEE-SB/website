@@ -476,21 +476,3 @@ export const departments = [
   ['AIDS', 'Artificial Intelligence and Data Science'],
   ['OTHER', 'Other'],
 ];
-
-/** Chapters we suggest first for each department (everyone is welcome in all of them). */
-export const suggestedByDepartment: Record<string, string[]> = {
-  CSE: ['CS', 'SSIT'],
-  ISE: ['CS', 'SSIT'],
-  AIML: ['CS', 'SSIT'],
-  'CSE-DS': ['CS', 'SSIT'],
-  ECE: ['PELS/IES', 'PES'],
-  EEE: ['PES', 'PELS/IES'],
-  ETE: ['PELS/IES', 'CS'],
-  EIE: ['PELS/IES', 'PES'],
-  MED: ['PELS/IES', 'SSIT'],
-  MECH: ['PELS/IES', 'PES'],
-  CIVIL: ['SSIT', 'PES'],
-  CHEM: ['PES', 'SSIT'],
-  IEM: ['SSIT', 'PES'],
-  BT: ['SSIT', 'CS'],
-};

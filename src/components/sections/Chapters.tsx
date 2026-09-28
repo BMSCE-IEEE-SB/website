@@ -118,13 +118,7 @@ export default function Chapters() {
                     <h3 className="display mt-4 text-3xl xl:text-4xl">{ch.tagline}</h3>
                     <p className="mt-3 max-w-lg text-white/80">{ch.description}</p>
                   </div>
-                  <div className="mt-6 flex flex-wrap items-end justify-between gap-6">
-                    <dl className="flex gap-8">
-                      <div>
-                        <dd className="display text-3xl">{ch.stats.members}</dd>
-                        <dt className="text-xs text-white/70">members</dt>
-                      </div>
-                    </dl>
+                  <div className="mt-6 flex items-center justify-end">
                     <Link href={`/chapters/${ch.slug}`} className="btn btn-light btn-lg">
                       Explore chapter <ArrowUpRight className="h-4 w-4" />
                     </Link>

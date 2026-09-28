@@ -2,11 +2,11 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Calendar, CheckSquare, DollarSign, LogOut, Megaphone, Users } from 'lucide-react';
+import { CheckSquare, DollarSign, LogOut, Megaphone, Users } from 'lucide-react';
 import { clearAdminSession } from '@/lib/auth';
 import { cn } from '@/lib/utils';
 
-export type AdminTab = 'orders' | 'settings' | 'events' | 'announcement' | 'team';
+export type AdminTab = 'orders' | 'settings' | 'announcement' | 'team';
 
 interface AdminNavProps {
   current: AdminTab;
@@ -25,7 +25,6 @@ export default function AdminNav({ current, adminEmail, demo }: AdminNavProps) {
   const navItems = [
     { id: 'orders', label: 'Verifications', href: '/admin/orders', icon: CheckSquare },
     { id: 'settings', label: 'Pricing & Drive', href: '/admin/settings', icon: DollarSign },
-    { id: 'events', label: 'Events & Hackathons', href: '/admin/events', icon: Calendar },
     { id: 'announcement', label: 'Announcement', href: '/admin/announcement', icon: Megaphone },
     { id: 'team', label: 'Admin Team', href: '/admin/team', icon: Users },
   ] as const;

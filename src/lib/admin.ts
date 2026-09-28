@@ -242,7 +242,7 @@ export async function loadSettings(): Promise<Settings> {
         treasurerRole: settings?.treasurer_role ?? 'Treasurer',
         treasurerPhone: settings?.treasurer_phone ?? '',
         signatureUrl: settings?.signature_url ?? '',
-        chapters: (chapters ?? []).map((c: any) => ({
+        chapters: (chapters ?? []).map((c: { id: string; code: string; name: string; price: number | string; is_active?: boolean }) => ({
           id: c.id,
           code: c.code,
           name: c.name,

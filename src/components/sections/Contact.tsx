@@ -26,7 +26,7 @@ export default function Contact() {
       <div className="container-page grid gap-14 lg:grid-cols-12">
         <div className="lg:col-span-5">
           <Reveal>
-            <SectionLabel index="07">Get in touch</SectionLabel>
+            <SectionLabel index="05">Get in touch</SectionLabel>
           </Reveal>
           <Reveal delay={80}>
             <h2 className="section-title mt-6">Let&apos;s build something together</h2>

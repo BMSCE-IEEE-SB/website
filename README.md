@@ -2,7 +2,7 @@
 
 Official website for the **IEEE Student Branch at B.M.S. College of Engineering (Branch 06261, Region 10)**. Built with Next.js 16 (App Router), Tailwind CSS v4, and Supabase for the 2026 Annual Membership Drive.
 
-The public landing page (chapters, events, gallery, team, partnerships) and the membership registration flow live in one site. Every "Become a member" button leads to `/membership/register`.
+The public landing page (chapters, team, partnerships) and the membership registration flow live in one site. Every "Become a member" button leads to `/membership/register`.
 
 ### Demo mode vs live mode
 - **Demo mode** runs when `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` are not set. Everything is stored in the browser's localStorage with sample admin data, any login works, and a blue "Demo mode" note appears on the forms.
@@ -11,9 +11,8 @@ The public landing page (chapters, events, gallery, team, partnerships) and the 
 ### Main pages
 | Page | What it is |
 |---|---|
-| `/` | Landing page (Hero, About, Chapters, Events, Gallery preview, ExeCom, Partners) |
-| `/chapters/[slug]` | Chapter detail pages (`cs`, `pes`, `pels-ies`, `ras`, `wie`, `ssit`) |
-| `/gallery` | Full photo gallery with interactive lightbox |
+| `/` | Landing page (Hero, About, Chapters, ExeCom, Partners) |
+| `/chapters/[slug]` | Chapter detail pages (`cs`, `pes`, `pels-ies`, `wie`, `ssit`) |
 | `/membership` | "Become a member": benefits, fee slip calculator, FAQ |
 | `/membership/register` → `/profile` → `/chapters` → `/checkout` | The four-step registration flow (includes T-shirt size selection) |
 | `/login` | Member portal sign in |
@@ -21,14 +20,13 @@ The public landing page (chapters, events, gallery, team, partnerships) and the 
 | `/account` | Member portal: digital card, status tracker, payment resubmission |
 | `/admin/login` | Executive administrator sign in |
 | `/admin/orders` | Orders ledger, payment proof verification, and receipt dispatch |
-| `/admin/events` | Events & workshops manager (CRUD) |
 | `/admin/announcement` | Sitewide announcement banner editor |
 | `/admin/team` | Executive team access & whitelist manager |
 | `/admin/settings` | Membership drive status, base fee, UPI VPA & treasurer settings |
 | `/privacy`, `/terms`, `/refund` | Official student branch legal & policy pages |
 
 ### Where to edit site content
-All landing-page text, chapters, events, gallery photos, testimonials, FAQs and ExeCom members are in `src/data/site.ts`. Events marked as upcoming or past are worked out from their dates automatically. The testimonials and events there are **placeholders** and can be replaced or managed dynamically via `/admin/events`. Chapter prices for payment come from the `chapters` table in live mode.
+All landing-page text, chapters, testimonials, FAQs and ExeCom members are in `src/data/site.ts`. The testimonials there are **placeholders**. Chapter prices for payment come from the `chapters` table in live mode.
 
 ---
 
@@ -36,11 +34,12 @@ All landing-page text, chapters, events, gallery photos, testimonials, FAQs and 
 
 ### 🎓 1. Multi-Step Student Membership Flow
 - **Minimal Initial Sign-Up** (`/membership/register`): Email, password, and confirm password with an email verification gate.
-- **Academic & Personal Profile** (`/membership/profile`): Full Name, USN, Department, Year of Study, Contact Info, and optional IEEE Member ID with auto-fill sample testing helper.
+- **Academic & Personal Profile** (`/membership/profile`): Full Name, USN, Department (19 standardized engineering branches), Year of Study, Contact Info, and optional IEEE Member ID with auto-fill sample testing helper.
 - **Dynamic Chapters Shopping Cart** (`/membership/chapters`):
   - Fixed Base Branch Membership fee (₹1,810).
-  - Interactive add/remove for all 6 technical chapters (Computer Society, PES, PELS/IES, RAS, WIE, SSIT) with real-time total calculation.
-  - **T-Shirt Size Selector**: Members select their merchandise size ('S', 'M', 'L', 'XL', 'XXL') directly in the cart.
+  - Visual branding tiles embedding each chapter's official logo directly in the card background.
+  - Interactive add/remove for all 5 technical chapters and affinity groups (Computer Society, PES, PELS/IES, WIE, SSIT; WIE included with base membership at ₹0).
+  - **T-Shirt Size Selector**: Members select their merchandise size ('XS', 'S', 'M', 'L', 'XL', '2XL', '3XL') directly in the cart.
 - **Dynamic UPI QR Checkout** (`/membership/checkout`):
   - Server-verified checkout intent (`/api/checkout/intent`) enforcing server-side price validation and expiration.
   - Client-side generated UPI payment QR code (`qrcode.react`) encoding the exact total and a unique order reference (`BMSCE-XXXXXX`).
@@ -79,13 +78,12 @@ All landing-page text, chapters, events, gallery photos, testimonials, FAQs and 
 ---
 
 ### 🏛️ 3. Society Chapters & Affinity Groups
-Interactive Bento grid showcasing all 6 technical verticals:
+Interactive Bento grid showcasing all 5 technical chapters and affinity groups:
 1. **IEEE Computer Society (CS)** — Software Architectures, Algorithms, AI Systems & IEEEXtreme.
 2. **IEEE Power & Energy Society (PES)** — Clean Tech, Microgrids & Smart Energy.
 3. **IEEE PELS & IES Joint Chapter** — PCB Fabrication, Power Drives & Industrial Automation.
-4. **IEEE Robotics & Automation Society (RAS)** — Robotics Platforms, Autonomous Systems & Intelligent Machines.
-5. **IEEE Women in Engineering (WIE)** — Mentorship, Leadership & STEM Advancement.
-6. **IEEE Social Implications of Technology (SSIT)** — Tech Ethics, AI Governance & Humanitarian Engineering.
+4. **IEEE Women in Engineering (WIE)** — Mentorship, Leadership & STEM Advancement.
+5. **IEEE Social Implications of Technology (SSIT)** — Tech Ethics, AI Governance & Humanitarian Engineering.
 
 ---
 

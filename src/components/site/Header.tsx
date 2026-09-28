@@ -110,7 +110,8 @@ export default function Header() {
       )}
     >
       <div className="container-page flex h-16 items-center justify-between gap-6 lg:h-[76px]">
-        <Link href="/" onClick={close} className="flex shrink-0 items-center" aria-label="BMSCE IEEE home">
+        <Link href="/" onClick={close} className="flex shrink-0 items-center gap-2" aria-label="BMSCE IEEE home">
+          <Image src="/brand/college-logo.png" alt="B.M.S. College of Engineering" width={2132} height={2132} className="h-8 w-8 object-contain lg:h-9 lg:w-9" />
           <Image src="/brand/logo.png" alt="BMSCE IEEE" width={816} height={334} preload loading="eager" className="h-9 w-auto lg:h-10" />
         </Link>
 
@@ -137,26 +138,26 @@ export default function Header() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 6, scale: 0.98 }}
                         transition={{ duration: 0.18 }}
-                        className="absolute top-full left-1/2 w-[560px] -translate-x-1/2 pt-3"
+                        className="absolute top-full left-1/2 w-[640px] -translate-x-1/2 pt-3"
                       >
-                        <div className="grid grid-cols-2 gap-1 rounded-3xl bg-white p-3 shadow-[0_24px_60px_-20px_rgb(11_27_51/0.35)] ring-1 ring-ink/5">
+                        <div className="grid grid-cols-2 gap-2 rounded-3xl bg-white p-3.5 shadow-[0_24px_60px_-20px_rgb(11_27_51/0.35)] ring-1 ring-ink/5">
                           {chapters.map((c) => {
                             const Icon = c.icon;
                             return (
-                              <Link key={c.slug} href={`/chapters/${c.slug}`} onClick={close} className="group flex items-start gap-3 rounded-2xl p-3 transition-colors hover:bg-paper">
-                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-white transition-transform group-hover:scale-110" style={{ background: c.color }}>
-                                  <Icon className="h-4.5 w-4.5" />
-                                </span>
-                                <span className="min-w-0">
-                                  <span className="block text-sm font-semibold text-ink">{c.name}</span>
-                                  <span className="block truncate text-xs text-muted">{c.tagline}</span>
-                                </span>
+                              <Link key={c.slug} href={`/chapters/${c.slug}`} onClick={close} className="group flex min-h-16 items-center gap-3 rounded-2xl p-3 transition-colors hover:bg-paper">
+                                {c.logo ? (
+                                  <span className="flex h-11 w-14 shrink-0 items-center justify-center rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-ink/10">
+                                    <Image src={c.logo} alt="" aria-hidden width={100} height={60} className="max-h-8 w-full object-contain transition-transform group-hover:scale-105" />
+                                  </span>
+                                ) : (
+                                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white transition-transform group-hover:scale-105" style={{ background: c.color }}>
+                                    <Icon className="h-4.5 w-4.5" />
+                                  </span>
+                                )}
+                                <span className="min-w-0 text-sm leading-snug font-semibold text-ink">{c.name}</span>
                               </Link>
                             );
                           })}
-                          <Link href="/#chapters" onClick={close} className="col-span-2 mt-1 flex items-center justify-between rounded-2xl bg-paper px-4 py-3 text-sm font-semibold text-ink hover:bg-paper-2">
-                            Compare all chapters <ArrowRight className="h-4 w-4" />
-                          </Link>
                         </div>
                       </motion.div>
                     )}

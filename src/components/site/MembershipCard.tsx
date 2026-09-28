@@ -19,7 +19,6 @@ const chipColor: Record<string, string> = {
   CS: '#0284c7',
   PES: '#059669',
   'PELS/IES': '#d97706',
-  RAS: '#7c3aed',
   WIE: '#db2777',
   SSIT: '#4f46e5',
 };

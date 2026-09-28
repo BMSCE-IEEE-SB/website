@@ -10,10 +10,10 @@
 
 ## 1. Executive Summary & Objective
 
-The BMSCE IEEE Student Branch requires a unified digital presence to drive and manage its **2026 Annual Membership Drive**, highlight its 6 technical society chapters, showcase campus events and hackathons, and provide an auditable administrative platform for dues reconciliation.
+The BMSCE IEEE Student Branch requires a unified digital presence to drive and manage its **2026 Annual Membership Drive**, highlight its 5 technical society chapters and affinity groups, and provide an auditable administrative platform for dues reconciliation.
 
 ### Primary Objectives (P0)
-1. **Unified Public Presence**: A responsive, branded landing page showcasing branch history, chapter verticals, events carousel, photo gallery, executive committee, and membership benefits.
+1. **Unified Public Presence**: A responsive, branded landing page showcasing branch history, chapter verticals, photo gallery, executive committee, and membership benefits.
 2. **End-to-End Membership Flow**:
    - Account creation and academic profiling (`/membership/register` → `/membership/profile`).
    - Dynamic chapter cart with fee slip calculator and T-shirt merchandise size selection (`/membership/chapters`).
@@ -25,12 +25,11 @@ The BMSCE IEEE Student Branch requires a unified digital presence to drive and m
    - Decoupled receipt email workflow: approve applications immediately, and dispatch official receipts on-demand.
    - Programmatic high-fidelity PDF receipt generator (`pdf-lib`) attached to transactional emails.
    - Manual receipt generator (`/api/admin/manual-receipt`) for offline/cash dues with sequential numbering (`BMSCE-IEEE-YYYY-XXXX`).
-   - Events & workshops manager (`/admin/events`) for dynamic event CRUD.
    - Sitewide announcement banner editor (`/admin/announcement`).
    - Executive team whitelist (`/admin/team`) for role-based access control.
    - Branch settings (`/admin/settings`) for drive status, base fee, UPI VPA, and treasurer credentials.
 4. **Hardened Security Architecture**:
-   - Zero direct client writes to orders, config, events, or admin tables; all mutations are mediated by authenticated server API routes utilizing the service role key.
+   - Zero direct client writes to orders, config, or admin tables; all mutations are mediated by authenticated server API routes utilizing the service role key.
    - Comprehensive audit logging (`admin_audit_log`) and atomic receipt numbering (`receipt_counters`, `issued_receipts`).
 
 ---
@@ -42,7 +41,6 @@ The BMSCE IEEE Student Branch requires a unified digital presence to drive and m
 | **Prospective Member** | Browse landing page, calculate fees, create an account, fill profile details, select chapters and T-shirt size, scan UPI QR to pay, upload screenshot proof, and submit order. |
 | **Enrolled / Verified Member** | Sign in at `/login`, view digital membership card and verification status at `/account`, resubmit corrected proof/UTR if rejected, and receive official PDF receipt via email. |
 | **Branch Executive / Chair** | Sign into `/admin/login`, review pending orders and inspect proofs, approve or reject applications, dispatch official PDF receipts, generate manual receipts for offline dues, manage team whitelist, configure drive parameters, and publish announcements. |
-| **Campus Event Attendee** | Browse upcoming workshops, summits, and hackathons (e.g. IEEEXtreme, Phase Shift) with external registration links. |
 
 ---
 
@@ -53,9 +51,9 @@ The BMSCE IEEE Student Branch requires a unified digital presence to drive and m
 2. **Academic & Personal Profile**: Name, USN, Institutional Email, Department, Year of Study, Contact Phone, and optional IEEE Member ID.
 3. **Chapter Shopping Cart**:
    - Base membership fee fixed at ₹1,810.
-   - 6 Technical Chapters & Affinity Groups: Computer Society (₹100), Power & Energy Society (₹100), Power & Industrial Electronics (₹100), Robotics & Automation Society (₹100), Women in Engineering (₹50), and Social Implications of Technology (₹50).
-   - T-shirt size picker (`S`, `M`, `L`, `XL`, `XXL`) stored on order.
-   - Real-time running total and departmental suggested bundles.
+   - 5 Technical Chapters & Affinity Groups: Computer Society (₹100), Power & Energy Society (₹100), Power & Industrial Electronics (₹100), Women in Engineering (₹0, included with base), and Social Implications of Technology (₹50).
+   - T-shirt size picker (`XS`, `S`, `M`, `L`, `XL`, `2XL`, `3XL`) stored on order.
+   - Real-time running total with dedicated chapter logo visual branding cards.
 4. **Checkout & Payment**:
    - Server-validated checkout intent (`/api/checkout/intent`) recalculating prices on the server.
    - Dynamic client-side UPI intent QR generation (`upi://pay?pa=...&am=...&tn=...`).
@@ -94,9 +92,8 @@ The BMSCE IEEE Student Branch requires a unified digital presence to drive and m
 
 ```
 Public Web Routes:
-├── /                                  (Homepage: Hero, Chapters, Events, ExeCom, Partners)
-├── /chapters/[slug]                   (Chapter Detail: CS, PES, PELS-IES, RAS, WIE, SSIT)
-├── /gallery                           (Photo Gallery with Lightbox)
+├── /                                  (Homepage: Hero, Chapters, ExeCom, Partners)
+├── /chapters/[slug]                   (Chapter Detail: CS, PES, PELS-IES, WIE, SSIT)
 ├── /membership                        (Membership Overview, Fee Slip Calculator, FAQ)
 ├── /membership/register               (Step 1: Account Creation & Sign Up)
 ├── /membership/profile                (Step 2: Personal & Academic Details)
@@ -114,7 +111,6 @@ Executive Admin Routes:
 ├── /admin                             (Dashboard Redirect)
 ├── /admin/orders                      (Orders Verification & Ledger)
 ├── /admin/announcement                (Sitewide Announcement Banner Editor)
-├── /admin/events                      (Events & Workshops Manager)
 ├── /admin/team                        (Executive Whitelist & Role Management)
 └── /admin/settings                    (Drive, Fee, UPI & Treasurer Settings)
 
@@ -127,7 +123,6 @@ Server API Endpoints:
 ├── /api/admin/orders/[id]/status      (PATCH: Verify or reject order)
 ├── /api/admin/manual-receipt          (POST: Issue manual receipt for offline dues)
 ├── /api/admin/announcement            (PATCH: Update global announcement banner)
-├── /api/admin/events                  (POST/PUT/DELETE: CRUD branch events)
 ├── /api/admin/settings                (PATCH: Update drive settings and treasurer profile)
 └── /api/admin/team                    (POST/DELETE: Manage executive whitelist)
 ```
@@ -381,7 +376,7 @@ CREATE TABLE public.events (
 - [x] Dynamic client-side UPI QR generation with server-verified checkout intent.
 - [x] Secure private storage upload for payment proof with server-side validation.
 - [x] Member self-service portal with status tracker, digital card, and interactive resubmission.
-- [x] Complete Executive Admin Suite: Orders, Announcements, Events, Team Whitelist, and Settings.
+- [x] Complete Executive Admin Suite: Orders, Announcements, Team Whitelist, and Settings.
 - [x] Decoupled receipt email workflow with on-demand dispatch and delivery state tracking.
 - [x] Programmatic branded PDF receipt generator attached to emails and manual receipt issuance.
 - [x] Manual receipt generator modal for offline and cash dues with audit tracking.

@@ -1,16 +1,14 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, Check, MapPin } from 'lucide-react';
-import { chapterBySlug, chapters, eventStart, isPastEvent, splitEvents } from '@/data/site';
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { chapterBySlug, chapters } from '@/data/site';
 import Reveal from '@/components/site/Reveal';
 import CountUp from '@/components/site/CountUp';
-import Countdown from '@/components/site/Countdown';
 import { Sails } from '@/components/site/BrandShapes';
-import { formatDate } from '@/lib/utils';
 
-export const revalidate = 3600;
 export const dynamicParams = false;
 
 export function generateStaticParams() {
@@ -28,8 +26,6 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
   const c = chapterBySlug(slug);
   if (!c) notFound();
   const Icon = c.icon;
-  const { now, upcoming, past } = splitEvents((e) => e.chapter === c.slug);
-  const mine = [...upcoming, ...past];
   const idx = chapters.findIndex((x) => x.slug === c.slug);
   const nextChapter = chapters[(idx + 1) % chapters.length];
 
@@ -45,9 +41,15 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
             <ArrowLeft className="h-4 w-4" /> All chapters
           </Link>
           <div className="mt-10 flex items-center gap-4">
-            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
-              <Icon className="h-7 w-7" />
-            </span>
+            {c.logo ? (
+              <span className="flex h-16 w-32 items-center justify-center rounded-2xl bg-white px-3 py-2">
+                <Image src={c.logo} alt={`${c.name} logo`} width={180} height={90} className="max-h-12 w-full object-contain" priority />
+              </span>
+            ) : (
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
+                <Icon className="h-7 w-7" />
+              </span>
+            )}
             <span className="rounded-full bg-white/15 px-3 py-1 text-sm font-bold tracking-wide backdrop-blur">{c.code}</span>
           </div>
           <h1 className="display mt-6 max-w-4xl text-5xl sm:text-7xl lg:text-8xl">{c.name}</h1>
@@ -56,16 +58,10 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
             <Link href="/membership" className="btn btn-lg bg-white text-ink hover:-translate-y-0.5">
               Join {c.code} with your membership <ArrowRight className="h-4 w-4" />
             </Link>
-            {upcoming[0] && (
-              <a href="#chapter-events" className="btn btn-outline-light btn-lg">
-                See upcoming events
-              </a>
-            )}
           </div>
-          <dl className="mt-16 grid max-w-2xl grid-cols-3 gap-6 border-t border-white/20 pt-8">
+          <dl className="mt-16 grid max-w-2xl grid-cols-2 gap-6 border-t border-white/20 pt-8">
             {[
               [c.stats.members, 'members'],
-              [c.stats.events, 'events a year'],
               [c.stats.founded, 'founded'],
             ].map(([v, l]) => (
               <div key={l}>
@@ -124,56 +120,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
         </div>
       </section>
 
-      {/* Events */}
-      <section id="chapter-events" className="py-20 sm:py-28">
-        <div className="container-page">
-          <Reveal>
-            <h2 className="section-title">{upcoming.length ? 'Coming up' : 'Recent events'}</h2>
-          </Reveal>
-          {upcoming[0] && (
-            <Reveal className="mt-10">
-              <article className="grid overflow-hidden rounded-[28px] bg-ink text-white md:grid-cols-5">
-                <img src={upcoming[0].image} alt="" className="h-60 w-full object-cover md:col-span-2 md:h-full" />
-                <div className="flex flex-col justify-between gap-6 p-7 sm:p-9 md:col-span-3">
-                  <div>
-                    <p className="flex flex-wrap items-center gap-4 text-sm text-white/70">
-                      <span className="flex items-center gap-1.5"><CalendarDays className="h-4 w-4" /> {formatDate(upcoming[0].date)}</span>
-                      <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4" /> {upcoming[0].venue}</span>
-                    </p>
-                    <h3 className="display mt-4 text-3xl sm:text-4xl">{upcoming[0].title}</h3>
-                    <p className="mt-3 text-white/75">{upcoming[0].description}</p>
-                  </div>
-                  <div className="flex flex-wrap items-end justify-between gap-5">
-                    <Countdown to={eventStart(upcoming[0])} light />
-                    <a href={upcoming[0].registrationUrl} className="btn btn-lg text-white" style={{ background: c.color }}>
-                      Register <ArrowUpRight className="h-4 w-4" />
-                    </a>
-                  </div>
-                </div>
-              </article>
-            </Reveal>
-          )}
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {[...upcoming.slice(1), ...past].map((e, i) => (
-              <Reveal key={e.id} delay={i * 60}>
-                <article className="group">
-                  <div className="aspect-[4/3] overflow-hidden rounded-[22px]">
-                    <img src={e.image} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  </div>
-                  <p className="mt-4 text-xs font-semibold tracking-wide uppercase" style={{ color: c.color }}>
-                    {isPastEvent(e, now) ? 'Past' : 'Upcoming'} · {formatDate(e.date)}
-                  </p>
-                  <h3 className="mt-1 text-lg font-bold text-ink">{e.title}</h3>
-                  <p className="mt-1 text-sm text-muted">{e.description}</p>
-                </article>
-              </Reveal>
-            ))}
-          </div>
-          {mine.length === 0 && <p className="mt-8 text-muted">The {c.code} calendar for this term is being planned. Check back soon.</p>}
-        </div>
-      </section>
-
-      {/* Next chapter */}
+{/* Next chapter */}
       <section className="pb-20">
         <div className="container-page">
           <Link href={`/chapters/${nextChapter.slug}`} className="group grain relative flex flex-col justify-between gap-6 overflow-hidden rounded-[32px] p-8 text-white sm:flex-row sm:items-center sm:p-12" style={{ background: nextChapter.color }}>

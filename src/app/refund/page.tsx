@@ -24,7 +24,7 @@ export default function RefundPolicyPage() {
             If a student is charged multiple times due to a UPI network timeout, banking glitch, or accidental double submission:
           </p>
           <ul>
-            <li>The student must submit a refund request to <span className="font-medium text-brand-navy">ieee@bmsce.ac.in</span> within <strong>5 calendar days</strong> of the transaction.</li>
+            <li>The student must submit a refund request to <span className="font-medium text-brand-navy">ieee.sb@bmsce.ac.in</span> within <strong>5 calendar days</strong> of the transaction.</li>
             <li>Requests must include the bank statement showing both debits, the order reference number, and corresponding UTRs.</li>
             <li>Verified duplicate charges will be refunded directly to the originating bank account within 5–7 business days after reconciliation.</li>
           </ul>
@@ -49,7 +49,7 @@ export default function RefundPolicyPage() {
           <div className="mt-3 space-y-1 rounded-2xl bg-paper p-5 text-sm">
             <p className="font-semibold text-ink">Treasurer / Executive Committee</p>
             <p>BMSCE IEEE Student Branch (Branch 06261)</p>
-            <p>Email: ieee@bmsce.ac.in</p>
+            <p>Email: ieee.sb@bmsce.ac.in</p>
             <p>Address: B.M.S. College of Engineering, Bull Temple Road, Bengaluru 560019</p>
           </div>
         </section>

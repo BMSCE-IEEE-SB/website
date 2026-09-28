@@ -1,6 +1,6 @@
 # BMSCE IEEE Admin Guide
 
-For student executive committee members, branch chairs, treasurers, and volunteers responsible for managing the website, verifying membership dues, running the membership drive, scheduling technical events, publishing announcements, and configuring branch finances.
+For student executive committee members, branch chairs, treasurers, and volunteers responsible for managing the website, verifying membership dues, running the membership drive, publishing announcements, and configuring branch finances.
 
 ---
 
@@ -11,7 +11,6 @@ The administrative portal features a unified sidebar navigation shell (responsiv
 1. **Overview (`/admin`)**: Real-time financial metrics, pending queue age, verification trends, priority attention items, and interactive SVG charts with data table views.
 2. **Applications (`/admin/orders`)**: Financial ledger for reviewing payment proofs, fraud warning flags (duplicate UTR, amount mismatch, repeat USN), sliding inspection drawer, keyboard shortcuts, bulk verification/rejection, and on-demand official PDF receipts.
 3. **Members Directory (`/admin/members`)**: Verified membership roster, chapter enrollment breakdown tiles, credential dispatch tracking (`credentials_sent_at`), inline IEEE member ID assignment, and headquarters CSV export.
-4. **Events & Workshops (`/admin/events`)**: Create, edit, feature, and archive branch workshops, hackathons, summits, and technical talks.
 5. **Sitewide Announcement (`/admin/announcement`)**: Toggle and edit the global alert banner with live preview and safe URL validation.
 6. **Executive Team Access (`/admin/team`)**: Role-based access control whitelist (`admin_whitelist`) to grant or revoke administrative privileges with automatic database trigger synchronization.
 7. **Fees & Payment (`/admin/settings`)**: Configure membership drive status (`is_drive_open`), base membership fee, chapter add-ons, UPI VPA, payee name with live QR tester, and treasurer credentials printed on receipts.
@@ -21,10 +20,11 @@ The administrative portal features a unified sidebar navigation shell (responsiv
 
 ## 🔑 Signing In
 
-1. Navigate to: **`/admin/login`** (or click the **[Admin]** / **[Executive login]** link in the site footer).
+1. Navigate directly to: **`/admin/login`** (or **`/admin`**).
 2. Enter your authorized administrator email and password.
    - *In live mode*, authentication requires an account in Supabase Auth matching an entry in `admin_whitelist`.
    - *For local development & offline testing*, click **"Demo Login"** or use `admin@bmsce.ac.in` / `adminpassword` to explore with 46 realistic sample applications.
+   - *Access Model*: All authorized administrators have equal access across all portal modules. Designated roles (`chair`, `treasurer`, etc.) serve as official titles for recordkeeping and receipts.
 3. Upon authentication, you will be redirected to the **Overview** dashboard (or the specific admin page you originally requested).
 4. To sign out, click the **"Sign out"** button in the sidebar bottom user card.
 
@@ -42,7 +42,7 @@ A complete executive snapshot of the membership drive:
 - **Interactive SVG Charts**:
   - *Daily Applications & Verifications* (14-day timeline).
   - *Application Status Distribution* (Pending, Verified, Rejected).
-  - *Society & Chapter Add-on Enrollments* (CS, PES, PELS/IES, RAS, WIE, SSIT).
+  - *Society & Chapter Add-on Enrollments* (CS, PES, PELS/IES, WIE, SSIT).
   - *Department Breakdown* (CSE, ISE, ECE, EEE, ME, etc.).
   - *Year of Study Distribution* (1st, 2nd, 3rd, 4th Year).
   - *Accessible Data Tables*: Every chart includes a **Table** toggle button to view raw counts and exact figures.
@@ -121,26 +121,11 @@ Navigate at high speed during peak drives:
 
 Comprehensive directory of all students whose membership has been approved:
 
-- **Chapter Enrollment Tiles**: Real-time member count for Computer Society, PES, PELS/IES, RAS, WIE, and SSIT. Click any tile to filter.
+- **Chapter Enrollment Tiles**: Real-time member count for Computer Society, PES, PELS/IES, WIE, and SSIT. Click any tile to filter.
 - **IEEE Member ID Assignment**: Click into the "IEEE member ID" column to enter or update the global IEEE 8-digit membership number directly. Saves automatically on blur.
 - **Credential Dispatch Tracking**: Track who has received their IEEE.org login credentials. Click an individual status badge or select multiple members and click **"Credentials sent"**.
 - **BCC Email All**: Click **"Email"** to launch your desktop mail client with all filtered members pre-filled in the BCC field.
 - **Export Official Roster**: Download sanitized CSV rosters formatted for submission to IEEE Bangalore Section and Region 10.
-
----
-
-## 🗓️ Events & Workshops Manager (`/admin/events`)
-
-Manage branch events, hackathons, and seminars displayed across the site:
-
-1. **Event List**: Browse all branch events categorized by category (*workshop*, *hackathon*, *summit*, *talk*) with chapter affiliation, date, and venue.
-2. **Adding an Event**:
-   - Click **"Add Event"**.
-   - Fill in Title, Category, Chapter, Date (`YYYY-MM-DD`), Time, and Campus Venue.
-   - Enter Cover Image URL (Unsplash or hosted asset).
-   - Enter Registration URL (Devfolio, Unstop, Google Form).
-   - Toggle **Featured** to pin the event on the homepage hero showcase.
-3. **Editing & Deleting**: Modify event details or remove past events instantly.
 
 ---
 
@@ -159,7 +144,7 @@ Control the prominent alert banner shown across the top of all public pages:
 
 Manage access privileges for the executive committee:
 
-1. **Authorized Whitelist**: View all active administrators and their designated roles (`chair`, `treasurer`, `admin`, etc.).
+1. **Authorized Whitelist**: View all active administrators and their designated roles (`chair`, `treasurer`, `admin`, etc.). All whitelisted administrators possess equal read/write access across all admin portal modules; roles serve as administrative titles and designate credentials for official receipts.
 2. **Authorizing an Executive**:
    - Enter the student leader's institutional email (e.g., `executive@bmsce.ac.in`).
    - Select their designated role.
@@ -175,7 +160,7 @@ Configure the financial parameters of the membership drive:
 
 1. **Drive Status**: Toggle whether membership applications are open or closed.
 2. **Base Membership Fee (₹)**: Mandatory branch membership fee.
-3. **Chapter Add-ons (₹)**: Individual dues for CS, PES, PELS/IES, RAS, WIE, and SSIT.
+3. **Chapter Add-ons (₹)**: Individual dues for CS, PES, PELS/IES, WIE, and SSIT.
 4. **Branch UPI ID & Payee Name**: Configure the branch VPA (e.g. `bmsceieee@okhdfcbank`) and registered account title.
 5. **Interactive UPI QR Tester**: Scan the test QR with a mobile phone to confirm bank account name and amount before saving.
 6. **Treasurer Credentials**:

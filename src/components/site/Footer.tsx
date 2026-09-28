@@ -9,8 +9,7 @@ const columns = [
     title: 'Explore',
     links: [
       { label: 'About', href: '/#about' },
-      { label: 'Events', href: '/#events' },
-      { label: 'Gallery', href: '/gallery' },
+      { label: 'IEEE Bangalore Section', href: 'https://ieeebangalore.org/' },
       { label: 'Team', href: '/#team' },
       { label: 'Contact', href: '/#contact' },
     ],
@@ -37,7 +36,8 @@ export default function Footer() {
       <div className="container-page pt-20 pb-10">
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <div className="inline-flex rounded-2xl bg-white px-4 py-3">
+            <div className="inline-flex items-center gap-3 rounded-2xl bg-white px-4 py-3">
+              <Image src="/brand/college-logo.png" alt="B.M.S. College of Engineering" width={2132} height={2132} className="h-10 w-10 object-contain" />
               <Image src="/brand/logo.png" alt="BMSCE IEEE" width={816} height={334} className="h-9 w-auto" />
             </div>
             <p className="mt-6 max-w-sm text-sm leading-relaxed">
@@ -62,11 +62,21 @@ export default function Footer() {
               <div key={col.title}>
                 <h3 className="text-sm font-semibold text-white">{col.title}</h3>
                 <ul className="mt-4 space-y-3 text-sm">
-                  {col.links.map((l) => (
-                    <li key={l.label}>
-                      <Link href={l.href} className="transition-colors hover:text-white">{l.label}</Link>
-                    </li>
-                  ))}
+                  {col.links.map((l) => {
+                    const isExternal = l.href.startsWith('http');
+                    return (
+                      <li key={l.label}>
+                        <Link
+                          href={l.href}
+                          target={isExternal ? '_blank' : undefined}
+                          rel={isExternal ? 'noopener noreferrer' : undefined}
+                          className="transition-colors hover:text-white"
+                        >
+                          {l.label}
+                        </Link>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             ))}
@@ -81,7 +91,6 @@ export default function Footer() {
           <p className="flex items-center gap-3">
             <BrandDots /> © {new Date().getFullYear()} {BRANCH.name}. Operates under IEEE bylaws.
           </p>
-          <Link href="/admin/login" className="text-white/40 hover:text-white">Executive login</Link>
         </div>
       </div>
     </footer>

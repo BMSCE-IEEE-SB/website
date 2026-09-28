@@ -1,4 +1,4 @@
-import { Cpu, Zap, CircuitBoard, Users, Compass, Bot, type LucideIcon } from 'lucide-react';
+import { Cpu, Zap, CircuitBoard, Users, Compass, type LucideIcon } from 'lucide-react';
 
 const u = (id: string, w = 900, h = 600) =>
   `https://images.unsplash.com/${id}?w=${w}&h=${h}&fit=crop&auto=format&q=70`;
@@ -15,15 +15,13 @@ export const BRANCH = {
 
 export const contactInfo = {
   address: 'Bull Temple Road, Basavanagudi, Bengaluru 560019',
-  email: 'ieee@bmsce.ac.in',
-  phone: '+91 80 2662 2130',
+  email: 'ieee.sb@bmsce.ac.in',
+  phone: '+91 7204524602',
 };
 
 export const navItems = [
   { label: 'About', href: '/#about', id: 'about' },
   { label: 'Chapters', href: '/#chapters', id: 'chapters' },
-  { label: 'Events', href: '/#events', id: 'events' },
-  { label: 'Gallery', href: '/gallery', id: 'gallery' },
   { label: 'Team', href: '/#team', id: 'team' },
   { label: 'Contact', href: '/#contact', id: 'contact' },
 ];
@@ -31,8 +29,7 @@ export const navItems = [
 export const metrics = [
   { value: '16+', label: 'Years of technical legacy' },
   { value: '1,000+', label: 'Active members' },
-  { value: '6', label: 'Technical chapters & affinity groups' },
-  { value: '50+', label: 'Workshops & hackathons every year' },
+  { value: '5', label: 'Technical chapters & affinity groups' },
 ];
 
 export type Chapter = {
@@ -42,6 +39,8 @@ export type Chapter = {
   code: string;
   /** Accent colour used for dynamic styling (hex). */
   color: string;
+  /** Chapter mark, when a local logo asset is available. */
+  logo?: string;
   image: string;
   about: string[];
   focus: { title: string; text: string }[];
@@ -62,6 +61,7 @@ export const chapters: Chapter[] = [
     slug: 'cs',
     short: 'Computer Society',
     code: 'CS',
+    logo: '/chapter-logos/cs.png',
     color: '#0284c7',
     image: u('photo-1517694712202-14dd9538aa97', 1400, 900),
     about: [
@@ -87,12 +87,13 @@ export const chapters: Chapter[] = [
   },
   {
     slug: 'pes',
-    short: 'Power & Energy',
+    short: 'Power & Energy Society and Sensors Council',
     code: 'PES',
+    logo: '/chapter-logos/pes.png',
     color: '#059669',
     image: u('photo-1509391366360-2e959784a276', 1400, 900),
     about: [
-      'The Power & Energy Society looks at how the world will generate, move and store energy as it decarbonises.',
+      'The Power & Energy Society and Sensors Council looks at how the world will generate, move and store energy as it decarbonises.',
       'Members get hands-on time in the power labs, visit substations and renewable plants, and design small microgrid and EV projects.',
     ],
     focus: [
@@ -103,8 +104,8 @@ export const chapters: Chapter[] = [
     ],
     activities: ['Power systems lab workshops', 'Industrial and substation visits', 'Renewable energy design challenge', 'PES Day celebration'],
     stats: { members: '250+', events: '15+', founded: '2014' },
-    name: 'Power & Energy Society',
-    fullName: 'IEEE Power & Energy Society',
+    name: 'Power & Energy Society and Sensors Council (PES & SC)',
+    fullName: 'IEEE Power & Energy Society and Sensors Council (PES & SC)',
     tagline: 'Clean tech, smart grids & e-mobility',
     description:
       'Renewable microgrids, energy storage, power distribution and EV powertrains, with hands-on lab sessions and industry visits.',
@@ -114,8 +115,9 @@ export const chapters: Chapter[] = [
   },
   {
     slug: 'pels-ies',
-    short: 'Power Electronics',
+    short: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)',
     code: 'PELS/IES',
+    logo: '/chapter-logos/pels-ies.png',
     color: '#d97706',
     image: u('photo-1518770660439-4636190af475', 1400, 900),
     about: [
@@ -130,8 +132,8 @@ export const chapters: Chapter[] = [
     ],
     activities: ['PCB design bootcamp', 'Hardware build weekends', 'Converter design contest', 'Industry automation visits'],
     stats: { members: '150+', events: '12+', founded: '2018' },
-    name: 'Power & Industrial Electronics',
-    fullName: 'IEEE PELS & IES Joint Chapter',
+    name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)',
+    fullName: 'IEEE Power Electronics Society and the Industrial Electronics Society (PELS & IES)',
     tagline: 'PCB design, drives & automation',
     description:
       'Electronic prototyping, power converter design, embedded drives, sensor interfacing and industrial automation controls.',
@@ -140,36 +142,10 @@ export const chapters: Chapter[] = [
     tone: { text: 'text-amber-600', soft: 'bg-amber-50', bar: 'bg-amber-500' },
   },
   {
-    slug: 'ras',
-    short: 'Robotics',
-    code: 'RAS',
-    color: '#7c3aed',
-    image: u('photo-1485827404703-89b55fcc595e', 1400, 900),
-    about: [
-      'The Robotics & Automation Society builds machines that sense, think and move.',
-      'From line followers in first year to autonomous rovers and robotic arms, members work across mechanics, electronics and software in small project teams.',
-    ],
-    focus: [
-      { title: 'Autonomy', text: 'Localisation, path planning and ROS.' },
-      { title: 'Computer vision', text: 'Perception pipelines for real robots.' },
-      { title: 'Controls', text: 'PID to model-predictive control on hardware.' },
-      { title: 'Mechatronics', text: 'Actuators, sensors and mechanical design.' },
-    ],
-    activities: ['Robotics Challenge (maze & manipulation)', 'ROS workshop series', 'Inter-college robo-sumo', 'Project demo day'],
-    stats: { members: '200+', events: '18+', founded: '2016' },
-    name: 'Robotics & Automation',
-    fullName: 'IEEE Robotics & Automation Society',
-    tagline: 'Autonomous systems & intelligent machines',
-    description:
-      'Building autonomous robots, computer-vision pipelines and control systems, from maze solvers to manipulators.',
-    tracks: ['Autonomy', 'Vision', 'Controls'],
-    icon: Bot,
-    tone: { text: 'text-violet-600', soft: 'bg-violet-50', bar: 'bg-violet-500' },
-  },
-  {
     slug: 'wie',
     short: 'Women in Engineering',
     code: 'WIE',
+    logo: '/chapter-logos/wie.png',
     color: '#db2777',
     image: u('photo-1573164713714-d95e436ab8d6', 1400, 900),
     about: [
@@ -195,8 +171,9 @@ export const chapters: Chapter[] = [
   },
   {
     slug: 'ssit',
-    short: 'Tech & Society',
+    short: 'Society on Social Implications of Technology',
     code: 'SSIT',
+    logo: '/chapter-logos/ssit.png',
     color: '#4f46e5',
     image: u('photo-1559136555-9303baea8ebd', 1400, 900),
     about: [
@@ -356,68 +333,62 @@ export const events: SiteEvent[] = [
     description: 'Threat intelligence, zero trust and incident response with industry leaders.',
     registrationUrl: '#',
   },
-  {
-    id: 'robotics-2026',
-    title: 'Robotics Challenge 2026',
-    category: 'hackathon',
-    chapter: 'ras',
-    date: '2026-02-07',
-    venue: 'BMSCE Campus',
-    image: u('photo-1485827404703-89b55fcc595e'),
-    description: 'Autonomous robots take on maze navigation, detection and manipulation rounds.',
-    registrationUrl: '#',
-  },
 ];
 
 /** An event is past once its day has ended (IST). */
 export const isPastEvent = (e: SiteEvent, now: number) => new Date(`${e.date}T23:59:59+05:30`).getTime() < now;
 export const eventStart = (e: SiteEvent) => new Date(`${e.date}T${e.time ?? '09:00'}:00+05:30`).getTime();
 
-export type GalleryCategory = 'hackathon' | 'workshop' | 'summit' | 'student-life';
 
-export type GalleryPhoto = { src: string; full: string; alt: string; title: string; category: GalleryCategory };
-
-const g = (id: string, alt: string, title: string, category: GalleryCategory): GalleryPhoto => ({
-  src: u(id, 800, 600),
-  full: u(id, 1600, 1066),
-  alt,
-  title,
-  category,
-});
-
-export const gallery: GalleryPhoto[] = [
-  g('photo-1504384308090-c894fdcc538d', 'Teams coding at Phase Shift Hackathon', 'Phase Shift Hackathon', 'hackathon'),
-  g('photo-1555949963-aa79dcee981c', 'Speaker at the AI/ML workshop', 'AI/ML Masterclass', 'workshop'),
-  g('photo-1540575467063-178a50c2df87', 'Keynote at WIE Tech Summit', 'WIE Tech Summit', 'summit'),
-  g('photo-1531482615713-2afd69097998', 'Winners announced at Phase Shift', 'Phase Shift Hackathon', 'hackathon'),
-  g('photo-1531746790731-6c087fecd65a', 'Students building ML models', 'AI/ML Masterclass', 'workshop'),
-  g('photo-1573164713714-d95e436ab8d6', 'Panel discussion at WIE Summit', 'WIE Tech Summit', 'summit'),
-  g('photo-1485827404703-89b55fcc595e', 'Autonomous robot in competition', 'Robotics Challenge', 'hackathon'),
-  g('photo-1497436072909-60f360e1d4b1', 'Smart grid demonstration', 'Power Systems Workshop', 'workshop'),
-  g('photo-1519389950473-47ba0277781c', 'IEEE Day celebration', 'IEEE Day 2024', 'summit'),
-  g('photo-1522202176988-66273c2fd55f', 'Students at a campus event', 'Student Outreach', 'student-life'),
-  g('photo-1505373877841-8d25f7d46678', 'Audience at a technical talk', 'Technical Talk Series', 'student-life'),
-  g('photo-1497366216548-37526070297c', 'Industry visit to a tech park', 'Industry Visit', 'student-life'),
-  g('photo-1550751827-4bd374c3f58b', 'Hands-on security workshop', 'Cybersecurity Summit', 'summit'),
-  g('photo-1517694712202-14dd9538aa97', 'Hackathon participants collaborating', 'Phase Shift Hackathon', 'hackathon'),
-  g('photo-1524178232363-1fb2b075b655', 'New members at orientation', 'IEEE Orientation', 'student-life'),
-  g('photo-1521737604893-d14cc237f11d', 'Networking session', 'WIE Tech Summit', 'summit'),
-];
-
-export type ExeComMember = { name: string; role: string; photo: string; linkedin: string; batch?: string };
+export type ExeComMember = { name: string; role: string; photo: string; linkedin?: string; batch?: string };
 
 export const execom: ExeComMember[] = [
-  { name: 'Arjun Sharma', role: 'Chairperson', photo: 'https://randomuser.me/api/portraits/men/32.jpg', linkedin: 'https://linkedin.com/in/arjunsharma', batch: '2025' },
-  { name: 'Priya Nair', role: 'Vice Chairperson', photo: 'https://randomuser.me/api/portraits/women/44.jpg', linkedin: 'https://linkedin.com/in/priyanair', batch: '2025' },
-  { name: 'Ananya Reddy', role: 'Secretary', photo: 'https://randomuser.me/api/portraits/women/26.jpg', linkedin: 'https://linkedin.com/in/ananyareddy', batch: '2026' },
-  { name: 'Rahul Krishnan', role: 'Treasurer', photo: 'https://randomuser.me/api/portraits/men/18.jpg', linkedin: 'https://linkedin.com/in/rahulkrishnan', batch: '2026' },
-  { name: 'Vikram Patel', role: 'Joint Treasurer', photo: 'https://randomuser.me/api/portraits/men/75.jpg', linkedin: 'https://linkedin.com/in/vikrampatel', batch: '2025' },
+  {
+    name: 'Dr. M Vasantha Lakshmi',
+    role: 'Branch Counselor',
+    photo: '/team/vasantha-lakshmi.png',
+  },
+  {
+    name: 'Dr. Namratha M.',
+    role: 'Branch Mentor',
+    photo: '/team/namratha.png',
+    linkedin: 'https://www.linkedin.com/in/dr-namratha-m-2316b814/',
+  },
+  {
+    name: 'K Sahana',
+    role: 'Chairperson',
+    photo: '/team/sahana.jpg',
+    linkedin: 'https://www.linkedin.com/in/sahana-k-8a3562373/',
+  },
+  {
+    name: 'Ratik Agrawal',
+    role: 'Vice Chairperson',
+    photo: '/team/ratik.jpg',
+    linkedin: 'https://www.linkedin.com/in/ratik-agrawal/',
+  },
+  {
+    name: 'Neha Ramiah',
+    role: 'Treasurer & MD Head',
+    photo: '/team/neha.jpg',
+    linkedin: 'https://www.linkedin.com/in/neharamiah06',
+  },
+  {
+    name: 'Shashwat Goyal',
+    role: 'Joint Treasurer',
+    photo: '/team/shashwat.jpg',
+    linkedin: 'http://www.linkedin.com/in/shashwat-goyal-b73b73187',
+  },
+  {
+    name: 'Nithyaneshwar A',
+    role: 'Secretary & Webmaster',
+    photo: '/team/nithyaneshwar.jpg',
+    linkedin: 'https://linkedin.com/in/nith27',
+  },
 ];
 
 export const socialLinks = [
-  { key: 'linkedin', href: 'https://linkedin.com/company/bmsce-ieee', label: 'LinkedIn' },
+  { key: 'linkedin', href: 'https://www.linkedin.com/company/bmsce-ieee/', label: 'LinkedIn' },
   { key: 'instagram', href: 'https://instagram.com/bmsce_ieee', label: 'Instagram' },
-  { key: 'x', href: 'https://twitter.com/bmsce_ieee', label: 'X (Twitter)' },
   { key: 'youtube', href: 'https://youtube.com/@bmsceieee', label: 'YouTube' },
 ] as const;
 
@@ -433,28 +404,19 @@ export const membershipBenefits = [
 export const FALLBACK_BASE_FEE = 1810;
 export const FALLBACK_CART_CHAPTERS = [
   { id: 'demo-cs', name: 'Computer Society', code: 'CS', price: 100 },
-  { id: 'demo-pes', name: 'Power & Energy Society', code: 'PES', price: 100 },
-  { id: 'demo-pels', name: 'PELS & IES Joint Chapter', code: 'PELS/IES', price: 100 },
-  { id: 'demo-ras', name: 'Robotics & Automation Society', code: 'RAS', price: 100 },
-  { id: 'demo-wie', name: 'Women in Engineering', code: 'WIE', price: 50 },
-  { id: 'demo-ssit', name: 'Social Implications of Technology', code: 'SSIT', price: 50 },
+  { id: 'demo-pes', name: 'Power & Energy Society and Sensors Council (PES & SC)', code: 'PES', price: 100 },
+  { id: 'demo-pels', name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', price: 100 },
+  { id: 'demo-wie', name: 'Women in Engineering', code: 'WIE', price: 0 },
+  { id: 'demo-ssit', name: 'Society on Social Implications of Technology', code: 'SSIT', price: 50 },
 ];
 
 export const chapterBySlug = (slug: string) => chapters.find((c) => c.slug === slug);
 
 export const pillars = [
   { title: 'Learn', text: 'Workshops and study groups taught by seniors, alumni and industry engineers.', stat: '50+', statLabel: 'sessions a year', image: u('photo-1524178232363-1fb2b075b655', 1000, 700), accent: '#18a4fe' },
-  { title: 'Build', text: 'Project teams that turn ideas into boards, robots, apps and papers.', stat: '30+', statLabel: 'active projects', image: u('photo-1518770660439-4636190af475', 1000, 700), accent: '#f26625' },
+  { title: 'Build', text: 'Project teams that turn ideas into circuit boards, software and research.', stat: '30+', statLabel: 'active projects', image: u('photo-1518770660439-4636190af475', 1000, 700), accent: '#f26625' },
   { title: 'Compete', text: 'Hackathons, IEEEXtreme and design contests, on campus and across India.', stat: '12', statLabel: 'competitions hosted', image: u('photo-1531482615713-2afd69097998', 1000, 700), accent: '#fbbf24' },
-  { title: 'Lead', text: 'Run a chapter, an event or a team, and learn to lead people, not just code.', stat: '60+', statLabel: 'student leaders', image: u('photo-1540575467063-178a50c2df87', 1000, 700), accent: '#34d399' },
-];
-
-// PLACEHOLDER quotes: replace with real member testimonials before launch.
-export const testimonials = [
-  { quote: 'I joined for the hackathons and stayed for the people. My first PCB, my first paper and my internship all came through IEEE.', name: 'Final-year student', role: 'ECE · PELS/IES' },
-  { quote: 'Running a workshop for 200 juniors taught me more about leadership than any course. The seniors trust you with real responsibility.', name: 'Third-year student', role: 'CSE · Computer Society' },
-  { quote: 'The WIE mentorship circle connected me with an alumna at a chip company. She reviewed my resume line by line.', name: 'Second-year student', role: 'EEE · WIE' },
-  { quote: 'Our robotics team went from a line follower to an autonomous rover in a year. The lab access alone is worth the membership.', name: 'Third-year student', role: 'MECH · RAS' },
+  { title: 'Lead', text: 'Run a chapter, a project or a team, and learn to lead people, not just code.', stat: '60+', statLabel: 'student leaders', image: u('photo-1540575467063-178a50c2df87', 1000, 700), accent: '#34d399' },
 ];
 
 export const faqs = [
@@ -466,7 +428,7 @@ export const faqs = [
   { q: 'When do I get my IEEE.org account?', a: 'Official IEEE credentials are provisioned by IEEE headquarters in batches. We email them to you as soon as they arrive.' },
 ];
 
-export const tickerItems = ['IEEE Day 2026', 'IEEEXtreme 20.0', 'Phase Shift Hackathon', 'WIE Tech Summit', 'PCB Design Bootcamp', 'Robotics Challenge', 'AI/ML Masterclass', 'Membership Drive 2026'];
+export const tickerItems = ['IEEE Day 2026', 'IEEEXtreme 20.0', 'Phase Shift Hackathon', 'WIE Tech Summit', 'PCB Design Bootcamp', 'AI/ML Masterclass', 'Membership Drive 2026'];
 
 /** Splits the calendar into upcoming (soonest first) and past (latest first). */
 export function splitEvents(filter?: (e: SiteEvent) => boolean) {
@@ -486,7 +448,6 @@ export function chapterCode(name: string) {
     [/computer/, 'CS'],
     [/pels|industrial|power electronics/, 'PELS/IES'],
     [/power & energy|power and energy|\bpes\b/, 'PES'],
-    [/robot/, 'RAS'],
     [/women/, 'WIE'],
     [/social|ssit/, 'SSIT'],
   ];
@@ -494,37 +455,24 @@ export function chapterCode(name: string) {
 }
 
 export const departments = [
-  ['CSE', 'Computer Science & Engineering'],
-  ['ISE', 'Information Science & Engineering'],
-  ['AIML', 'Artificial Intelligence & Machine Learning'],
-  ['CSE-DS', 'Computer Science (Data Science)'],
-  ['ECE', 'Electronics & Communication'],
-  ['EEE', 'Electrical & Electronics'],
-  ['ETE', 'Electronics & Telecommunication'],
-  ['EIE', 'Electronics & Instrumentation'],
-  ['MED', 'Medical Electronics'],
-  ['MECH', 'Mechanical Engineering'],
-  ['CIVIL', 'Civil Engineering'],
-  ['CHEM', 'Chemical Engineering'],
-  ['IEM', 'Industrial Engineering & Management'],
+  ['AERO', 'Aerospace Engineering'],
   ['BT', 'Biotechnology'],
+  ['CHEM', 'Chemical Engineering'],
+  ['CIVIL', 'Civil Engineering'],
+  ['MCA', 'Computer Applications'],
+  ['CSE', 'Computer Science and Engineering'],
+  ['CSE-DS', 'Computer Science and Engineering ( Data Science )'],
+  ['CSE-IOT', 'Computer Science and Engineering ( IOT and Cyber Security Including Blockchain Technology )'],
+  ['CSE-BS', 'Computer Science and Engineering (Business System)'],
+  ['EEE', 'Electrical and Electronics Engineering'],
+  ['ECE', 'Electronics and Communication Engineering'],
+  ['IEM', 'Industrial Engineering and Management'],
+  ['ISE', 'Information Science and Engineering'],
+  ['EIE', 'Electronics and Instrumentation Engineering'],
+  ['MECH', 'Mechanical Engineering'],
+  ['MED', 'Medical Electronics'],
+  ['ETE', 'Electronics and Telecommunication Engineering'],
+  ['AIML', 'Artificial Intelligence and Machine Learning'],
+  ['AIDS', 'Artificial Intelligence and Data Science'],
   ['OTHER', 'Other'],
 ];
-
-/** Chapters we suggest first for each department (everyone is welcome in all of them). */
-export const suggestedByDepartment: Record<string, string[]> = {
-  CSE: ['CS', 'SSIT'],
-  ISE: ['CS', 'SSIT'],
-  AIML: ['CS', 'RAS'],
-  'CSE-DS': ['CS', 'SSIT'],
-  ECE: ['PELS/IES', 'RAS'],
-  EEE: ['PES', 'PELS/IES'],
-  ETE: ['PELS/IES', 'CS'],
-  EIE: ['PELS/IES', 'RAS'],
-  MED: ['PELS/IES', 'SSIT'],
-  MECH: ['RAS', 'PES'],
-  CIVIL: ['SSIT', 'PES'],
-  CHEM: ['PES', 'SSIT'],
-  IEM: ['SSIT', 'RAS'],
-  BT: ['SSIT', 'CS'],
-};

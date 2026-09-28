@@ -142,9 +142,8 @@ INSERT INTO public.chapters (name, code, slug, price, description, is_active, di
   ('IEEE Computer Society', 'CS', 'cs', 100, 'Focus on software architectures, algorithms, AI systems & IEEEXtreme programming competition.', true, 1),
   ('IEEE Power & Energy Society', 'PES', 'pes', 100, 'Clean technology, microgrids, electric vehicles, and renewable power infrastructure.', true, 2),
   ('IEEE Power & Industrial Electronics Joint Chapter', 'PELS/IES', 'pels-ies', 100, 'Hands-on hardware, power drives, PCB fabrication, and industrial automation systems.', true, 3),
-  ('IEEE Robotics & Automation Society', 'RAS', 'ras', 100, 'Robotics platforms, autonomous systems, sensing, perception, and intelligent machines.', true, 4),
-  ('IEEE Women in Engineering', 'WIE', 'wie', 50, 'Global network dedicated to promoting women engineers and scientists, leadership & STEM mentorship.', true, 5),
-  ('IEEE Social Implications of Technology', 'SSIT', 'ssit', 50, 'Exploring ethical, legal, environmental, and humanitarian impacts of emerging technologies.', true, 6)
+  ('IEEE Women in Engineering', 'WIE', 'wie', 0, 'Global network dedicated to promoting women engineers and scientists, leadership & STEM mentorship.', true, 4),
+  ('IEEE Social Implications of Technology', 'SSIT', 'ssit', 50, 'Exploring ethical, legal, environmental, and humanitarian impacts of emerging technologies.', true, 5)
 ON CONFLICT (code) DO UPDATE SET
   name = EXCLUDED.name,
   slug = EXCLUDED.slug,
@@ -152,6 +151,8 @@ ON CONFLICT (code) DO UPDATE SET
   description = EXCLUDED.description,
   is_active = EXCLUDED.is_active,
   display_order = EXCLUDED.display_order;
+
+DELETE FROM public.chapters WHERE code NOT IN ('CS', 'PES', 'PELS/IES', 'WIE', 'SSIT');
 
 INSERT INTO public.announcement (id, message, link_url, is_active)
 VALUES (1, 'Membership Drive 2026 is live. Register today to join IEEE and its technical chapters.', '/membership', true)

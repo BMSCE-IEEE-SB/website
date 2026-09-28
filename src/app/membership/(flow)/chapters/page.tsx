@@ -269,19 +269,9 @@ export default function ChaptersPage() {
                       aria-label={`${on ? 'Remove' : 'Add'} ${info?.name ?? c.name}, ₹${c.price}`}
                       className="absolute inset-0 z-10 cursor-pointer rounded-[26px]"
                     />
-                    <div className="relative h-28 overflow-hidden">
-                      {info && <img src={info.image} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />}
-                      <div className="absolute inset-0 transition-opacity duration-300" style={{ background: `linear-gradient(to top, ${color} 5%, ${color}99 60%, ${color}40)`, opacity: on ? 1 : 0.85 }} />
-                      {info?.logo ? (
-                        <span className="absolute top-3 left-3 flex h-10 w-20 items-center justify-center rounded-xl bg-white/95 px-2 py-1 shadow-sm ring-1 ring-ink/5 backdrop-blur">
-                          <img src={info.logo} alt="" aria-hidden className="max-h-7 w-full object-contain" />
-                        </span>
-                      ) : null}
-                      {isSuggested && (
-                        <span className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-ink shadow-sm">
-                          <Sparkles className="h-3 w-3 text-brand-orange" /> Suggested
-                        </span>
-                      )}
+                    <div className="relative h-28 overflow-hidden bg-white">
+                      {info && <img src={info.logo || info.image} alt="" loading="lazy" className="h-full w-full object-contain p-6 transition-transform duration-700 group-hover:scale-110" />}
+                      <div className="absolute inset-0 transition-opacity duration-300 pointer-events-none" style={{ background: `linear-gradient(to top, ${color} 5%, ${color}99 60%, ${color}40)`, opacity: on ? 1 : 0.85 }} />
                       <span className="absolute bottom-3 left-4 text-xs font-bold tracking-widest text-white/90">{c.code}</span>
                     </div>
 

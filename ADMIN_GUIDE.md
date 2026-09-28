@@ -20,10 +20,11 @@ The administrative portal features a unified sidebar navigation shell (responsiv
 
 ## 🔑 Signing In
 
-1. Navigate to: **`/admin/login`** (or click the **[Admin]** / **[Executive login]** link in the site footer).
+1. Navigate directly to: **`/admin/login`** (or **`/admin`**).
 2. Enter your authorized administrator email and password.
    - *In live mode*, authentication requires an account in Supabase Auth matching an entry in `admin_whitelist`.
    - *For local development & offline testing*, click **"Demo Login"** or use `admin@bmsce.ac.in` / `adminpassword` to explore with 46 realistic sample applications.
+   - *Access Model*: All authorized administrators have equal access across all portal modules. Designated roles (`chair`, `treasurer`, etc.) serve as official titles for recordkeeping and receipts.
 3. Upon authentication, you will be redirected to the **Overview** dashboard (or the specific admin page you originally requested).
 4. To sign out, click the **"Sign out"** button in the sidebar bottom user card.
 
@@ -143,7 +144,7 @@ Control the prominent alert banner shown across the top of all public pages:
 
 Manage access privileges for the executive committee:
 
-1. **Authorized Whitelist**: View all active administrators and their designated roles (`chair`, `treasurer`, `admin`, etc.).
+1. **Authorized Whitelist**: View all active administrators and their designated roles (`chair`, `treasurer`, `admin`, etc.). All whitelisted administrators possess equal read/write access across all admin portal modules; roles serve as administrative titles and designate credentials for official receipts.
 2. **Authorizing an Executive**:
    - Enter the student leader's institutional email (e.g., `executive@bmsce.ac.in`).
    - Select their designated role.

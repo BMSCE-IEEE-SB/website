@@ -45,3 +45,6 @@ next-env.d.ts
 test-*.mjs
 test-*.js
 test-*.ts
+
+# supabase
+supabase/.temp/

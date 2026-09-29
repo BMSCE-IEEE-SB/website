@@ -11,6 +11,7 @@ export interface ReceiptData {
   treasurerName?: string;
   treasurerRole?: string;
   treasurerPhone?: string;
+  paymentMethod?: string;
 }
 
 function getOrdinal(n: number): string {
@@ -204,6 +205,17 @@ export async function generateReceiptPdf(data: ReceiptData): Promise<Buffer> {
   page.drawText('Receipt Number : ', { x: 55, y: curY, size: 14, font: fontBold, color: rgb(0.08, 0.08, 0.08) });
   page.drawText(data.receiptNumber, {
     x: 55 + fontBold.widthOfTextAtSize('Receipt Number : ', 14),
+    y: curY,
+    size: 14,
+    font: fontRegular,
+    color: rgb(0.08, 0.08, 0.08),
+  });
+
+  // Payment Mode
+  curY -= lineSpacing;
+  page.drawText('Payment Mode : ', { x: 55, y: curY, size: 14, font: fontBold, color: rgb(0.08, 0.08, 0.08) });
+  page.drawText(data.paymentMethod === 'CASH' ? 'Cash (Registration Desk)' : 'UPI', {
+    x: 55 + fontBold.widthOfTextAtSize('Payment Mode : ', 14),
     y: curY,
     size: 14,
     font: fontRegular,

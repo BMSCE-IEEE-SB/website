@@ -20,6 +20,7 @@ export interface Order {
   total_amount: number;
   payment_screenshot_url?: string;
   utr_reference?: string;
+  payment_method?: string;
   order_reference: string;
   receipt_number?: string;
   tshirt_size?: string;
@@ -269,7 +270,7 @@ function buildSampleOrders(): Order[] {
     const created = now - daysAgo * 86400000 - Math.floor(rand() * 20) * 3600000;
     const chapterIdx = (DEPT_CHAPTERS[dept] ?? [0]).filter(() => rand() < 0.55);
     const chapters = chapterIdx.map((k) => CHAPTER_PRICES[k][0]);
-    const total = 1810 + chapterIdx.reduce((sum, k) => sum + CHAPTER_PRICES[k][1], 0);
+    const total = 1850 + chapterIdx.reduce((sum, k) => sum + CHAPTER_PRICES[k][1], 0);
     const age = (now - created) / 86400000;
     const r = rand();
     const status: OrderStatus = age < 3 ? (r < 0.85 ? 'pending' : 'verified') : r < 0.12 ? 'rejected' : r < 0.2 && age < 9 ? 'pending' : 'verified';
@@ -283,7 +284,7 @@ function buildSampleOrders(): Order[] {
       department: dept,
       year_of_study: year,
       phone: `+91 9${Math.floor(100000000 + rand() * 899999999)}`,
-      base_fee: 1810,
+      base_fee: 1850,
       total_amount: total,
       payment_screenshot_url: pick(PROOFS),
       utr_reference: String(Math.floor(400000000000 + rand() * 99999999999)),
@@ -429,9 +430,9 @@ const SETTINGS_KEY = 'bmsce_settings';
 const CHAPTERS_KEY = 'bmsce_admin_chapters';
 
 export const DEFAULT_SETTINGS: MembershipSettings = {
-  base_fee: 1810,
+  base_fee: 1850,
   payee_vpa: 'neharamiah2006-1@oksbi',
-  payee_name: 'BMSCE IEEE Student Branch',
+  payee_name: 'Neha Ramiah',
   drive_year: 2026,
   is_drive_open: true,
   treasurer_name: 'Neha Ramiah',
@@ -443,8 +444,9 @@ export const DEFAULT_CHAPTER_SETTINGS: ChapterSetting[] = [
   { id: 'cs', name: 'IEEE Computer Society', code: 'CS', slug: 'cs', price: 0, is_active: true, display_order: 1 },
   { id: 'pes', name: 'IEEE Power & Energy Society', code: 'PES', slug: 'pes', price: 100, is_active: true, display_order: 2 },
   { id: 'pels-ies', name: 'IEEE Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', slug: 'pels-ies', price: 370, is_active: true, display_order: 3 },
-  { id: 'wie', name: 'IEEE Women in Engineering & Sensors Council', code: 'WIE & SC', slug: 'wie', price: 0, is_active: true, display_order: 4 },
-  { id: 'ssit', name: 'IEEE Society on Social Implications of Technology', code: 'SSIT', slug: 'ssit', price: 50, is_active: true, display_order: 5 },
+  { id: 'wie', name: 'IEEE Women in Engineering', code: 'WIE', slug: 'wie', price: 0, is_active: true, display_order: 4 },
+  { id: 'sc', name: 'IEEE Sensors Council', code: 'SC', slug: 'sc', price: 0, is_active: true, display_order: 5 },
+  { id: 'ssit', name: 'IEEE Society on Social Implications of Technology', code: 'SSIT', slug: 'ssit', price: 50, is_active: true, display_order: 6 },
 ];
 
 export async function loadAdminSettings(): Promise<MembershipSettings> {

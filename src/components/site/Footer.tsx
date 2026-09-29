@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { BRANCH, chapters, contactInfo, socialLinks } from '@/data/site';
@@ -9,12 +9,11 @@ import { BrandDots } from './BrandShapes';
 import { REGISTRATION_ONLY_MODE } from '@/config/temporary-launch';
 
 export default function Footer() {
-  const [isLocalhost, setIsLocalhost] = useState(false);
-
-  useEffect(() => {
+  const [isLocalhost] = useState(() => {
+    if (typeof window === 'undefined') return false;
     const h = window.location.hostname;
-    setIsLocalhost(h === 'localhost' || h === '127.0.0.1' || h === '::1');
-  }, []);
+    return h === 'localhost' || h === '127.0.0.1' || h === '::1';
+  });
 
   const isRestricted = REGISTRATION_ONLY_MODE && !isLocalhost;
 
@@ -41,7 +40,6 @@ export default function Footer() {
         { label: 'Become a member', href: '/membership/register' },
         { label: 'Member portal', href: '/login' },
         { label: 'Privacy policy', href: '/privacy' },
-        { label: 'Terms of membership', href: '/terms' },
         { label: 'Refund policy', href: '/refund' },
       ],
     },
@@ -56,7 +54,7 @@ export default function Footer() {
               <Image src="/brand/logo.png" alt="BMSCE IEEE" width={816} height={334} className="h-9 w-auto" />
             </div>
             <p className="mt-6 max-w-sm text-sm leading-relaxed">
-              The IEEE Student Branch of {BRANCH.college}, Bengaluru. Branch {BRANCH.branchCode} · {BRANCH.region} · {BRANCH.section}.
+              The IEEE Student Branch of {BRANCH.college}, Bengaluru. {BRANCH.region} · {BRANCH.section}.
             </p>
             <div className="mt-6 space-y-1.5 text-sm">
               <a href={`mailto:${contactInfo.email}`} className="block hover:text-white">{contactInfo.email}</a>

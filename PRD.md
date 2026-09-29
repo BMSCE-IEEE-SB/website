@@ -1,6 +1,6 @@
 # PRD — BMSCE IEEE Student Branch Website & Membership Portal
 
-**Prepared for:** BMSCE IEEE Student Branch (Branch 06261, Region 10)  
+**Prepared for:** BMSCE IEEE Student Branch (Region 10)  
 **Production Site:** https://sb-website-theta.vercel.app/  
 **Repository:** https://github.com/BMSCE-IEEE-SB/website  
 **Target Ship Date:** 27 September 2026 (Annual Membership Drive)  
@@ -50,8 +50,8 @@ The BMSCE IEEE Student Branch requires a unified digital presence to drive and m
 1. **Authentication**: Supabase Auth (email + password) with email verification screen and password reset (`/login/reset`). Demo mode provides 1-click test credentials when unconfigured.
 2. **Academic & Personal Profile**: Name, USN, Institutional Email, Department, Year of Study, Contact Phone, and optional IEEE Member ID.
 3. **Chapter Shopping Cart**:
-   - Base membership fee fixed at ₹1,810.
-   - 5 Technical Chapters & Affinity Groups: Computer Society (₹0, included with base), Power & Energy Society (₹100), Power & Industrial Electronics (₹370), Women in Engineering & Sensors Council (₹0, included with base), and Social Implications of Technology (₹50).
+   - Base membership fee fixed at ₹1,850.
+   - 6 Technical Chapters & Affinity Groups: Computer Society (₹0, included with base), Power & Energy Society (₹100), Power & Industrial Electronics (₹370), Women in Engineering (₹0, included with base), Sensors Council (₹0, included with base), and Social Implications of Technology (₹50).
    - T-shirt size picker (`XS`, `S`, `M`, `L`, `XL`, `2XL`, `3XL`) stored on order.
    - Real-time running total with dedicated chapter logo visual branding cards.
 4. **Checkout & Payment**:

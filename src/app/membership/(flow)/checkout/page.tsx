@@ -9,7 +9,7 @@ import { isDemoMode, supabase } from '@/lib/supabase';
 import { getCurrentUser, hasPaidCookie, hasUserSubmittedPayment, markPaymentSubmitted, saveLocalOrder, type SessionUser } from '@/lib/auth';
 import { clearCart, getOrCreateOrderRef, readCart, type CartChapter } from '@/lib/cart';
 import { FALLBACK_PAYEE, loadPayee } from '@/lib/pricing';
-import { Alert, Field, FileDrop, Input, PageLoader, Spinner } from '@/components/ui/form';
+import { Alert, Field, FileDrop, PageLoader, Spinner } from '@/components/ui/form';
 import DemoNotice from '@/components/membership/DemoNotice';
 import { errorMessage, imageToDataUrl, validateScreenshot } from '@/lib/utils';
 
@@ -51,6 +51,7 @@ export default function CheckoutPage() {
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'UPI' | 'CASH'>('UPI');
 
   useEffect(() => {
     let alive = true;
@@ -61,7 +62,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    const onPageShow = (e: PageTransitionEvent) => {
+    const onPageShow = () => {
       if (hasPaidCookie()) {
         router.replace('/account');
       }
@@ -163,13 +164,18 @@ export default function CheckoutPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
-    const fileError = validateScreenshot(file);
-    if (fileError) {
-      setError(fileError);
-      return;
+    
+    let cleanUtr = null;
+    let dataUrl = null;
+    if (paymentMethod === 'UPI') {
+      const fileError = validateScreenshot(file);
+      if (fileError) {
+        setError(fileError);
+        return;
+      }
+      cleanUtr = String(Math.floor(100000000000 + Math.random() * 900000000000));
+      if (demo) dataUrl = await imageToDataUrl(file!);
     }
-    // Auto-generate random 12-digit numeric reference to satisfy database schema and RPC constraints
-    const cleanUtr = String(Math.floor(100000000000 + Math.random() * 900000000000));
 
     setIsSubmitting(true);
     setError('');
@@ -182,8 +188,9 @@ export default function CheckoutPage() {
           base_fee: baseFee,
           total_amount: total,
           tshirt_size: tshirtSize || undefined,
-          payment_screenshot_url: await imageToDataUrl(file!),
-          utr_reference: cleanUtr,
+          payment_screenshot_url: dataUrl || undefined,
+          payment_method: paymentMethod,
+          utr_reference: cleanUtr || undefined,
           order_reference: orderRef,
           status: 'pending',
           created_at: new Date().toISOString(),
@@ -192,20 +199,26 @@ export default function CheckoutPage() {
       } else {
         const { data: session } = await supabase.auth.getSession();
         if (!session.session?.access_token || !checkoutIntentId) throw new Error('Your checkout quote expired. Start checkout again.');
-        const form = new FormData();
-        form.set('file', file!);
-        form.set('intentId', checkoutIntentId);
-        const upload = await fetch('/api/checkout/proof', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${session.session.access_token}` },
-          body: form,
-        });
-        const uploaded = await upload.json().catch(() => null);
-        if (!upload.ok || !uploaded?.path) throw new Error(uploaded?.error || 'Payment proof could not be uploaded.');
+        
+        let proofPath = null;
+        if (paymentMethod === 'UPI') {
+          const form = new FormData();
+          form.set('file', file!);
+          form.set('intentId', checkoutIntentId);
+          const upload = await fetch('/api/checkout/proof', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${session.session.access_token}` },
+            body: form,
+          });
+          const uploaded = await upload.json().catch(() => null);
+          if (!upload.ok || !uploaded?.path) throw new Error(uploaded?.error || 'Payment proof could not be uploaded.');
+          proofPath = uploaded.path;
+        }
+
         const submit = await fetch('/api/checkout/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.session.access_token}` },
-          body: JSON.stringify({ intentId: checkoutIntentId, proofPath: uploaded.path, utr: cleanUtr, tshirtSize }),
+          body: JSON.stringify({ intentId: checkoutIntentId, proofPath, utr: cleanUtr, tshirtSize, paymentMethod }),
         });
         const result = await submit.json().catch(() => null);
         if (!submit.ok) throw new Error(result?.error || 'Your application could not be submitted.');
@@ -225,7 +238,26 @@ export default function CheckoutPage() {
     <div className="mx-auto max-w-5xl">
       <div className="text-center">
         <h1 className="text-3xl font-bold sm:text-4xl">Pay and submit</h1>
-        <p className="lead mx-auto mt-3 max-w-xl">Pay the exact amount with any UPI app, then upload the payment screenshot.</p>
+        <p className="lead mx-auto mt-3 max-w-xl">Pay the exact amount with any UPI app, then upload the payment screenshot. Alternatively, pay by cash at the registration desk.</p>
+      </div>
+
+      <div className="mt-6 flex justify-center">
+        <div className="inline-flex rounded-full bg-paper p-1 shadow-sm ring-1 ring-line">
+          <button
+            type="button"
+            onClick={() => { setPaymentMethod('UPI'); setError(''); }}
+            className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${paymentMethod === 'UPI' ? 'bg-white text-brand-navy shadow-sm ring-1 ring-line' : 'text-muted hover:text-ink'}`}
+          >
+            Pay with UPI
+          </button>
+          <button
+            type="button"
+            onClick={() => { setPaymentMethod('CASH'); setError(''); }}
+            className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${paymentMethod === 'CASH' ? 'bg-white text-brand-navy shadow-sm ring-1 ring-line' : 'text-muted hover:text-ink'}`}
+          >
+            Pay with Cash
+          </button>
+        </div>
       </div>
 
       {error && <Alert tone="error" className="mt-6">{error} <Link href="/membership/chapters" className="ml-2 underline">Return to chapter selection</Link></Alert>}
@@ -238,15 +270,22 @@ export default function CheckoutPage() {
             <h2 id="pay-title" className="text-lg font-bold">Pay ₹{total}</h2>
           </div>
 
-          <div className="mt-6 flex flex-col items-center">
-            <div className="rounded-3xl bg-white p-4 ring-1 ring-line">
-              <QRCodeSVG id="upi-qr" value={upiLink} size={208} level="M" marginSize={0} />
+          {paymentMethod === 'CASH' ? (
+            <div className="mt-6 text-center text-sm text-ink-soft">
+              <p className="rounded-2xl bg-sky-50/70 p-4 text-brand-navy ring-1 ring-sky-100">
+                Please submit your payment of <strong className="font-bold">₹{total}</strong> in cash at our registration desk. Give them your order reference number.
+              </p>
             </div>
-            <div className="mt-3 flex flex-wrap justify-center gap-1">
-              <button type="button" onClick={downloadQR} className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-ink-soft hover:bg-paper">
-                <Download className="h-3.5 w-3.5" /> Save QR
-              </button>
-            </div>
+          ) : (
+            <div className="mt-6 flex flex-col items-center">
+              <div className="rounded-3xl bg-white p-4 ring-1 ring-line">
+                <QRCodeSVG id="upi-qr" value={upiLink} size={208} level="M" marginSize={0} />
+              </div>
+              <div className="mt-3 flex flex-wrap justify-center gap-1">
+                <button type="button" onClick={downloadQR} className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-ink-soft hover:bg-paper">
+                  <Download className="h-3.5 w-3.5" /> Save QR
+                </button>
+              </div>
 
             {/* Direct UPI payment details */}
             <div className="mt-4 w-full rounded-2xl border border-sky-100 bg-sky-50/70 p-4 text-center">
@@ -290,6 +329,7 @@ export default function CheckoutPage() {
               <Smartphone className="h-4 w-4" /> Open UPI app (₹{total})
             </a>
           </div>
+          )}
 
           <dl className="mt-6 divide-y divide-line rounded-2xl bg-paper px-4 text-sm">
             <div className="flex items-center justify-between gap-3 py-3">
@@ -298,22 +338,26 @@ export default function CheckoutPage() {
                 ₹{total} <CopyButton value={String(total)} label="amount" />
               </dd>
             </div>
-            <div className="flex items-center justify-between gap-3 py-3">
-              <dt className="text-muted">UPI ID</dt>
-              <dd className="flex min-w-0 items-center gap-1 font-mono text-[13px] font-medium text-ink">
-                <a href={upiLink} className="truncate text-brand-blue underline decoration-brand-blue/40 hover:text-brand-navy" title="Tap to open payment app">
-                  {vpa}
-                </a>{' '}
-                <CopyButton value={vpa} label="UPI ID" />
-              </dd>
-            </div>
-            <div className="flex items-center justify-between gap-3 py-3">
-              <dt className="text-muted">Phone Number</dt>
-              <dd className="flex items-center gap-1 font-mono text-[13px] font-medium text-ink">
-                <a href="tel:+916385525264" className="hover:text-brand-navy">6385525264</a>
-                <CopyButton value="6385525264" label="phone number" />
-              </dd>
-            </div>
+            {paymentMethod === 'UPI' && (
+              <>
+                <div className="flex items-center justify-between gap-3 py-3">
+                  <dt className="text-muted">UPI ID</dt>
+                  <dd className="flex min-w-0 items-center gap-1 font-mono text-[13px] font-medium text-ink">
+                    <a href={upiLink} className="truncate text-brand-blue underline decoration-brand-blue/40 hover:text-brand-navy" title="Tap to open payment app">
+                      {vpa}
+                    </a>{' '}
+                    <CopyButton value={vpa} label="UPI ID" />
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between gap-3 py-3">
+                  <dt className="text-muted">Phone Number</dt>
+                  <dd className="flex items-center gap-1 font-mono text-[13px] font-medium text-ink">
+                    <a href="tel:+916385525264" className="hover:text-brand-navy">6385525264</a>
+                    <CopyButton value="6385525264" label="phone number" />
+                  </dd>
+                </div>
+              </>
+            )}
             <div className="flex items-center justify-between gap-3 py-3">
               <dt className="text-muted">Order reference</dt>
               <dd className="font-mono text-[13px] font-semibold text-brand-navy">{orderRef}</dd>
@@ -327,20 +371,31 @@ export default function CheckoutPage() {
               </div>
             )}
           </dl>
-          <p className="mt-4 text-xs leading-relaxed text-muted">Add the order reference in the payment note if your UPI app lets you.</p>
+          {paymentMethod === 'UPI' && (
+            <p className="mt-4 text-xs leading-relaxed text-muted">Add the order reference in the payment note if your UPI app lets you.</p>
+          )}
         </section>
 
-        {/* Step B: proof */}
+        {/* Step B: proof or submit */}
         <section className="panel p-6 sm:p-8" aria-labelledby="proof-title">
           <div className="flex items-center gap-3">
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-navy text-xs font-bold text-white">2</span>
-            <h2 id="proof-title" className="text-lg font-bold">Upload proof of payment</h2>
+            <h2 id="proof-title" className="text-lg font-bold">
+              {paymentMethod === 'UPI' ? 'Upload proof of payment' : 'Submit application'}
+            </h2>
           </div>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-6">
-            <Field label="Payment screenshot" htmlFor="proof" required hint="Upload the payment receipt or transaction screenshot from your UPI app.">
-              <FileDrop id="proof" file={file} onChange={(f) => { setFile(f); setError(''); }} />
-            </Field>
+            {paymentMethod === 'UPI' && (
+              <Field label="Payment screenshot" htmlFor="proof" required hint="Upload the payment receipt or transaction screenshot from your UPI app.">
+                <FileDrop id="proof" file={file} onChange={(f) => { setFile(f); setError(''); }} />
+              </Field>
+            )}
+            {paymentMethod === 'CASH' && (
+              <div className="rounded-2xl bg-paper p-4 text-sm text-ink-soft">
+                Submit this application now, then pay <strong className="font-bold text-ink">₹{total}</strong> in cash at the registration desk.
+              </div>
+            )}
 
             {demo && <DemoNotice>Demo mode. Any image will work. Nothing is charged.</DemoNotice>}
             {error && <Alert tone="error">{error}</Alert>}

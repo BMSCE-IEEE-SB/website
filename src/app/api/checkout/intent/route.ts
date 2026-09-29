@@ -1,5 +1,6 @@
 import { jsonError, getAdminServiceClient, requireUser } from '@/lib/server/supabase-admin';
 import { isUuid } from '@/lib/server/input';
+import { SENSORS_COUNCIL_UUID } from '@/lib/pricing';
 
 export const runtime = 'nodejs';
 
@@ -12,7 +13,21 @@ export async function POST(request: Request) {
     return jsonError('Choose valid chapters to continue.');
   }
   try {
-    const { data, error } = await getAdminServiceClient().rpc('create_checkout_intent', {
+    const client = getAdminServiceClient();
+    if (chapterIds.includes(SENSORS_COUNCIL_UUID)) {
+      try {
+        await client.from('chapters').upsert({
+          id: SENSORS_COUNCIL_UUID,
+          name: 'IEEE Sensors Council',
+          code: 'SC',
+          slug: 'sc',
+          price: 0,
+          is_active: true,
+          display_order: 5,
+        }, { onConflict: 'code' });
+      } catch {}
+    }
+    const { data, error } = await client.rpc('create_checkout_intent', {
       p_user_id: user.id,
       p_chapter_ids: chapterIds,
     });

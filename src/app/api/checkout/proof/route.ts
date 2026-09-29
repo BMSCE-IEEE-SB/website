@@ -36,8 +36,11 @@ export async function POST(request: Request) {
   const path = `${user.id}/${ref}${suffix}.${type.extension}`;
   const { error } = await client.storage.from('public-assets').upload(path, bytes, {
     contentType: type.mime,
-    upsert: false,
+    upsert: true,
   });
-  if (error) return jsonError('The proof could not be stored. Please try again.', 503);
+  if (error) {
+    console.error('Storage upload error:', error);
+    return jsonError('The proof could not be stored. Please try again.', 503);
+  }
   return Response.json({ path }, { headers: { 'Cache-Control': 'no-store' } });
 }

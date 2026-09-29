@@ -8,13 +8,13 @@ export const metadata: Metadata = {
 
 export default function RefundPolicyPage() {
   return (
-    <LegalShell title="Refund &amp; cancellation policy" subtitle="BMSCE IEEE Student Branch (Branch 06261, Region 10)">
+    <LegalShell title="Refund &amp; cancellation policy" subtitle="BMSCE IEEE Student Branch (Region 10)">
         <p className="rounded-2xl bg-sky-50 px-5 py-4 text-sm text-sky-900">Please review this policy before making UPI payments. All dues collected directly support student branch operations, technical symposiums, and global IEEE chapter enrollments.</p>
 
         <section>
           <h2>1. Non-Refundable Post-Verification</h2>
           <p>
-            Once a membership registration is reviewed, validated, and marked as <strong className="text-emerald-700">Verified</strong> by the branch executive team, dues become <strong>non-refundable</strong>. This is because roster funds are immediately earmarked for student branch kits and processed for international chapter affiliation fees.
+            Once a membership registration is reviewed, validated, and marked as <strong className="text-emerald-700">Verified</strong> by the branch executive team, dues become <strong>non-refundable</strong>.
           </p>
         </section>
 
@@ -24,9 +24,9 @@ export default function RefundPolicyPage() {
             If a student is charged multiple times due to a UPI network timeout, banking glitch, or accidental double submission:
           </p>
           <ul>
-            <li>The student must submit a refund request to <span className="font-medium text-brand-navy">ieee.sb@bmsce.ac.in</span> within <strong>5 calendar days</strong> of the transaction.</li>
+            <li>The student must reach out to the Treasurer within <strong>5 calendar days</strong> of the transaction.</li>
             <li>Requests must include the bank statement showing both debits, the order reference number, and corresponding UTRs.</li>
-            <li>Verified duplicate charges will be refunded directly to the originating bank account within 5–7 business days after reconciliation.</li>
+            <li>Verified duplicate charges will be refunded directly to the originating bank account within <strong>5–7 working days</strong> after reconciliation.</li>
           </ul>
         </section>
 
@@ -47,10 +47,10 @@ export default function RefundPolicyPage() {
             For all payment inquiries, transaction reconciliation, or reversal disputes, contact:
           </p>
           <div className="mt-3 space-y-1 rounded-2xl bg-paper p-5 text-sm">
-            <p className="font-semibold text-ink">Treasurer / Executive Committee</p>
-            <p>BMSCE IEEE Student Branch (Branch 06261)</p>
-            <p>Email: ieee.sb@bmsce.ac.in</p>
-            <p>Address: B.M.S. College of Engineering, Bull Temple Road, Bengaluru 560019</p>
+            <p className="font-semibold text-ink">Neha Ramiah</p>
+            <p className="text-ink-soft">Treasurer &amp; Membership Development Chair</p>
+            <p>BMSCE IEEE Student Branch</p>
+            <p>Phone: <a href="tel:+916385525264" className="font-medium text-brand-navy hover:underline">+91 6385525264</a></p>
           </div>
         </section>
     </LegalShell>

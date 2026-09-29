@@ -32,7 +32,7 @@ export default function RegisterPage() {
       return;
     }
 
-    const onPageShow = (e: PageTransitionEvent) => {
+    const onPageShow = () => {
       if (hasPaidCookie()) {
         router.replace('/account');
       }
@@ -239,7 +239,7 @@ export default function RegisterPage() {
       )}
 
       <p className="mt-6 text-xs leading-relaxed text-muted">
-        By continuing you agree to the <Link href="/terms" className="underline">terms of membership</Link> and the IEEE Code of Ethics.
+        By continuing you agree to the <Link href="/privacy" className="underline">privacy policy</Link> and the IEEE Code of Ethics.
       </p>
     </AuthShell>
   );

@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 import NetworkCanvas from '@/components/site/NetworkCanvas';
-import CountUp from '@/components/site/CountUp';
 
 const WORDS = ['build', 'lead', 'compete', 'publish', 'mentor', 'belong'];
 
@@ -19,14 +18,18 @@ function RotatingWord() {
   }, [reduce]);
 
   return (
-    <span className="relative inline-flex flex-col overflow-hidden text-brand-orange">
-      <span className="invisible" aria-hidden>
-        {WORDS[0]}
+    <motion.span
+      layout
+      transition={{ layout: { duration: 0.35, ease: 'easeOut' } }}
+      className="relative inline-flex flex-col overflow-hidden text-brand-orange align-baseline px-2"
+    >
+      <span className="invisible select-none whitespace-nowrap" aria-hidden>
+        {WORDS[i]}
       </span>
       {WORDS.map((w, index) => (
         <motion.span
           key={w}
-          className="absolute inset-0 flex items-center justify-center"
+          className="absolute inset-0 flex items-center justify-center whitespace-nowrap"
           initial={false}
           animate={{
             y: index === i ? '0%' : index < i ? '-100%' : '100%',
@@ -39,7 +42,7 @@ function RotatingWord() {
           {w}
         </motion.span>
       ))}
-    </span>
+    </motion.span>
   );
 }
 
@@ -95,10 +98,6 @@ export default function Hero() {
             <span className="text-brand-orange">.</span>
           </motion.h1>
 
-          <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.25 }} className="lead mx-auto mt-8 max-w-xl">
-            The IEEE Student Branch of B.M.S. College of Engineering, Bengaluru. Six technical chapters and a
-            community of 1,000+ students who make things.
-          </motion.p>
 
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.35 }} className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
             <Link href="/membership" className="btn btn-primary btn-lg">
@@ -108,21 +107,6 @@ export default function Hero() {
               Explore chapters
             </Link>
           </motion.div>
-
-          <motion.dl initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.5 }} className="mt-14 flex justify-center gap-8 sm:gap-16">
-            {[
-              ['16+', 'years on campus'],
-              ['1,000+', 'members'],
-            ].map(([v, l]) => (
-              <div key={l} className="border-l-2 border-brand-orange/60 pl-4 text-left">
-                <dt className="sr-only">{l}</dt>
-                <dd className="display text-3xl text-ink sm:text-4xl">
-                  <CountUp value={v} />
-                </dd>
-                <dd className="mt-1.5 text-xs text-muted sm:text-sm">{l}</dd>
-              </div>
-            ))}
-          </motion.dl>
         </div>
       </div>
     </section>

@@ -12,6 +12,25 @@ const nextConfig: NextConfig = {
       ],
     }];
   },
+  async redirects() {
+    return [
+      {
+        source: '/chapters/pes',
+        destination: '/chapters/pes-sc',
+        permanent: true,
+      },
+      {
+        source: '/chapters/sc',
+        destination: '/chapters/pes-sc',
+        permanent: true,
+      },
+      {
+        source: '/chapters/pels',
+        destination: '/chapters/pels-ies',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

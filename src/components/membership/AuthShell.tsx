@@ -20,7 +20,15 @@ function RotatingBenefit() {
       <AnimatePresence mode="wait">
         <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35 }}>
           <p className="text-xs font-semibold tracking-wider text-brand-orange uppercase">Member Benefit</p>
-          <p className="mt-2 text-base leading-relaxed text-white/90">{benefit}</p>
+          <p className="mt-2 text-base leading-relaxed text-white/90">
+            {benefit && benefit.includes(' – ') ? (
+              <>
+                <strong className="font-semibold text-white">{benefit.split(' – ')[0]}</strong> — {benefit.split(' – ')[1]}
+              </>
+            ) : (
+              benefit
+            )}
+          </p>
         </motion.div>
       </AnimatePresence>
     </div>
@@ -35,7 +43,7 @@ export default function AuthShell({ title, children, top }: { title: React.React
         <NetworkCanvas className="absolute inset-0 h-full w-full opacity-40" density={0.00006} />
         <Sails className="absolute -right-16 -bottom-16 h-72 w-72 animate-spin-slow opacity-10" />
         <div className="relative">
-          <p className="text-xs font-semibold tracking-[0.18em] text-brand-orange uppercase">BMSCE IEEE · Branch 06261</p>
+          <p className="text-xs font-semibold tracking-[0.18em] text-brand-orange uppercase">BMSCE IEEE</p>
           <h2 className="display mt-5 text-5xl leading-[0.95]">{title}</h2>
         </div>
         <div className="relative space-y-10">

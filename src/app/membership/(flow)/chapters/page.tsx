@@ -17,7 +17,22 @@ import { CART_KEYS, type CartChapter } from '@/lib/cart';
 
 const TSHIRT_SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'] as const;
 
-const infoFor = (code: string) => chapterInfo.find((c) => c.code === code);
+const infoFor = (code: string, name?: string) =>
+  chapterInfo.find((c) => {
+    if (c.code === code || c.slug === code.toLowerCase()) return true;
+    if (c.code === 'PES & SC' && (code === 'PES' || code === 'SC' || code === 'pes-sc' || code === 'pes' || code === 'sc')) return true;
+    if (
+      (c.code === 'PELS/IES' || c.slug === 'pels-ies') &&
+      (code === 'PELS' || code === 'IES' || code === 'PELS/IES' || code === 'PELS & IES' || code === 'PELS-IES' || code === 'pels-ies')
+    )
+      return true;
+    if (name) {
+      const lower = name.toLowerCase();
+      if ((lower.includes('power & energy') || lower.includes('sensors')) && c.code === 'PES & SC') return true;
+      if ((lower.includes('power electronics') || lower.includes('industrial electronics') || lower.includes('pels')) && c.code === 'PELS/IES') return true;
+    }
+    return false;
+  });
 
 export default function ChaptersPage() {
   const router = useRouter();
@@ -41,7 +56,7 @@ export default function ChaptersPage() {
       return;
     }
 
-    const onPageShow = (e: PageTransitionEvent) => {
+    const onPageShow = () => {
       if (hasPaidCookie()) {
         router.replace('/account');
       }
@@ -103,7 +118,7 @@ export default function ChaptersPage() {
       alive = false;
       window.removeEventListener('pageshow', onPageShow);
     };
-  }, [router]);
+  }, [router, demo]);
 
   const deptLabel = departments.find(([code]) => code === department)?.[1];
 
@@ -243,9 +258,13 @@ export default function ChaptersPage() {
 
           <motion.ul layout className="grid gap-4 sm:grid-cols-2">
             {ordered.map((c) => {
-              const info = infoFor(c.code);
+              const info = infoFor(c.code, c.name);
               const on = selected.includes(c.id);
-              const color = info?.color ?? '#0b1b33';
+              const color = c.code === 'SC' ? '#14b8a6' : (info?.color ?? '#0b1b33');
+              const chapterTitle = c.name.replace(/\s*joint chapter\s*/gi, ' ').replace(/\s{2,}/g, ' ').trim();
+              const heroText = info
+                ? (info.tagline ? `${info.tagline}. ${info.description}` : info.description)
+                : '';
               return (
                 <motion.li key={c.id} layout transition={{ type: 'spring', stiffness: 300, damping: 30 }}>
                   <div
@@ -260,7 +279,7 @@ export default function ChaptersPage() {
                       type="button"
                       onClick={() => toggle(c.id)}
                       aria-pressed={on}
-                      aria-label={`${on ? 'Remove' : 'Add'} ${info?.name ?? c.name}, ₹${c.price}`}
+                      aria-label={`${on ? 'Remove' : 'Add'} ${chapterTitle}, ₹${c.price}`}
                       className="absolute inset-0 z-10 cursor-pointer rounded-[26px]"
                     />
                     <div className="relative h-28 overflow-hidden bg-white">
@@ -272,7 +291,7 @@ export default function ChaptersPage() {
                     <div className="p-5">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <h3 className="font-bold leading-snug text-ink">{info?.name ?? c.name}</h3>
+                          <h3 className="font-bold leading-snug text-ink">{chapterTitle}</h3>
                         </div>
                         <motion.span
                           animate={on ? { scale: [1, 1.25, 1], rotate: [0, -8, 0] } : { scale: 1 }}
@@ -284,20 +303,11 @@ export default function ChaptersPage() {
                         </motion.span>
                       </div>
 
-                      <AnimatePresence initial={false}>
-                        {on && info && (
-                          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
-                            <ul className="mt-4 space-y-1.5 border-t border-line pt-4 text-sm text-ink-soft">
-                              {info.activities.slice(0, 3).map((a) => (
-                                <li key={a} className="flex items-start gap-2">
-                                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: color }} />
-                                  {a}
-                                </li>
-                              ))}
-                            </ul>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                      {heroText && (
+                        <p className="mt-3 border-t border-line/60 pt-3 text-xs sm:text-sm leading-relaxed text-ink-soft">
+                          {heroText}
+                        </p>
+                      )}
 
                       <div className="mt-4 flex items-center justify-between">
                         <span className="font-display text-lg font-bold" style={{ color: on ? color : undefined }}>{c.price === 0 ? 'Included' : `+ ₹${c.price}`}</span>

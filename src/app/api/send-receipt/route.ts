@@ -21,6 +21,7 @@ async function deliverReceipt(receipt: {
   student_name: string;
   amount: number;
   chapters: string[];
+  payment_method: string;
 }, client: ReturnType<typeof getAdminServiceClient>) {
   const config = smtpConfig();
   if (!config) throw new Error('Receipt email is unavailable.');
@@ -37,6 +38,7 @@ async function deliverReceipt(receipt: {
     treasurerName: settings?.treasurer_name || 'BMSCE IEEE Treasurer',
     treasurerRole: settings?.treasurer_role || 'Treasurer',
     treasurerPhone: settings?.treasurer_phone || '',
+    paymentMethod: receipt.payment_method,
   });
   const transporter = nodemailer.createTransport({ host: config.host, port: config.port, secure: config.port === 465, auth: { user: config.user, pass: config.pass } });
   await transporter.sendMail({
@@ -71,7 +73,7 @@ export async function POST(request: Request) {
   const client = getAdminServiceClient();
   const { data, error } = await client.rpc('reserve_order_receipt', { p_order_id: body.orderId, p_actor_id: admin.id });
   if (error || !data) return jsonError('Only a verified order can receive an official receipt.', 409);
-  const receipt = data as { id: string; receipt_number: string; drive_year: number; recipient_email: string; student_name: string; amount: number; chapters: string[] };
+  const receipt = data as { id: string; receipt_number: string; drive_year: number; recipient_email: string; student_name: string; amount: number; chapters: string[]; payment_method: string };
   if (!receipt.id || !receipt.recipient_email) return jsonError('The receipt record is incomplete.', 409);
   try {
     await deliverReceipt(receipt, client);

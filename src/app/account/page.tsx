@@ -323,7 +323,11 @@ export default function AccountPage() {
                       </div>
                     </dl>
                     {o.status === 'pending' && (
-                      <p className="mt-5 rounded-2xl bg-paper px-4 py-3 text-sm text-ink-soft">Your payment is queued for review. You will get an email once it is verified.</p>
+                      <p className="mt-5 rounded-2xl bg-paper px-4 py-3 text-sm text-ink-soft">
+                        {o.payment_method === 'CASH'
+                          ? 'Your cash payment is pending verification. Please pay at the registration desk.'
+                          : 'Your payment is queued for review. You will get an email once it is verified.'}
+                      </p>
                     )}
                     {o.status === 'verified' && (
                       <p className="mt-5 rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">Welcome to BMSCE IEEE. Your IEEE.org credentials will be shared once headquarters provisions them.</p>

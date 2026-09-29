@@ -121,7 +121,7 @@ export async function generateReceiptPdf(data: ReceiptData): Promise<Buffer> {
     color: rgb(0.18, 0.22, 0.28),
   });
 
-  const emailText = 'Email: ieee@bmsce.ac.in';
+  const emailText = 'Email: ieee.sb@bmsce.ac.in';
   const emailWidth = fontRegular.widthOfTextAtSize(emailText, 13);
   page.drawText(emailText, {
     x: (width - emailWidth) / 2,

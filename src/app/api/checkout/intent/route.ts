@@ -8,8 +8,12 @@ export async function POST(request: Request) {
   const user = await requireUser(request);
   if (!user) return jsonError('Sign in to start checkout.', 401);
   const body = await request.json().catch(() => null);
-  const chapterIds = body?.chapterIds;
-  if (!Array.isArray(chapterIds) || chapterIds.length > 6 || chapterIds.some((id: unknown) => !isUuid(id))) {
+  const rawChapterIds = body?.chapterIds;
+  if (!Array.isArray(rawChapterIds) || rawChapterIds.some((id: unknown) => !isUuid(id))) {
+    return jsonError('Choose valid chapters to continue.');
+  }
+  const chapterIds = Array.from(new Set(rawChapterIds as string[]));
+  if (chapterIds.length > 6) {
     return jsonError('Choose valid chapters to continue.');
   }
   try {

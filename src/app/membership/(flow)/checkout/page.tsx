@@ -9,7 +9,7 @@ import { isDemoMode, supabase } from '@/lib/supabase';
 import { getCurrentUser, hasPaidCookie, hasUserSubmittedPayment, markPaymentSubmitted, saveLocalOrder, type SessionUser } from '@/lib/auth';
 import { clearCart, getOrCreateOrderRef, readCart, type CartChapter } from '@/lib/cart';
 import { FALLBACK_PAYEE, loadPayee } from '@/lib/pricing';
-import { Alert, Field, FileDrop, Input, PageLoader, Spinner } from '@/components/ui/form';
+import { Alert, Field, FileDrop, PageLoader, Spinner } from '@/components/ui/form';
 import DemoNotice from '@/components/membership/DemoNotice';
 import { errorMessage, imageToDataUrl, validateScreenshot } from '@/lib/utils';
 
@@ -62,7 +62,7 @@ export default function CheckoutPage() {
       return;
     }
 
-    const onPageShow = (e: PageTransitionEvent) => {
+    const onPageShow = () => {
       if (hasPaidCookie()) {
         router.replace('/account');
       }

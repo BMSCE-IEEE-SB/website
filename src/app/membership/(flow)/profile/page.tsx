@@ -39,7 +39,7 @@ export default function ProfilePage() {
       return;
     }
 
-    const onPageShow = (e: PageTransitionEvent) => {
+    const onPageShow = () => {
       if (hasPaidCookie()) {
         router.replace('/account');
       }

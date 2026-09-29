@@ -31,7 +31,11 @@ export default function Header() {
   const [hidden, setHidden] = useState(false);
   const [menu, setMenu] = useState<'chapters' | 'account' | null>(null);
   const [active, setActive] = useState<string | null>(null);
-  const [isLocalhost, setIsLocalhost] = useState(false);
+  const [isLocalhost] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const h = window.location.hostname;
+    return h === 'localhost' || h === '127.0.0.1' || h === '::1';
+  });
   const [notice, setNotice] = useState<string | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const headerRef = useRef<HTMLElement>(null);
@@ -39,11 +43,6 @@ export default function Header() {
   const isAdmin = pathname?.startsWith('/admin');
   const isHome = pathname === '/';
   const transparentTop = pathname === '/' || pathname === '/membership';
-
-  useEffect(() => {
-    const h = window.location.hostname;
-    setIsLocalhost(h === 'localhost' || h === '127.0.0.1' || h === '::1');
-  }, []);
 
   const isRestricted = REGISTRATION_ONLY_MODE && !isLocalhost;
 

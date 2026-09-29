@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { BRANCH, chapters, contactInfo, socialLinks } from '@/data/site';
@@ -9,12 +9,11 @@ import { BrandDots } from './BrandShapes';
 import { REGISTRATION_ONLY_MODE } from '@/config/temporary-launch';
 
 export default function Footer() {
-  const [isLocalhost, setIsLocalhost] = useState(false);
-
-  useEffect(() => {
+  const [isLocalhost] = useState(() => {
+    if (typeof window === 'undefined') return false;
     const h = window.location.hostname;
-    setIsLocalhost(h === 'localhost' || h === '127.0.0.1' || h === '::1');
-  }, []);
+    return h === 'localhost' || h === '127.0.0.1' || h === '::1';
+  });
 
   const isRestricted = REGISTRATION_ONLY_MODE && !isLocalhost;
 

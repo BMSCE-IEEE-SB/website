@@ -56,7 +56,7 @@ export default function ChaptersPage() {
       return;
     }
 
-    const onPageShow = (e: PageTransitionEvent) => {
+    const onPageShow = () => {
       if (hasPaidCookie()) {
         router.replace('/account');
       }
@@ -118,7 +118,7 @@ export default function ChaptersPage() {
       alive = false;
       window.removeEventListener('pageshow', onPageShow);
     };
-  }, [router]);
+  }, [router, demo]);
 
   const deptLabel = departments.find(([code]) => code === department)?.[1];
 

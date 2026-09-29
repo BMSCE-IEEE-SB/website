@@ -538,8 +538,8 @@ export const FALLBACK_CART_CHAPTERS = [
   { id: 'demo-pes', name: 'Power & Energy Society', code: 'PES', price: 100 },
   { id: 'demo-pels', name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', price: 370 },
   { id: 'demo-wie', name: 'Women in Engineering (WIE)', code: 'WIE', price: 0 },
-  { id: 'demo-sc', name: 'Sensors Council', code: 'SC', price: 0 },
   { id: 'demo-ssit', name: 'Society on Social Implications of Technology (SSIT)', code: 'SSIT', price: 50 },
+  { id: 'demo-sc', name: 'Sensors Council', code: 'SC', price: 0 },
 ];
 
 export const chapterBySlug = (slug: string) =>

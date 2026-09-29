@@ -86,23 +86,39 @@ export async function rejectOrders(list: Order[], reason: string, admin: AdminId
 
 export async function saveNote(order: Order, note: string, admin: AdminIdentity) {
   const id = order.id;
-  if (isDemoMode()) patchDemo([id], (o) => ({ ...o, admin_note: note || undefined }));
-  else {
-    const { error } = await supabase.from('orders').update({ admin_note: note || null }).eq('id', id);
-    if (error) throw error;
+  if (isDemoMode()) {
+    patchDemo([id], (o) => ({ ...o, admin_note: note || undefined }));
+    await logActivity(admin, 'added a note to', labelFor([order]), note.slice(0, 120));
+  } else {
+    const res = await adminFetch(`/api/admin/orders/${id}/note`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note: note || null }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `Failed to save note for ${order.order_reference}`);
+    }
   }
-  await logActivity(admin, 'added a note to', labelFor([order]), note.slice(0, 120));
 }
 
 export async function markCredentialsSent(list: Order[], sent: boolean, admin: AdminIdentity) {
   const ids = list.map((o) => o.id);
   const value = sent ? new Date().toISOString() : null;
-  if (isDemoMode()) patchDemo(ids, (o) => ({ ...o, credentials_sent_at: value ?? undefined }));
-  else {
-    const { error } = await supabase.from('orders').update({ credentials_sent_at: value }).in('id', ids);
-    if (error) throw error;
+  if (isDemoMode()) {
+    patchDemo(ids, (o) => ({ ...o, credentials_sent_at: value ?? undefined }));
+    await logActivity(admin, sent ? 'marked IEEE credentials sent for' : 'unmarked credentials for', list.length === 1 ? labelFor(list) : `${list.length} members`);
+  } else {
+    const res = await adminFetch(`/api/admin/orders/credentials`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderIds: ids, sent }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `Failed to update credentials status.`);
+    }
   }
-  await logActivity(admin, sent ? 'marked IEEE credentials sent for' : 'unmarked credentials for', list.length === 1 ? labelFor(list) : `${list.length} members`);
 }
 
 export async function saveIeeeId(order: Order, ieeeId: string, admin: AdminIdentity) {
@@ -116,7 +132,7 @@ export async function saveIeeeId(order: Order, ieeeId: string, admin: AdminIdent
 
 /** Asks the server to generate and email the official PDF receipt. */
 export async function sendReceipt(order: Order) {
-  if (isDemoMode()) return true;
+  if (isDemoMode()) return false;
   const res = await adminFetch('/api/send-receipt', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

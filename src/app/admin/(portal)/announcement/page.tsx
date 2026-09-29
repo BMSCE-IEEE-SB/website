@@ -113,7 +113,7 @@ export default function AdminAnnouncementPage() {
         </Field>
 
         <div className="flex items-center justify-end gap-3 pt-4">
-          <button type="submit" disabled={isSaving} className="btn-primary">
+          <button type="submit" disabled={isSaving} className="btn btn-primary">
             {isSaving ? <Spinner className="h-4 w-4" /> : null}
             Save announcement
           </button>

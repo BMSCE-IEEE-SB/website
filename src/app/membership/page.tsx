@@ -52,8 +52,8 @@ export default function MembershipPage() {
     <>
       <section className="relative -mt-16 overflow-hidden pt-16 lg:-mt-[76px] lg:pt-[76px]">
         <NetworkCanvas className="absolute inset-0 -z-10 h-full w-full opacity-50" />
-        <div className="container-page grid items-center gap-14 pt-12 pb-20 lg:grid-cols-2 lg:pt-20 lg:pb-28">
-          <div>
+        <div className="container-page pt-12 pb-20 lg:pt-20 lg:pb-28">
+          <div className="max-w-2xl">
             <SectionLabel index="2026">Membership drive</SectionLabel>
             <h1 className="display mt-6 text-5xl text-ink sm:text-7xl">
               Join the branch.
@@ -61,7 +61,7 @@ export default function MembershipPage() {
               <span className="text-brand-orange">Get the network.</span>
             </h1>
             <p className="lead mt-6 max-w-lg">
-              One membership gets you into IEEE worldwide, the BMSCE branch and any chapters you pick. Registration takes about five minutes.
+              One membership gets you into IEEE worldwide, the BMSCE IEEE Student Branch and any chapters you pick. Registration takes about five minutes.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
               <Link href="#pricing" className="btn btn-primary btn-lg">
@@ -70,52 +70,6 @@ export default function MembershipPage() {
               <Link href="/login" className="btn btn-ghost btn-lg bg-white/60">
                 Already applied? Sign in
               </Link>
-            </div>
-          </div>
-          <div className="mx-auto w-full max-w-md">
-            <div className="panel grain relative overflow-hidden bg-night p-7 text-white shadow-2xl sm:p-9">
-              <div aria-hidden className="pointer-events-none absolute inset-0">
-                <div className="absolute -top-16 -right-10 h-56 w-56 rounded-full bg-brand-sky/25 blur-3xl" />
-                <div className="absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-brand-orange/25 blur-3xl" />
-              </div>
-              <div className="relative">
-                <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                  <div>
-                    <p className="text-xs font-semibold tracking-wider text-brand-orange uppercase">BMSCE IEEE</p>
-                    <h3 className="mt-1 font-display text-2xl font-bold">Annual Membership</h3>
-                  </div>
-                  <span className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300">
-                    2026–27 Open
-                  </span>
-                </div>
-                <ul className="mt-6 space-y-3.5 text-sm text-white/85">
-                  <li className="flex items-center gap-3">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-orange text-xs font-bold text-white">✓</span>
-                    <span>IEEE global student credentials & network</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-orange text-xs font-bold text-white">✓</span>
-                    <span>Full access to 5 technical chapters & affinity groups</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-orange text-xs font-bold text-white">✓</span>
-                    <span>Official IEEE Student Branch T-Shirt included</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-orange text-xs font-bold text-white">✓</span>
-                    <span>IEEE Xplore research library & paper access</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-orange text-xs font-bold text-white">✓</span>
-                    <span>Discounted entry to conferences, workshops & contests</span>
-                  </li>
-                </ul>
-                <div className="mt-8 border-t border-white/10 pt-5">
-                  <Link href="#pricing" className="btn btn-primary w-full justify-center">
-                    View fee breakdown & enroll <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              </div>
             </div>
           </div>
         </div>

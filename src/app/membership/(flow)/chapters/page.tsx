@@ -206,7 +206,7 @@ export default function ChaptersPage() {
                 onClick={() => setSizeChartOpen(true)}
                 className="inline-flex cursor-pointer items-center self-start rounded-full bg-paper px-3 py-1 text-xs font-semibold text-brand-navy transition hover:bg-sky-50 sm:self-auto"
               >
-                View size chart
+                {/* View size chart placeholder removed */}
               </button>
             </div>
 

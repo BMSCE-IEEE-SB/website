@@ -27,9 +27,11 @@ export async function POST(request: Request) {
           slug: 'sc',
           price: 0,
           is_active: true,
-          display_order: 5,
-        }, { onConflict: 'code' });
-      } catch {}
+          display_order: 6,
+        }, { onConflict: 'id' });
+      } catch (upsertError) {
+        console.error('Failed to upsert SC chapter:', upsertError);
+      }
     }
     const { data, error } = await client.rpc('create_checkout_intent', {
       p_user_id: user.id,

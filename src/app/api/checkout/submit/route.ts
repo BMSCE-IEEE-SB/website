@@ -8,7 +8,11 @@ export async function POST(request: Request) {
   if (!user) return jsonError('Sign in to submit your application.', 401);
   const body = await request.json().catch(() => null);
   const paymentMethod = body?.paymentMethod === 'CASH' ? 'CASH' : 'UPI';
-  if (!isUuid(body?.intentId) || typeof body?.tshirtSize !== 'string') return jsonError('Checkout details are incomplete.');
+  if (!isUuid(body?.intentId)) return jsonError('Checkout details are incomplete.');
+  
+  const validSizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
+  if (!validSizes.includes(body?.tshirtSize)) return jsonError('Invalid T-shirt size selected.');
+
   if (paymentMethod === 'UPI' && typeof body?.proofPath !== 'string') return jsonError('Checkout details are incomplete.');
 
   let proof: string | null = null;
@@ -27,7 +31,11 @@ export async function POST(request: Request) {
   if (intentError || !intent || new Date(intent.expires_at).getTime() <= Date.now()) return jsonError('Your checkout quote expired. Start checkout again.', 409);
 
   if (paymentMethod === 'UPI') {
-    if (proof!.split('/')[1]?.split('.')[0] !== intent.order_reference) return jsonError('Payment proof does not match this checkout.');
+    // proof path format: {user_id}/{order_reference}.{ext}
+    const filename = proof!.split('/')[1];
+    if (!filename || !filename.startsWith(intent.order_reference)) {
+      return jsonError('Payment proof does not match this checkout.');
+    }
 
     const { data: signed, error: signedError } = await client.storage.from('public-assets').createSignedUrl(proof!, 30);
     if (signedError || !signed?.signedUrl) return jsonError('Payment proof could not be found. Upload it again.', 400);

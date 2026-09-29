@@ -28,17 +28,17 @@ This checklist turns **PRD §10** into an actionable, non-technical punch list o
 - [ ] **Distribution Details**: Quadrangle collection dates and inventory counts per size.
 
 ### 4. Official Transactional Email (SMTP)
-- [ ] **SMTP Sender Address**: Official institutional email (e.g. `ieee@bmsce.ac.in`).
+- [ ] **SMTP Sender Address**: Official institutional email (e.g. `ieee.sb@bmsce.ac.in`).
 - [ ] **SMTP App Password**: 16-character Google Workspace or Microsoft 365 app password to authorize automated receipt emails.
 - [ ] **SMTP Configuration Details**:
   - `SMTP_HOST`: `smtp.gmail.com`
   - `SMTP_PORT`: `465` (SSL)
-  - `SMTP_USER`: `ieee@bmsce.ac.in`
-  - `SMTP_FROM`: `"BMSCE IEEE" <ieee@bmsce.ac.in>`
+  - `SMTP_USER`: `ieee.sb@bmsce.ac.in`
+  - `SMTP_FROM`: `"BMSCE IEEE" <ieee.sb@bmsce.ac.in>`
 
 ### 5. Executive Team Whitelist (`admin_whitelist`)
 List of executive committee members who require administrative access:
-- [ ] Chair: Name & institutional email (`chair.ieee@bmsce.ac.in`)
+- [ ] Chair: Name & institutional email (`chair.ieee.sb@bmsce.ac.in`)
 - [ ] Vice-Chair: Name & institutional email
 - [ ] Secretary: Name & institutional email
 - [ ] Treasurer: Name & institutional email
@@ -80,4 +80,4 @@ For 4–8 prominent BMSCE IEEE alumni:
 ---
 
 ## 📋 How to Submit Content
-Send all copy, photos, and assets in a shared Google Drive folder or email to the branch webmaster at **ieee@bmsce.ac.in**.
+Send all copy, photos, and assets in a shared Google Drive folder or email to the branch webmaster at **ieee.sb@bmsce.ac.in**.

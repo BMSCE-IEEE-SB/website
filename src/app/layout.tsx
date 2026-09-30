@@ -6,6 +6,7 @@ import Header from '@/components/site/Header';
 import Footer from '@/components/site/Footer';
 import ScrollProgress from '@/components/site/ScrollProgress';
 import HideOnAdmin from '@/components/site/HideOnAdmin';
+import { Analytics } from '@vercel/analytics/next';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
 const archivo = Archivo({ subsets: ['latin'], variable: '--font-archivo', display: 'swap', axes: ['wdth'] });
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <HideOnAdmin>
           <Footer />
         </HideOnAdmin>
+        <Analytics />
       </body>
     </html>
   );

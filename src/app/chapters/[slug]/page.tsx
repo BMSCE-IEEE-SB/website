@@ -63,6 +63,11 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
             <Link href="/membership" className="btn btn-lg bg-white text-ink hover:-translate-y-0.5">
               Join {c.code} with your membership <ArrowRight className="h-4 w-4" />
             </Link>
+            {c.website && (
+              <a href={c.website} target="_blank" rel="noopener noreferrer" className="btn btn-lg bg-white/20 text-white hover:-translate-y-0.5 hover:bg-white/30 backdrop-blur">
+                Visit {c.code} Website
+              </a>
+            )}
           </div>
         </div>
       </section>

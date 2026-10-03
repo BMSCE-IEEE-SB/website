@@ -79,7 +79,7 @@ All landing-page text, chapters, testimonials, FAQs and ExeCom members are in `s
 
 ### 🏛️ 3. Society Chapters & Affinity Groups
 Interactive Bento grid showcasing all 5 technical chapters and affinity groups:
-1. **IEEE Computer Society (CS)** — Software Architectures, Algorithms, AI Systems & IEEEXtreme.
+1. **IEEE Computer Society (CS)** — Fostering innovation, technical learning in computing & open-source initiatives.
 2. **IEEE Power & Energy Society (PES)** — Clean Tech, Microgrids & Smart Energy.
 3. **IEEE PELS & IES Chapter** — Power electronics, industrial electronics, VLSI, embedded systems & robotics.
 4. **IEEE Women in Engineering (WIE)** — Mentorship, Leadership & STEM Advancement.

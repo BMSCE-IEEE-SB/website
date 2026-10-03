@@ -64,6 +64,7 @@ export type Chapter = {
   futureEvents?: { title: string; description?: string }[];
   futureEventsTitle?: string;
   comingSoon?: boolean;
+  website?: string;
 };
 
 export const chapters: Chapter[] = [
@@ -74,19 +75,40 @@ export const chapters: Chapter[] = [
     logo: '/chapter-logos/cs.png',
     color: '#0284c7',
     image: u('photo-1517694712202-14dd9538aa97', 1400, 900),
+    website: 'https://www.bmsceieeecs.in/',
     about: [],
     focus: [],
     activities: [],
-    stats: { members: '', events: '', founded: '' },
+    stats: { members: '', events: '', founded: '2021' },
     name: 'Computer Society (CS)',
     fullName: 'IEEE Computer Society',
-    tagline: 'Software, algorithms & AI systems',
+    tagline: 'Fostering innovation and technical learning in computing',
     description:
-      'Focusing on software architectures, algorithms, AI systems, web & cloud, and the 24-hour IEEEXtreme programming competition on campus.',
+      'A student-led technical chapter focused on fostering innovation, technical learning, collaboration, and real-world problem solving in the field of computing.',
+    aboutTitle: 'About the Chapter',
+    aboutUs: [
+      'BMSCE IEEE Computer Society is a student-led technical chapter focused on fostering innovation, technical learning, collaboration, and real-world problem solving in the field of computing.',
+      'Since its establishment in 2021, the chapter has conducted several events across various domains, providing students with opportunities to develop technical skills, explore emerging technologies, collaborate on projects, and connect with the wider technology community.'
+    ],
+    flagshipEvents: [
+      {
+        title: 'CS Week',
+        description: 'Features technical workshops, competitive programming, open-source initiatives, and 24-hour hackathons.',
+      },
+      {
+        title: 'Open Source Week',
+        description: 'Brings together students to learn, build, compete, and innovate through open-source initiatives.',
+      }
+    ],
+    otherInitiatives: [
+      'WINGS - A learning community focused on Competitive Programming and Web Development.',
+      'CS Reach - An initiative focused on introducing computer science fundamentals to underprivileged students and encouraging them to explore careers in technology.',
+      'IEEE CS Project Series - A platform where students can develop ideas under mentorship and work towards research-oriented projects.'
+    ],
     tracks: ['AI/ML', 'Web & Cloud', 'Systems'],
     icon: Cpu,
     tone: { text: 'text-sky-600', soft: 'bg-sky-50', bar: 'bg-sky-500' },
-    comingSoon: true,
+    comingSoon: false,
   },
   {
     slug: 'pes-sc',

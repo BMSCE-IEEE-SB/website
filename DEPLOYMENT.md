@@ -29,9 +29,9 @@ Before clicking Deploy, expand the **Environment Variables** section and add:
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase secret key | Server-only privileged API access (required for `/api/checkout/*` & `/api/admin/*`); never use a `NEXT_PUBLIC_` prefix |
 | `SMTP_HOST` | `smtp.gmail.com` | Email SMTP Server |
 | `SMTP_PORT` | `465` | SMTP port (SSL) |
-| `SMTP_USER` | `ieee@bmsce.ac.in` | Official Branch Sender Email |
+| `SMTP_USER` | `ieee.sb@bmsce.ac.in` | Official Branch Sender Email |
 | `SMTP_PASS` | `xxxx xxxx xxxx xxxx` | 16-character App Password |
-| `SMTP_FROM` | `"BMSCE IEEE" <ieee@bmsce.ac.in>` | Transactional email sender display name and address |
+| `SMTP_FROM` | `"BMSCE IEEE" <ieee.sb@bmsce.ac.in>` | Transactional email sender display name and address |
 
 ### Step 4: Deploy
 Click **"Deploy"**. Within ~60 seconds, Vercel will build all 32+ pages and API routes with Next.js Turbopack and assign a live URL (e.g. `https://sb-website-theta.vercel.app` or `https://sb-website-ratik.vercel.app`).

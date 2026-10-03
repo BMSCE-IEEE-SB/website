@@ -139,7 +139,7 @@ ON CONFLICT (id) DO UPDATE SET
   treasurer_phone = EXCLUDED.treasurer_phone;
 
 INSERT INTO public.chapters (name, code, slug, price, description, is_active, display_order) VALUES
-  ('IEEE Computer Society', 'CS', 'cs', 0, 'Focus on software architectures, algorithms, AI systems & IEEEXtreme programming competition.', true, 1),
+  ('IEEE Computer Society', 'CS', 'cs', 0, 'A student-led technical chapter focused on fostering innovation, technical learning, collaboration, and real-world problem solving in the field of computing.', true, 1),
   ('IEEE Power & Energy Society', 'PES', 'pes', 100, 'Electrical Power & Energy, Electronics, Robotics & Sensors. Bridging the gap between academic concepts and real-world applications through hands-on projects, technical workshops, industry interactions, research opportunities, and mentorship.', true, 2),
   ('IEEE Power & Industrial Electronics', 'PELS/IES', 'pels-ies', 370, 'Power electronics, industrial electronics, VLSI, embedded systems & robotics. Creating opportunities for students to explore power electronics, industrial electronics, VLSI, embedded systems, robotics and emerging technologies.', true, 3),
   ('IEEE Women in Engineering', 'WIE', 'wie', 0, 'Global network dedicated to promoting women engineers, leadership, & STEM mentorship.', true, 4),

@@ -1,6 +1,5 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import fs from 'fs';
-import path from 'path';
+import { logoBase64, emblemBase64, signatureBase64 } from './receipt-assets';
 
 export interface ReceiptData {
   studentName: string;
@@ -66,13 +65,12 @@ export async function generateReceiptPdf(data: ReceiptData): Promise<Buffer> {
     borderColor: rgb(0.92, 0.90, 0.85),
   });
 
-  const cwd = process.cwd();
+
 
   // 1. Embed Logos
   try {
-    const logoPath = path.join(cwd, 'public/brand/logo.png');
-    if (fs.existsSync(logoPath)) {
-      const logoBytes = fs.readFileSync(logoPath);
+    if (logoBase64) {
+      const logoBytes = Buffer.from(logoBase64, 'base64');
       const logoImg = await doc.embedPng(logoBytes);
       const logoDims = logoImg.scale(0.24);
       page.drawImage(logoImg, {
@@ -87,9 +85,8 @@ export async function generateReceiptPdf(data: ReceiptData): Promise<Buffer> {
   }
 
   try {
-    const emblemPath = path.join(cwd, 'public/brand/emblem.png');
-    if (fs.existsSync(emblemPath)) {
-      const emblemBytes = fs.readFileSync(emblemPath);
+    if (emblemBase64) {
+      const emblemBytes = Buffer.from(emblemBase64, 'base64');
       const emblemImg = await doc.embedPng(emblemBytes);
       const emblemDims = emblemImg.scale(0.24);
       page.drawImage(emblemImg, {
@@ -181,19 +178,10 @@ export async function generateReceiptPdf(data: ReceiptData): Promise<Buffer> {
   page.drawText('Amount: ', { x: 55, y: curY, size: 14, font: fontBold, color: rgb(0.08, 0.08, 0.08) });
   const amtX = 55 + fontBold.widthOfTextAtSize('Amount: ', 14);
 
-  // Draw Indian Rupee SVG Path symbol (vector-crisp)
-  const rupeePath = 'M 0 10.5 L 9 10.5 M 0 7 L 8 7 M 1.6 10.5 L 1.6 3.5 C 6 3.5 6 10.5 1.6 10.5 M 3.5 5.5 L 8.5 0';
-  page.drawSvgPath(rupeePath, {
-    x: amtX,
-    y: curY + 1.5,
-    borderWidth: 1.25,
-    borderColor: rgb(0.08, 0.08, 0.08),
-  });
-
   const numericAmt = typeof data.amount === 'number' ? data.amount : Number(String(data.amount).replace(/[^0-9.]/g, ''));
-  const formattedAmt = `${Number.isFinite(numericAmt) ? numericAmt.toLocaleString('en-IN') : data.amount}.00/-`;
+  const formattedAmt = `Rs. ${Number.isFinite(numericAmt) ? numericAmt.toLocaleString('en-IN') : data.amount}.00/-`;
   page.drawText(formattedAmt, {
-    x: amtX + 13,
+    x: amtX,
     y: curY,
     size: 14,
     font: fontRegular,
@@ -263,22 +251,24 @@ export async function generateReceiptPdf(data: ReceiptData): Promise<Buffer> {
 
   let sigDrawn = false;
   try {
-    const sigBytes = fs.readFileSync(path.join(process.cwd(), 'public/brand/signature.png'));
-    const sigImg = await doc.embedPng(sigBytes);
-    const maxSigW = 140;
-    const maxSigH = 50;
-    const scale = Math.min(maxSigW / sigImg.width, maxSigH / sigImg.height, 0.5);
-    const sW = sigImg.width * scale;
-    const sH = sigImg.height * scale;
-    page.drawImage(sigImg, {
-      x: sigX + (180 - sW) / 2,
-      y: sigY - sH + 15,
-      width: sW,
-      height: sH,
-    });
-    sigDrawn = true;
+    if (signatureBase64) {
+      const sigBytes = Buffer.from(signatureBase64, 'base64');
+      const sigImg = await doc.embedPng(sigBytes);
+      const maxSigW = 140;
+      const maxSigH = 50;
+      const scale = Math.min(maxSigW / sigImg.width, maxSigH / sigImg.height, 0.5);
+      const sW = sigImg.width * scale;
+      const sH = sigImg.height * scale;
+      page.drawImage(sigImg, {
+        x: sigX + (180 - sW) / 2,
+        y: sigY - sH + 15,
+        width: sW,
+        height: sH,
+      });
+      sigDrawn = true;
+    }
   } catch {
-    // A signed image is optional at build time; no user-controlled path is read.
+    // A signed image is optional
   }
 
   if (!sigDrawn) {

@@ -79,7 +79,7 @@ All landing-page text, chapters, testimonials, FAQs and ExeCom members are in `s
 
 ### 🏛️ 3. Society Chapters & Affinity Groups
 Interactive Bento grid showcasing all 5 technical chapters and affinity groups:
-1. **IEEE Computer Society (CS)** — Software Architectures, Algorithms, AI Systems & IEEEXtreme.
+1. **IEEE Computer Society (CS)** — Fostering innovation, technical learning in computing & open-source initiatives.
 2. **IEEE Power & Energy Society (PES)** — Clean Tech, Microgrids & Smart Energy.
 3. **IEEE PELS & IES Chapter** — Power electronics, industrial electronics, VLSI, embedded systems & robotics.
 4. **IEEE Women in Engineering (WIE)** — Mentorship, Leadership & STEM Advancement.
@@ -142,10 +142,10 @@ SUPABASE_SERVICE_ROLE_KEY=<server-only-service-role-secret>
 
 # Transactional Receipt Email (Nodemailer SMTP)
 SMTP_HOST=smtp.gmail.com
-SMTP_USER=ieee@bmsce.ac.in
+SMTP_USER=ieee.sb@bmsce.ac.in
 SMTP_PASS=your-app-password
 SMTP_PORT=465
-SMTP_FROM="BMSCE IEEE" <ieee@bmsce.ac.in>
+SMTP_FROM="BMSCE IEEE" <ieee.sb@bmsce.ac.in>
 ```
 
 The service-role key must remain server-only: never rename it with a `NEXT_PUBLIC_` prefix. All checkout submissions, proof uploads, status mutations, manual receipts, settings updates, and admin tasks are processed strictly through server API endpoints (`/api/checkout/*` and `/api/admin/*`) utilizing this secret key. Direct client-side writes to sensitive tables are blocked by Supabase Row-Level Security. Deploy the application only after the migration succeeds, and verify registration, proof upload, admin verification, receipt delivery, manual-receipt auditing, and denial of direct client writes. Keep the Supabase backup until those checks pass.

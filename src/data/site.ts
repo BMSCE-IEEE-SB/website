@@ -653,3 +653,25 @@ export const departments = [
   ['OTHER', 'Other'],
 ];
 
+/** Postgraduate programs shown in the Department field when PG is selected. */
+export const pgDepartments = [
+  ['PG-CA', 'Department of Computer Applications (MCA)'],
+  ['PG-MS', 'Department of Management Studies and Research Centre (MBA)'],
+  ['PG-CN', 'M.Tech Computer Networking'],
+  ['PG-TEM', 'M.Tech Transportation Engineering and Management'],
+  ['PG-VLSI', 'M.Tech VLSI Design & Embedded Systems'],
+  ['PG-CT', 'M.Tech Construction Technology'],
+  ['PG-ENV', 'M.Tech Environmental Engineering'],
+  ['PG-MD', 'M.Tech Machine Design'],
+  ['PG-PE', 'M.Tech Power Electronics'],
+  ['PG-EC', 'M.Tech Electronics'],
+  ['PG-DC', 'M.Tech Digital Communication'],
+  ['PG-CSE', 'M.Tech Computer Science and Engineering'],
+];
+
+/** Full department/program name for a stored code from either list. */
+export function departmentName(code?: string | null): string {
+  if (!code) return '';
+  return pgDepartments.find(([c]) => c === code)?.[1] ?? departments.find(([c]) => c === code)?.[1] ?? code;
+}
+

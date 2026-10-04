@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { ArrowLeft, ArrowRight, Check, Plus, Shirt, X } from 'lucide-react';
 import { getCurrentUser, getLocalProfile, hasPaidCookie, hasUserSubmittedPayment } from '@/lib/auth';
 import { isDemoMode, supabase } from '@/lib/supabase';
-import { chapters as chapterInfo, departments } from '@/data/site';
+import { chapters as chapterInfo, departmentName } from '@/data/site';
 import { loadPricing, programOf, resolveProgramPricing, PROGRAM_LABELS, type Program } from '@/lib/pricing';
 import AnimatedNumber from '@/components/site/AnimatedNumber';
 import { Alert, PageLoader, Spinner, Modal } from '@/components/ui/form';
@@ -127,7 +127,7 @@ export default function ChaptersPage() {
     };
   }, [router, demo]);
 
-  const deptLabel = departments.find(([code]) => code === department)?.[1];
+  const deptLabel = departmentName(department);
 
   const ordered = chapters;
   const picked = useMemo(() => selected.map((id) => chapters.find((c) => c.id === id)).filter((c): c is CartChapter => Boolean(c)), [selected, chapters]);

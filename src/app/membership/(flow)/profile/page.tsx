@@ -8,14 +8,15 @@ import { getCurrentUser, getLocalProfile, hasPaidCookie, hasUserSubmittedPayment
 import { Alert, Field, Input, PageLoader, Select, Spinner } from '@/components/ui/form';
 import DemoNotice from '@/components/membership/DemoNotice';
 import { errorMessage } from '@/lib/utils';
-import { departments } from '@/data/site';
+import { departments, pgDepartments } from '@/data/site';
 import { CART_KEYS } from '@/lib/cart';
 import { PROGRAM_LABELS, type Program } from '@/lib/pricing';
 import { cn } from '@/lib/utils';
 
-type Form = Omit<UserProfile, 'id' | 'email'>;
+type Form = Omit<UserProfile, 'id' | 'email' | 'full_name'> & { first_name: string; last_name: string };
 const empty: Form = {
-  full_name: '',
+  first_name: '',
+  last_name: '',
   usn: '',
   department: '',
   year_of_study: '',
@@ -74,8 +75,10 @@ export default function ProfilePage() {
         existing = data;
       }
       if (alive && existing) {
+        const parts = (existing.full_name ?? '').trim().split(/\s+/).filter(Boolean);
         setForm({
-          full_name: existing.full_name ?? '',
+          first_name: parts[0] ?? '',
+          last_name: parts.slice(1).join(' '),
           usn: existing.usn ?? '',
           department: existing.department ?? '',
           year_of_study: existing.year_of_study ?? '',
@@ -109,7 +112,7 @@ export default function ProfilePage() {
     const profile: UserProfile = {
       id: user.id,
       email: user.email,
-      full_name: form.full_name?.trim(),
+      full_name: [form.first_name?.trim(), form.last_name?.trim()].filter(Boolean).join(' '),
       usn: form.usn?.trim().toUpperCase(),
       department: form.department,
       year_of_study: form.year_of_study,
@@ -181,9 +184,15 @@ export default function ProfilePage() {
                   aria-checked={active}
                   onClick={() =>
                     setForm((f) => {
-                      // Study options differ per program: keep the selection only if still valid.
-                      const valid = p === 'PG' ? ['1', '2'] : ['1', '2', '3', '4'];
-                      return { ...f, program: p, year_of_study: valid.includes(f.year_of_study ?? '') ? f.year_of_study : '' };
+                      // Years and departments differ per program: keep selections only if still valid.
+                      const validYears = p === 'PG' ? ['1', '2'] : ['1', '2', '3', '4'];
+                      const validDepts = (p === 'PG' ? pgDepartments : departments).map(([c]) => c);
+                      return {
+                        ...f,
+                        program: p,
+                        year_of_study: validYears.includes(f.year_of_study ?? '') ? f.year_of_study : '',
+                        department: validDepts.includes(f.department ?? '') ? f.department : '',
+                      };
                     })
                   }
                   className={cn(
@@ -200,9 +209,14 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <Field label="Full name" htmlFor="full_name" required hint="As it should appear on your IEEE membership.">
-          <Input id="full_name" icon={User} required autoComplete="name" value={form.full_name} onChange={set('full_name')} placeholder="Aditya Sharma" />
-        </Field>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <Field label="First name" htmlFor="first_name" required hint="As it should appear on your IEEE membership.">
+            <Input id="first_name" icon={User} required autoComplete="given-name" value={form.first_name} onChange={set('first_name')} placeholder="Aditya" />
+          </Field>
+          <Field label="Last name" htmlFor="last_name" optional hint="Family name / surname.">
+            <Input id="last_name" autoComplete="family-name" value={form.last_name} onChange={set('last_name')} placeholder="Sharma" />
+          </Field>
+        </div>
 
         <div className="grid gap-6 sm:grid-cols-2">
           <Field label="USN" htmlFor="usn" required>
@@ -238,10 +252,10 @@ export default function ProfilePage() {
           </Field>
         </div>
 
-        <Field label="Department" htmlFor="department" required>
+        <Field label={(form.program ?? 'UG') === 'PG' ? 'PG program' : 'Department'} htmlFor="department" required>
           <Select id="department" required value={form.department} onChange={set('department')}>
-            <option value="">Select department</option>
-            {departments.map(([code, name]) => (
+            <option value="">{(form.program ?? 'UG') === 'PG' ? 'Select program' : 'Select department'}</option>
+            {((form.program ?? 'UG') === 'PG' ? pgDepartments : departments).map(([code, name]) => (
               <option key={code} value={code}>{name}</option>
             ))}
           </Select>
@@ -264,7 +278,8 @@ export default function ProfilePage() {
               className="font-semibold underline underline-offset-2"
               onClick={() =>
                 setForm({
-                  full_name: 'Aditya Sharma',
+                  first_name: 'Aditya',
+                  last_name: 'Sharma',
                   usn: '1BM23CS012',
                   department: 'CSE',
                   year_of_study: '2',

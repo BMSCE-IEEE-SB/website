@@ -10,7 +10,7 @@ import { useAdmin } from '@/components/admin/AdminContext';
 import { downloadCsv, rejectOrders, saveNote, sendReceipt, verifyOrders, type Flag } from '@/lib/admin';
 import { resolveScreenshotUrl } from '@/lib/orders';
 import type { Order } from '@/lib/auth';
-import { chapterCode, chapters as chapterInfo, departments } from '@/data/site';
+import { chapterCode, chapters as chapterInfo, departmentName } from '@/data/site';
 import { PROGRAM_LABELS, programOf } from '@/lib/pricing';
 import { Modal, Spinner, StatusBadge } from '@/components/ui/form';
 import { timeAgo } from '@/lib/adminStats';
@@ -284,7 +284,7 @@ export default function ApplicationsPage() {
           </select>
           <select value={dept} onChange={(e) => { setDept(e.target.value); resetPage(); }} className="input w-auto rounded-full py-2 text-sm" aria-label="Filter by department">
             <option value="all">All departments</option>
-            {deptOptions.map((d) => <option key={d} value={d}>{departments.find(([c]) => c === d)?.[1] ?? d}</option>)}
+            {deptOptions.map((d) => <option key={d} value={d}>{departmentName(d)}</option>)}
           </select>
           <select value={program} onChange={(e) => { setProgram(e.target.value as typeof program); resetPage(); }} className="input w-auto rounded-full py-2 text-sm" aria-label="Filter by program">
             <option value="all">UG + PG</option>
@@ -652,7 +652,7 @@ function Drawer({
           <dl className="grid grid-cols-2 gap-4 text-sm">
             {[
               ['USN', order.usn],
-              ['Department', departments.find(([c]) => c === order.department)?.[1] ?? order.department],
+              ['Department', departmentName(order.department) || order.department],
               ['Program', PROGRAM_LABELS[programOf(order.program)]],
               ['Year', order.year_of_study],
               ['Phone', order.phone],

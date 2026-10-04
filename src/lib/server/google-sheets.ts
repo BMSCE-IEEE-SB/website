@@ -39,7 +39,8 @@ export async function appendRegistrationToSheet(data: {
       await sheet.loadHeaderRow();
     } catch {
       await sheet.setHeaderRow([
-        'Full Name',
+        'First Name',
+        'Last Name',
         'Email',
         'Phone',
         'USN',
@@ -54,7 +55,8 @@ export async function appendRegistrationToSheet(data: {
     }
 
     await sheet.addRow({
-      'Full Name': data.fullName,
+      'First Name': data.fullName.trim().split(/\s+/)[0] || '',
+      'Last Name': data.fullName.trim().split(/\s+/).length > 1 ? data.fullName.trim().split(/\s+/).slice(1).join(' ') : '',
       'Email': data.email,
       'Phone': data.phone || 'N/A',
       'USN': data.usn,

@@ -11,7 +11,7 @@ export type AdminIdentity = { id: string; email: string };
 // ---------------------------------------------------------------------------
 
 type Row = Order & {
-  profiles?: { full_name?: string; usn?: string; email?: string; department?: string; year_of_study?: string; phone?: string; ieee_member_id?: string; program?: string } | null;
+  profiles?: { first_name?: string; last_name?: string; usn?: string; email?: string; department?: string; year_of_study?: string; phone?: string; ieee_member_id?: string; program?: string } | null;
   order_items?: { price_at_purchase: number; chapters: { name: string } | null }[];
 };
 
@@ -20,12 +20,12 @@ export async function fetchOrders(): Promise<Order[]> {
   if (isDemoMode()) return getLocalOrders();
   const { data, error } = await supabase
     .from('orders')
-    .select('*, profiles:user_id (full_name, usn, email, department, year_of_study, phone, ieee_member_id, program), order_items(price_at_purchase, chapters(name))')
+    .select('*, profiles:user_id (first_name, last_name, usn, email, department, year_of_study, phone, ieee_member_id, program), order_items(price_at_purchase, chapters(name))')
     .order('created_at', { ascending: false });
   if (error) throw new Error(`Could not load applications: ${error.message}`);
   return ((data ?? []) as Row[]).map((o) => ({
     ...o,
-    student_name: o.profiles?.full_name,
+    student_name: [o.profiles?.first_name, o.profiles?.last_name].filter(Boolean).join(' ').trim(),
     usn: o.profiles?.usn,
     email: o.profiles?.email,
     department: o.profiles?.department,

@@ -342,12 +342,51 @@ export const chapters: Chapter[] = [
     stats: { members: '', events: '', founded: '' },
     name: 'Society on Social Implications of Technology (SSIT)',
     fullName: 'IEEE Society on Social Implications of Technology',
-    tagline: 'Technical chapter',
-    description: 'Official chapter details and event records are currently being updated.',
+    tagline: 'Technology for the betterment of society',
+    description: 'Focusing on the relationship between technology and society, ethics, and social responsibility in engineering.',
+    aboutTitle: 'About Us',
+    aboutUs: [
+      'The IEEE Society on Social Implications of Technology (SSIT) focuses on the relationship between technology and society.',
+      'SSIT’s Field of Interest is "To facilitate understanding of the complex interaction between technology, science and society, including impact on individuals and society in general, ethics, professional and social responsibility in the practice of engineering, science, and technology, and open discussion of the resulting issues."'
+    ],
+    whatWeDo: [
+      'SSIT is a platform for networking and connecting ideas of various domains for the betterment of the society. Providing opportunities in professional skill development to hold responsibility for the future societal impact of technological advancement.',
+      'We encourage young minds to develop socio-problem resolving technologies of all aspects making the society a better place to live, that aims to overall engineering.'
+    ],
+    flagshipEvents: [
+      {
+        title: 'SSIT IMPACT WEEK',
+        description: 'Our flagship annual celebration involving events in which innovation meets sustainability through collaboration with other IEEE chapters and other clubs.'
+      },
+      {
+        title: 'UTSAV Flagship Events',
+        description: 'Sura vs Asura, Arena rush'
+      },
+      {
+        title: 'PhaseShift Flagship Events',
+        description: 'POKEVERSE, SUSTAIN-A-TOWN, GREENOVATE IDEATHON'
+      }
+    ],
+    majorEvents: [
+      'POWERING THE FUTURE WITH GaN: Expert Talk On One Of The Fastest-Growing Technologies In The Semiconductor Industry – Gallium Nitride Ft Madhav Sai in collaboration with BMSCE IEEE PELS & IES on PELS and IES WEEK 2025.',
+      'QUANTUM COMPUTING: Insightful Session On Quantum Computing Ft H.D.Ananda.',
+      'CRYPTIFY: A Workshop Designed To Introduce The Basics On How Digital Systems Stay Secure And How To Stay Safe Online.',
+      'Build It Felix: An AI Driven Competition Where Games Were Developed Based On SDGs in collaboration with BMSCE IEEE PES & SC on PES DAY 2026.',
+      'TechPrompts: An AI Driven Competition Where Prompting Involved Creativity And Imagination in collaboration with BMSCE WIE on WIE Week 2026.'
+    ],
+    otherInitiatives: [
+      'Sacred Souls Gathering: A Heartwarming Social Outreach Initiative Dedicated To Spend Meaningful Time With Intellectually Disabled And Visually Impaired Children.',
+      'Digital Detox: An electronic waste collection drive giving prizes to students who contributed the most E-WASTE.'
+    ],
+    futureEvents: [
+      { title: 'HACK4SDG', description: 'An Ideathon based on 17 SDGs' },
+      { title: 'SSIT WEEK 2027' },
+      { title: 'More technical workshops and events to come.' }
+    ],
+    comingSoon: false,
     tracks: ['AI Ethics', 'Policy', 'Humanitarian Tech'],
     icon: Compass,
     tone: { text: 'text-indigo-600', soft: 'bg-indigo-50', bar: 'bg-indigo-500' },
-    comingSoon: true,
   },
 ];
 

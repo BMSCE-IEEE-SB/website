@@ -3,7 +3,8 @@ import { isDemoMode, supabase } from './supabase';
 export interface UserProfile {
   id: string;
   email: string;
-  full_name?: string;
+  first_name?: string;
+  last_name?: string;
   usn?: string;
   department?: string;
   year_of_study?: string;
@@ -331,7 +332,7 @@ export function saveLocalOrder(order: Order) {
   const enriched: Order = {
     ...order,
     program: order.program ?? profile?.program ?? 'UG',
-    student_name: profile?.full_name ?? order.student_name,
+    student_name: (profile?.first_name ? profile.first_name + ' ' + (profile.last_name || '') : null)?.trim() ?? order.student_name,
     usn: profile?.usn ?? order.usn,
     email: profile?.email ?? order.email,
     department: profile?.department ?? order.department,

@@ -13,7 +13,7 @@ import { CART_KEYS } from '@/lib/cart';
 import { PROGRAM_LABELS, type Program } from '@/lib/pricing';
 import { cn } from '@/lib/utils';
 
-type Form = Omit<UserProfile, 'id' | 'email' | 'full_name'> & { first_name: string; last_name: string };
+type Form = Omit<UserProfile, 'id' | 'email'>;
 const empty: Form = {
   first_name: '',
   last_name: '',
@@ -75,10 +75,9 @@ export default function ProfilePage() {
         existing = data;
       }
       if (alive && existing) {
-        const parts = (existing.full_name ?? '').trim().split(/\s+/).filter(Boolean);
         setForm({
-          first_name: parts[0] ?? '',
-          last_name: parts.slice(1).join(' '),
+          first_name: existing.first_name ?? '',
+          last_name: existing.last_name ?? '',
           usn: existing.usn ?? '',
           department: existing.department ?? '',
           year_of_study: existing.year_of_study ?? '',
@@ -106,21 +105,14 @@ export default function ProfilePage() {
       return;
     }
 
-    // HTML `required` lets whitespace-only input through, so check the trimmed name.
-    const firstName = form.first_name?.trim() || '';
-    const lastName = form.last_name?.trim() || '';
-    if (!firstName) {
-      setError('Please enter your first name.');
-      return;
-    }
-
     setIsSubmitting(true);
 
     const program = form.program === 'PG' ? 'PG' : 'UG';
     const profile: UserProfile = {
       id: user.id,
       email: user.email,
-      full_name: [firstName, lastName].filter(Boolean).join(' '),
+      first_name: form.first_name?.trim(),
+      last_name: form.last_name?.trim() || undefined,
       usn: form.usn?.trim().toUpperCase(),
       department: form.department,
       year_of_study: form.year_of_study,

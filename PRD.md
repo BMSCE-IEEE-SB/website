@@ -332,7 +332,7 @@ CREATE TABLE public.events (
 
 ### 8.1 Student Registration & Payment Flow
 1. Visitor navigates to `/membership/register`, enters email/password.
-2. Completes profile at `/membership/profile` (Full Name, USN, Department, Phone).
+2. Completes profile at `/membership/profile` (First Name, Last Name, USN, Department, Phone).
 3. At `/membership/chapters`, selects society chapters and picks a T-shirt size (`S`, `M`, `L`, `XL`, `XXL`).
 4. At `/membership/checkout`:
    - System calls `/api/checkout/intent` to calculate and freeze total amount on the server.

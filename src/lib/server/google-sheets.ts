@@ -2,7 +2,8 @@ import { JWT } from 'google-auth-library';
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 
 export async function appendRegistrationToSheet(data: {
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
   usn: string;
@@ -12,6 +13,7 @@ export async function appendRegistrationToSheet(data: {
   amount: number;
   tshirtSize: string | null;
   chapters: string;
+  program: string;
 }) {
   const serviceAccountEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   const privateKey = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
@@ -45,6 +47,7 @@ export async function appendRegistrationToSheet(data: {
         'Phone',
         'USN',
         'Department',
+        'Program',
         'Year of Study',
         'Order Reference',
         'Amount',
@@ -55,12 +58,13 @@ export async function appendRegistrationToSheet(data: {
     }
 
     await sheet.addRow({
-      'First Name': data.fullName.trim().split(/\s+/)[0] || '',
-      'Last Name': data.fullName.trim().split(/\s+/).length > 1 ? data.fullName.trim().split(/\s+/).slice(1).join(' ') : '',
+      'First Name': data.firstName.trim().toUpperCase(),
+      'Last Name': data.lastName.trim().toUpperCase(),
       'Email': data.email,
       'Phone': data.phone || 'N/A',
       'USN': data.usn,
       'Department': data.department,
+      'Program': data.program,
       'Year of Study': data.year || 'N/A',
       'Order Reference': data.orderReference,
       'Amount': data.amount,

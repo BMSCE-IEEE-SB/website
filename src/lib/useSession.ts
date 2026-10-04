@@ -21,10 +21,10 @@ export function useSession() {
       if (!alive) return;
       setUser(u);
       if (!u) return setName(undefined);
-      if (isDemoMode()) setName(getLocalProfile(u.id)?.full_name);
+      if (isDemoMode()) setName(getLocalProfile(u.id)?.first_name);
       else {
-        const { data } = await supabase.from('profiles').select('full_name').eq('id', u.id).maybeSingle();
-        if (alive) setName(data?.full_name ?? undefined);
+        const { data } = await supabase.from('profiles').select('first_name').eq('id', u.id).maybeSingle();
+        if (alive) setName(data?.first_name ?? undefined);
       }
     };
     refresh();

@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 import { getAdminServiceClient, jsonError, requireAdmin, recordAdminAudit } from '@/lib/server/supabase-admin';
 import { escapeHtml } from '@/lib/server/receipt-email';
 
-export const runtime = 'nodejs';
+export const runtime = 'nodejs'; // force reload
 
 function smtpConfig() {
   const host = process.env.SMTP_HOST;
@@ -45,8 +45,8 @@ async function deliverReceipt(receipt: {
     from: config.from,
     to: receipt.recipient_email,
     subject: `BMSCE IEEE Membership Receipt: ${receipt.receipt_number}`,
-    text: `Dear ${receipt.student_name},\n\nYour BMSCE IEEE membership payment has been received for ${academicYear}. Receipt number: ${receipt.receipt_number}.\n\nRegards,\nBMSCE IEEE`,
-    html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;color:#0b1b33;line-height:1.6"><p>Dear <strong>${escapeHtml(receipt.student_name)}</strong>,</p><p>Your BMSCE IEEE membership payment has been received for <strong>${escapeHtml(academicYear)}</strong>.</p><p>Receipt number: <strong>${escapeHtml(receipt.receipt_number)}</strong>.</p><p>Regards,<br/><strong>BMSCE IEEE</strong></p></div>`,
+    text: `Dear ${receipt.student_name},\n\nGreetings from BMSCE IEEE!\n\nYour payment to the IEEE Membership for the year ${academicYear} has been received successfully.\nPlease do find the attachment of the receipt for the same below.\n\nKindly note that the receipt number may be used as an alternative to your IEEE Membership ID while registering for any IEEE event in college until the official IEEE Membership ID is issued.\n\nFor more updates about BMSCE IEEE Student Branch, do check out our Instagram page: @bmsce_ieee.\n\nThank you!\n\nRegards,\nBMSCE IEEE`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px;color:#0b1b33;line-height:1.6"><p>Dear ${escapeHtml(receipt.student_name)},</p><p>Greetings from BMSCE IEEE!</p><p>Your payment to the IEEE Membership for the year ${escapeHtml(academicYear)} has been received successfully.<br/>Please do find the attachment of the receipt for the same below.</p><p>Kindly note that the receipt number may be used as an alternative to your IEEE Membership ID while registering for any IEEE event in college until the official IEEE Membership ID is issued.</p><p>For more updates about BMSCE IEEE Student Branch, do check out our Instagram page: @bmsce_ieee.</p><p>Thank you!</p><p>Regards,<br/>BMSCE IEEE</p></div>`,
     attachments: [{ filename: `BMSCE-IEEE-${receipt.receipt_number}.pdf`, content: pdf, contentType: 'application/pdf' }],
   });
 }
@@ -83,9 +83,9 @@ export async function POST(request: Request) {
     if (receiptUpdateError || orderUpdateError) throw new Error('Receipt delivery tracking failed.');
     await recordAdminAudit(admin, 'receipt.sent', 'receipt', receipt.id, { receipt_number: receipt.receipt_number, order_id: body.orderId });
     return NextResponse.json({ success: true, receiptNumber: receipt.receipt_number }, { headers: { 'Cache-Control': 'no-store' } });
-  } catch {
+  } catch (error: any) {
     await client.from('issued_receipts').update({ delivery_status: 'failed', last_error: 'Delivery failed' }).eq('id', receipt.id);
     await client.from('orders').update({ receipt_sent: false, receipt_error: 'Delivery failed' }).eq('id', body.orderId);
-    return jsonError('Receipt delivery failed. The reserved number will be reused for retries.', 503);
+    return jsonError(`Delivery failed: ${error.message}`, 503);
   }
 }

@@ -137,8 +137,12 @@ export async function sendReceipt(order: Order) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ orderId: order.id }),
-  }).catch(() => null);
-  return Boolean(res?.ok);
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Failed to send receipt');
+  }
+  return true;
 }
 
 // ---------------------------------------------------------------------------

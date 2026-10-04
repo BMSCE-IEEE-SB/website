@@ -32,8 +32,8 @@ export async function generateReceiptPdf(data: ReceiptData): Promise<Buffer> {
   const height = 480;
   const page = doc.addPage([width, height]);
 
-  const fontRegular = await doc.embedFont(StandardFonts.Helvetica);
-  const fontBold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const fontRegular = await doc.embedFont(StandardFonts.TimesRoman);
+  const fontBold = await doc.embedFont(StandardFonts.TimesRomanBold);
 
   // Background
   page.drawRectangle({
@@ -261,7 +261,7 @@ export async function generateReceiptPdf(data: ReceiptData): Promise<Buffer> {
       const sH = sigImg.height * scale;
       page.drawImage(sigImg, {
         x: sigX + (180 - sW) / 2,
-        y: sigY - sH + 15,
+        y: sigY + 15,
         width: sW,
         height: sH,
       });

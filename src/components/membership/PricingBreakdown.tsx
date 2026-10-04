@@ -6,12 +6,14 @@ import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import FeeSlip from './FeeSlip';
 import { SectionLabel } from '@/components/site/BrandShapes';
 import Reveal from '@/components/site/Reveal';
-import { loadPricing, type Pricing } from '@/lib/pricing';
+import { loadPricing, programBaseFee, programChapterPrice, PROGRAM_LABELS, type Pricing, type Program } from '@/lib/pricing';
 import { useSession } from '@/lib/useSession';
+import { cn } from '@/lib/utils';
 
 export default function PricingBreakdown() {
   const { user } = useSession();
   const [pricing, setPricing] = useState<Pricing | null>(null);
+  const [program, setProgram] = useState<Program>('UG');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -20,10 +22,11 @@ export default function PricingBreakdown() {
       .catch((e: Error) => setError(e.message));
   }, []);
 
-  const prices = pricing?.chapters.map((c) => c.price) ?? [];
+  const prices = pricing?.chapters.map((c) => programChapterPrice(c, program)) ?? [];
   const paidPrices = prices.filter((p) => p > 0);
   const min = paidPrices.length ? Math.min(...paidPrices) : 0;
   const max = paidPrices.length ? Math.max(...paidPrices) : 0;
+  const baseFee = pricing ? programBaseFee(pricing, program) : undefined;
 
   return (
     <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
@@ -65,12 +68,36 @@ export default function PricingBreakdown() {
 
       {/* Right side: Fee slip receipt */}
       <Reveal delay={100} className="flex items-center justify-center py-4">
-        <FeeSlip
-          baseFee={pricing?.baseFee}
-          minChapter={paidPrices.length ? min : undefined}
-          maxChapter={paidPrices.length ? max : undefined}
-          error={error}
-        />
+        <div className="w-full">
+          <div className="mx-auto mb-5 flex w-fit rounded-full bg-white p-1 shadow-sm ring-1 ring-line" role="radiogroup" aria-label="Registration program">
+            {(['UG', 'PG'] as const).map((p) => (
+              <button
+                key={p}
+                type="button"
+                role="radio"
+                aria-checked={program === p}
+                onClick={() => setProgram(p)}
+                className={cn(
+                  'rounded-full px-4 py-2 text-sm font-semibold transition-colors',
+                  program === p ? 'bg-brand-navy text-white shadow-sm' : 'text-muted hover:text-ink'
+                )}
+              >
+                {PROGRAM_LABELS[p]}
+              </button>
+            ))}
+          </div>
+          <FeeSlip
+            baseFee={baseFee}
+            minChapter={paidPrices.length ? min : undefined}
+            maxChapter={paidPrices.length ? max : undefined}
+            error={error}
+          />
+          {program === 'PG' && (
+            <p className="mx-auto mt-4 max-w-[440px] text-center text-sm text-muted">
+              Postgraduate fees are set separately by the branch, including chapters.
+            </p>
+          )}
+        </div>
       </Reveal>
     </div>
   );

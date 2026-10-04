@@ -8,8 +8,8 @@ import { AnimatePresence, motion } from 'motion/react';
 import { ArrowLeft, ArrowRight, Check, Plus, Shirt, X } from 'lucide-react';
 import { getCurrentUser, getLocalProfile, hasPaidCookie, hasUserSubmittedPayment } from '@/lib/auth';
 import { isDemoMode, supabase } from '@/lib/supabase';
-import { chapters as chapterInfo, departments } from '@/data/site';
-import { loadPricing } from '@/lib/pricing';
+import { chapters as chapterInfo, departmentName } from '@/data/site';
+import { loadPricing, programOf, resolveProgramPricing, PROGRAM_LABELS, type Program } from '@/lib/pricing';
 import AnimatedNumber from '@/components/site/AnimatedNumber';
 import { Alert, PageLoader, Spinner, Modal } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
@@ -39,6 +39,7 @@ export default function ChaptersPage() {
   const demo = isDemoMode();
   const [chapters, setChapters] = useState<CartChapter[]>([]);
   const [baseFee, setBaseFee] = useState(0);
+  const [program, setProgram] = useState<Program>('UG');
   const [selected, setSelected] = useState<string[]>([]);
   const [tshirtSize, setTshirtSize] = useState('');
   const [sizeError, setSizeError] = useState(false);
@@ -77,10 +78,9 @@ export default function ChaptersPage() {
         router.replace('/membership/register');
         return;
       }
-      let list: CartChapter[];
-      let fee: number;
+      let pricing: Awaited<ReturnType<typeof loadPricing>>;
       try {
-        ({ chapters: list, baseFee: fee } = await loadPricing());
+        pricing = await loadPricing();
       } catch (err) {
         if (alive) {
           setError((err as Error).message);
@@ -89,20 +89,37 @@ export default function ChaptersPage() {
         return;
       }
       if (!alive) return;
-      setChapters(list);
-      setBaseFee(fee);
+      // The program (UG/PG) comes from the profile step; each program has its own fees.
+      // Without a saved profile there is no program to price, so send the student back.
+      let prog: Program = 'UG';
       if (demo) {
         const p = getLocalProfile(user.id);
-        if (p?.department) setDepartment(p.department);
+        if (!p?.department || !p?.year_of_study) {
+          router.replace('/membership/profile');
+          return;
+        }
+        setDepartment(p.department);
+        prog = programOf(p.program);
       } else {
-        const { data: p } = await supabase.from('profiles').select('department').eq('id', user.id).maybeSingle();
-        if (p?.department) setDepartment(p.department);
+        const { data: p } = await supabase.from('profiles').select('department, program, year_of_study').eq('id', user.id).maybeSingle();
+        if (!alive) return;
+        if (!p?.department || !p?.year_of_study) {
+          router.replace('/membership/profile');
+          return;
+        }
+        setDepartment(p.department);
+        prog = programOf((p as { program?: string } | null)?.program);
       }
+      if (!alive) return;
+      const resolved = resolveProgramPricing(pricing, prog);
+      setProgram(prog);
+      setChapters(resolved.chapters);
+      setBaseFee(resolved.baseFee);
       // Restore the selection and T-shirt size if the student came back from checkout.
-      const freeIds = list.filter((c) => c.price === 0).map((c) => c.id);
+      const freeIds = resolved.chapters.filter((c) => c.price === 0).map((c) => c.id);
       try {
         const prev: CartChapter[] = JSON.parse(sessionStorage.getItem(CART_KEYS.chapters) || '[]');
-        const prevIds = prev.map((c) => c.id).filter((id) => list.some((c) => c.id === id));
+        const prevIds = prev.map((c) => c.id).filter((id) => resolved.chapters.some((c) => c.id === id));
         freeIds.forEach((fid) => {
           if (!prevIds.includes(fid)) prevIds.push(fid);
         });
@@ -120,7 +137,7 @@ export default function ChaptersPage() {
     };
   }, [router, demo]);
 
-  const deptLabel = departments.find(([code]) => code === department)?.[1];
+  const deptLabel = departmentName(department);
 
   const ordered = chapters;
   const picked = useMemo(() => selected.map((id) => chapters.find((c) => c.id === id)).filter((c): c is CartChapter => Boolean(c)), [selected, chapters]);
@@ -155,6 +172,7 @@ export default function ChaptersPage() {
     sessionStorage.setItem(CART_KEYS.chapters, nextCart);
     sessionStorage.setItem(CART_KEYS.baseFee, String(baseFee));
     sessionStorage.setItem(CART_KEYS.tshirtSize, tshirtSize);
+    sessionStorage.setItem(CART_KEYS.program, program);
     router.push('/membership/checkout');
   };
 
@@ -166,8 +184,16 @@ export default function ChaptersPage() {
     <div className="mx-auto max-w-6xl pb-28 lg:pb-0">
       <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
         <div>
-          <h1 className="display text-4xl text-ink sm:text-5xl">Pick your chapters</h1>
-          <p className="lead mt-3 max-w-xl">Base membership is already included. Add any communities you want, as many as you like.</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="display text-4xl text-ink sm:text-5xl">Pick your chapters</h1>
+            <span className={cn('rounded-full px-3 py-1 text-xs font-bold', program === 'PG' ? 'bg-brand-orange/10 text-brand-orange' : 'bg-sky-50 text-brand-navy')}>
+              {PROGRAM_LABELS[program]}
+            </span>
+          </div>
+          <p className="lead mt-3 max-w-xl">
+            Base membership is already included. Add any communities you want, as many as you like.
+            {program === 'PG' && ' Shown with the postgraduate fees set by the branch.'}
+          </p>
         </div>
       </div>
 
@@ -206,7 +232,7 @@ export default function ChaptersPage() {
                 onClick={() => setSizeChartOpen(true)}
                 className="inline-flex cursor-pointer items-center self-start rounded-full bg-paper px-3 py-1 text-xs font-semibold text-brand-navy transition hover:bg-sky-50 sm:self-auto"
               >
-                {/* View size chart placeholder removed */}
+                Size chart
               </button>
             </div>
 
@@ -333,6 +359,9 @@ export default function ChaptersPage() {
                 ₹<AnimatedNumber value={total} />
               </span>
             </div>
+            {program === 'PG' && (
+              <p className="mt-1 text-right text-xs font-semibold text-brand-orange">Postgraduate fees applied</p>
+            )}
             <ul className="mt-5 space-y-2 text-sm">
               <li className="flex justify-between">
                 <span className="text-ink-soft">Base branch membership</span>

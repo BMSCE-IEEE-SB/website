@@ -16,6 +16,7 @@ import {
   type UserProfile,
 } from '@/lib/auth';
 import { adminFetch } from '@/lib/admin-api';
+import { PROGRAM_LABELS, programOf } from '@/lib/pricing';
 import { Alert, Field, FileDrop, Input, Modal, PageLoader, Spinner, StatusBadge } from '@/components/ui/form';
 import { cn, errorMessage, formatDateTime, imageToDataUrl, validateScreenshot } from '@/lib/utils';
 import { confetti } from '@/lib/confetti';
@@ -161,7 +162,7 @@ export default function AccountPage() {
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div className="min-w-0">
             <p className="text-sm font-medium text-muted">Member portal</p>
-            <h1 className="display mt-2 truncate text-4xl text-ink sm:text-5xl">{profile?.full_name ? `Hi, ${profile.full_name.split(' ')[0]}` : 'Hi there'}</h1>
+            <h1 className="display mt-2 truncate text-4xl text-ink sm:text-5xl">{profile?.first_name ? `Hi, ${profile.first_name}` : 'Hi there'}</h1>
             <p className="mt-2 truncate text-sm text-muted">{user?.email}</p>
           </div>
           <button type="button" onClick={signOut} className="btn btn-ghost self-start bg-white sm:self-auto">
@@ -266,9 +267,10 @@ export default function AccountPage() {
             {profile ? (
               <dl className="mt-5 space-y-4 text-sm">
                 {[
-                  ['Name', profile.full_name],
+                  ['Name', [profile.first_name, profile.last_name].filter(Boolean).join(' ')],
                   ['USN', profile.usn],
                   ['Department', profile.department],
+                  ['Program', profile.program ? PROGRAM_LABELS[programOf(profile.program)] : undefined],
                   ['Year', profile.year_of_study],
                   ['Phone', profile.phone],
                   ['IEEE member ID', profile.ieee_member_id],
@@ -300,7 +302,7 @@ export default function AccountPage() {
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <p className="font-mono text-sm font-semibold text-brand-navy">{o.order_reference}</p>
-                        <p className="mt-0.5 text-xs text-muted">Submitted {formatDateTime(o.created_at)}</p>
+                        <p className="mt-0.5 text-xs text-muted">Submitted {formatDateTime(o.created_at)} · {PROGRAM_LABELS[programOf(o.program)]}</p>
                       </div>
                       <StatusBadge status={o.status} />
                     </div>

@@ -1,6 +1,6 @@
 import { chapterCode } from '@/data/site';
 import { getLocalOrders, writeLocalOrders, type Order } from './auth';
-import { DEMO_SETTINGS_KEY, loadPayee, loadPricing, type DemoSettings, type Pricing } from './pricing';
+import { DEMO_SETTINGS_KEY, loadPayee, loadPricing, programChapterPrice, type DemoSettings, type Pricing } from './pricing';
 import { isDemoMode, supabase } from './supabase';
 import { adminFetch } from './admin-api';
 
@@ -11,7 +11,7 @@ export type AdminIdentity = { id: string; email: string };
 // ---------------------------------------------------------------------------
 
 type Row = Order & {
-  profiles?: { full_name?: string; usn?: string; email?: string; department?: string; year_of_study?: string; phone?: string; ieee_member_id?: string } | null;
+  profiles?: { first_name?: string; last_name?: string; usn?: string; email?: string; department?: string; year_of_study?: string; phone?: string; ieee_member_id?: string; program?: string } | null;
   order_items?: { price_at_purchase: number; chapters: { name: string } | null }[];
 };
 
@@ -20,12 +20,12 @@ export async function fetchOrders(): Promise<Order[]> {
   if (isDemoMode()) return getLocalOrders();
   const { data, error } = await supabase
     .from('orders')
-    .select('*, profiles:user_id (full_name, usn, email, department, year_of_study, phone, ieee_member_id), order_items(price_at_purchase, chapters(name))')
+    .select('*, profiles:user_id (first_name, last_name, usn, email, department, year_of_study, phone, ieee_member_id, program), order_items(price_at_purchase, chapters(name))')
     .order('created_at', { ascending: false });
   if (error) throw new Error(`Could not load applications: ${error.message}`);
   return ((data ?? []) as Row[]).map((o) => ({
     ...o,
-    student_name: o.profiles?.full_name,
+    student_name: [o.profiles?.first_name, o.profiles?.last_name].filter(Boolean).join(' ').trim(),
     usn: o.profiles?.usn,
     email: o.profiles?.email,
     department: o.profiles?.department,
@@ -173,9 +173,13 @@ export function computeFlags(orders: Order[], pricing: Pricing | null): Map<stri
     for (const o of list) add(o.id, { kind: 'repeat-student', text: `This USN has ${list.length} active applications.` });
   }
   if (pricing) {
-    const priceByCode = new Map(pricing.chapters.map((c) => [c.code, c.price]));
+    const priceByCode = new Map(pricing.chapters.map((c) => [c.code, c]));
     for (const o of orders) {
-      const expected = Number(o.base_fee) + (o.chapters ?? []).reduce((s, n) => s + (priceByCode.get(chapterCode(n)) ?? 0), 0);
+      // The stored base fee is already program-priced; chapters use the order's program prices.
+      const expected = Number(o.base_fee) + (o.chapters ?? []).reduce((s, n) => {
+        const c = priceByCode.get(chapterCode(n));
+        return s + (c ? programChapterPrice(c, o.program) : 0);
+      }, 0);
       if (Math.round(expected) !== Math.round(Number(o.total_amount))) {
         add(o.id, { kind: 'amount', text: `Paid ₹${o.total_amount}, but base fee plus chapters comes to ₹${expected}.` });
       }
@@ -222,6 +226,7 @@ export async function fetchActivity(limit = 100): Promise<Activity[]> {
 
 export type Settings = {
   baseFee: number;
+  pgBaseFee: number;
   vpa: string;
   payeeName: string;
   driveYear?: number;
@@ -230,7 +235,7 @@ export type Settings = {
   treasurerRole?: string;
   treasurerPhone?: string;
   signatureUrl?: string;
-  chapters: { id: string; code: string; name: string; price: number; is_active?: boolean }[];
+  chapters: { id: string; code: string; name: string; price: number; pgPrice: number; is_active?: boolean }[];
 };
 
 export async function loadSettings(): Promise<Settings> {
@@ -238,6 +243,7 @@ export async function loadSettings(): Promise<Settings> {
     const [pricing, payee] = await Promise.all([loadPricing(), loadPayee()]);
     return {
       baseFee: pricing.baseFee,
+      pgBaseFee: pricing.pgBaseFee,
       vpa: payee.vpa,
       payeeName: payee.name,
       driveYear: new Date().getFullYear(),
@@ -245,7 +251,7 @@ export async function loadSettings(): Promise<Settings> {
       treasurerName: 'Branch Treasurer',
       treasurerRole: 'Treasurer',
       treasurerPhone: '+91 98765 43210',
-      chapters: pricing.chapters,
+      chapters: pricing.chapters.map((c) => ({ id: c.id, code: c.code, name: c.name, price: c.price, pgPrice: c.pgPrice })),
     };
   }
   try {
@@ -254,6 +260,7 @@ export async function loadSettings(): Promise<Settings> {
       const { settings, chapters } = await res.json();
       return {
         baseFee: Number(settings?.base_fee ?? 500),
+        pgBaseFee: Number(settings?.pg_base_fee ?? settings?.base_fee ?? 500),
         vpa: settings?.payee_vpa ?? '',
         payeeName: settings?.payee_name ?? '',
         driveYear: Number(settings?.drive_year ?? new Date().getFullYear()),
@@ -262,11 +269,12 @@ export async function loadSettings(): Promise<Settings> {
         treasurerRole: settings?.treasurer_role ?? 'Treasurer',
         treasurerPhone: settings?.treasurer_phone ?? '',
         signatureUrl: settings?.signature_url ?? '',
-        chapters: (chapters ?? []).map((c: { id: string; code: string; name: string; price: number | string; is_active?: boolean }) => ({
+        chapters: (chapters ?? []).map((c: { id: string; code: string; name: string; price: number | string; pg_price?: number | string; is_active?: boolean }) => ({
           id: c.id,
           code: c.code,
           name: c.name,
           price: Number(c.price),
+          pgPrice: Number(c.pg_price ?? c.price),
           is_active: c.is_active ?? true,
         })),
       };
@@ -275,6 +283,7 @@ export async function loadSettings(): Promise<Settings> {
   const [pricing, payee] = await Promise.all([loadPricing(), loadPayee()]);
   return {
     baseFee: pricing.baseFee,
+    pgBaseFee: pricing.pgBaseFee,
     vpa: payee.vpa,
     payeeName: payee.name,
     driveYear: new Date().getFullYear(),
@@ -282,13 +291,17 @@ export async function loadSettings(): Promise<Settings> {
     treasurerName: 'Branch Treasurer',
     treasurerRole: 'Treasurer',
     treasurerPhone: '',
-    chapters: pricing.chapters,
+    chapters: pricing.chapters.map((c) => ({ id: c.id, code: c.code, name: c.name, price: c.price, pgPrice: c.pgPrice })),
   };
 }
 
 export async function saveSettings(next: Settings, admin: AdminIdentity) {
   if (isDemoMode()) {
-    const demo: DemoSettings = { baseFee: next.baseFee, vpa: next.vpa, payeeName: next.payeeName, prices: Object.fromEntries(next.chapters.map((c) => [c.id, c.price])) };
+    const demo: DemoSettings = {
+      baseFee: next.baseFee, pgBaseFee: next.pgBaseFee, vpa: next.vpa, payeeName: next.payeeName,
+      prices: Object.fromEntries(next.chapters.map((c) => [c.id, c.price])),
+      pgPrices: Object.fromEntries(next.chapters.map((c) => [c.id, c.pgPrice])),
+    };
     localStorage.setItem(DEMO_SETTINGS_KEY, JSON.stringify(demo));
   } else {
     const res = await adminFetch('/api/admin/settings', {
@@ -297,6 +310,7 @@ export async function saveSettings(next: Settings, admin: AdminIdentity) {
       body: JSON.stringify({
         settings: {
           base_fee: next.baseFee,
+          pg_base_fee: next.pgBaseFee,
           payee_vpa: next.vpa,
           payee_name: next.payeeName,
           drive_year: next.driveYear ?? new Date().getFullYear(),
@@ -320,6 +334,7 @@ export async function saveSettings(next: Settings, admin: AdminIdentity) {
             id: c.id,
             name: c.name,
             price: c.price,
+            pg_price: c.pgPrice,
             is_active: c.is_active ?? true,
           },
         }),

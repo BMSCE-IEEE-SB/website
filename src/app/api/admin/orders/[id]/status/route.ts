@@ -30,7 +30,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
           order_reference,
           total_amount,
           tshirt_size,
-          profiles(full_name, usn, email, phone, department, year_of_study),
+          program,
+          profiles(first_name, last_name, usn, email, phone, department, year_of_study),
           order_items(chapters(name))
         `)
         .eq('id', id)
@@ -46,7 +47,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
         // Await to ensure the sync finishes before the serverless function exits
         await appendRegistrationToSheet({
-          fullName: profile.full_name,
+          firstName: profile.first_name || "",
+          lastName: profile.last_name || "",
           email: profile.email,
           phone: profile.phone,
           usn: profile.usn,
@@ -55,6 +57,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
           orderReference: orderData.order_reference,
           amount: Number(orderData.total_amount),
           tshirtSize: orderData.tshirt_size,
+          program: orderData.program,
           chapters,
         });
       }

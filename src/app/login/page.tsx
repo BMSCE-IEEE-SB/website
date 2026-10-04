@@ -25,6 +25,8 @@ function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState('');
+  const [resending, setResending] = useState(false);
 
   const redirectParam = searchParams.get('redirect');
   const redirectTarget =
@@ -36,6 +38,7 @@ function LoginForm() {
     e.preventDefault();
     setError('');
     setInfo('');
+    setUnconfirmedEmail('');
     setIsSubmitting(true);
     try {
       const clean = email.trim().toLowerCase();
@@ -46,8 +49,30 @@ function LoginForm() {
       }
       router.push(redirectTarget);
     } catch (err) {
-      setError(errorMessage(err, 'Could not sign you in. Check your email and password.'));
+      const msg = errorMessage(err, 'Could not sign you in. Check your email and password.');
+      if (/not confirmed/i.test(msg)) {
+        setUnconfirmedEmail(email.trim().toLowerCase());
+        setError('This email address has not been confirmed yet, so sign-in is blocked even with the right password.');
+      } else {
+        setError(msg);
+      }
       setIsSubmitting(false);
+    }
+  }
+
+  async function resendConfirmation() {
+    if (!unconfirmedEmail || resending) return;
+    setResending(true);
+    setError('');
+    setInfo('');
+    try {
+      const { error: resendError } = await supabase.auth.resend({ type: 'signup', email: unconfirmedEmail });
+      if (resendError) throw resendError;
+      setInfo(`Confirmation email resent to ${unconfirmedEmail}. Check spam/promotions if it is not in your inbox within a few minutes.`);
+    } catch (err) {
+      setError(errorMessage(err, 'Could not resend the confirmation email. Try again in a few minutes.'));
+    } finally {
+      setResending(false);
     }
   }
 
@@ -57,7 +82,7 @@ function LoginForm() {
     if (!clean) return setError('Enter your email above first, then tap "Forgot password".');
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(clean, { redirectTo: `${window.location.origin}/login/reset` });
     if (resetError) setError(resetError.message);
-    else setInfo(`If an account exists for ${clean}, a reset link is on its way.`);
+    else setInfo(`If an account exists for ${clean}, a reset link is on its way. Check spam/promotions if you do not see it within a few minutes.`);
   }
 
   const top = (
@@ -112,6 +137,11 @@ function LoginForm() {
               <PasswordField id="login-password" value={password} onChange={setPassword} autoComplete="current-password" />
             </div>
             {error && <Alert tone="error">{error}</Alert>}
+            {unconfirmedEmail && !info && (
+              <button type="button" onClick={resendConfirmation} disabled={resending} className="btn btn-ghost btn-lg w-full">
+                {resending && <Spinner />} Resend confirmation email
+              </button>
+            )}
             {info && <Alert tone="success">{info}</Alert>}
             <button type="submit" disabled={isSubmitting} className="btn btn-dark btn-lg w-full">
               {isSubmitting && <Spinner />} Sign in {!isSubmitting && <ArrowRight className="h-4 w-4" />}

@@ -1,6 +1,6 @@
 import { jsonError, getAdminServiceClient, requireUser } from '@/lib/server/supabase-admin';
 import { isUuid } from '@/lib/server/input';
-import { SENSORS_COUNCIL_UUID } from '@/lib/pricing';
+import { SENSORS_COUNCIL_UUID, programOf } from '@/lib/pricing';
 
 export const runtime = 'nodejs';
 
@@ -33,9 +33,16 @@ export async function POST(request: Request) {
         console.error('Failed to upsert SC chapter:', upsertError);
       }
     }
+    // The program comes from the saved profile, never the client, so a
+    // postgraduate cannot check out at undergraduate prices.
+    const { data: profile } = await client.from('profiles').select('program, department, year_of_study').eq('id', user.id).maybeSingle();
+    const typed = profile as { program?: string; department?: string; year_of_study?: string } | null;
+    if (!typed?.department || !typed?.year_of_study) return jsonError('Complete your profile before checkout.', 409);
+    const program = programOf(typed?.program);
     const { data, error } = await client.rpc('create_checkout_intent', {
       p_user_id: user.id,
       p_chapter_ids: chapterIds,
+      p_program: program,
     });
     if (error) {
       console.error('create_checkout_intent error:', error);

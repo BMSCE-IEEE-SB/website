@@ -8,8 +8,8 @@ import { ArrowLeft, Check, Copy, Download, Smartphone } from 'lucide-react';
 import { isDemoMode, supabase } from '@/lib/supabase';
 import { getCurrentUser, hasPaidCookie, hasUserSubmittedPayment, markPaymentSubmitted, saveLocalOrder, type SessionUser } from '@/lib/auth';
 import { clearCart, getOrCreateOrderRef, readCart, type CartChapter } from '@/lib/cart';
-import { FALLBACK_PAYEE, loadPayee } from '@/lib/pricing';
-import { Alert, Field, FileDrop, PageLoader, Spinner } from '@/components/ui/form';
+import { FALLBACK_PAYEE, loadPayee, programOf, PROGRAM_LABELS, type Program } from '@/lib/pricing';
+import { Alert, Field, FileDrop, Input, PageLoader, Spinner } from '@/components/ui/form';
 import DemoNotice from '@/components/membership/DemoNotice';
 import { errorMessage, imageToDataUrl, validateScreenshot } from '@/lib/utils';
 
@@ -41,6 +41,7 @@ export default function CheckoutPage() {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [chapters, setChapters] = useState<CartChapter[]>([]);
   const [baseFee, setBaseFee] = useState(0);
+  const [program, setProgram] = useState<Program>('UG');
   const [tshirtSize, setTshirtSize] = useState('');
   const [orderRef, setOrderRef] = useState('');
   const [checkoutIntentId, setCheckoutIntentId] = useState('');
@@ -49,8 +50,10 @@ export default function CheckoutPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const [file, setFile] = useState<File | null>(null);
+  const [utr, setUtr] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [loadError, setLoadError] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'UPI' | 'CASH'>('UPI');
 
   useEffect(() => {
@@ -95,6 +98,7 @@ export default function CheckoutPage() {
       if (demo) {
         setChapters(cart.chapters);
         setBaseFee(cart.baseFee);
+        setProgram(programOf(cart.program));
         setOrderRef(getOrCreateOrderRef());
         const p = await loadPayee();
         if (alive) {
@@ -119,6 +123,7 @@ export default function CheckoutPage() {
         setCheckoutIntentId(quote.id);
         setChapters(quote.chapters);
         setBaseFee(Number(quote.base_fee));
+        setProgram(programOf(quote.program));
         setOrderRef(quote.order_reference);
         setVpa(quote.payee_vpa);
         setPayee(quote.payee_name);
@@ -126,7 +131,7 @@ export default function CheckoutPage() {
       if (alive) setIsLoading(false);
     } catch (err) {
         if (alive) {
-          setError(errorMessage(err, 'Checkout could not be loaded.'));
+          setLoadError(errorMessage(err, 'Checkout could not be loaded.'));
           setIsLoading(false);
         }
       }
@@ -173,7 +178,12 @@ export default function CheckoutPage() {
         setError(fileError);
         return;
       }
-      cleanUtr = String(Math.floor(100000000000 + Math.random() * 900000000000));
+      const clean = utr.replace(/\s/g, '');
+      if (!/^\d{12}$/.test(clean)) {
+        setError('Enter the 12-digit UPI reference (UTR) shown in your payment app.');
+        return;
+      }
+      cleanUtr = clean;
       if (demo) dataUrl = await imageToDataUrl(file!);
     }
 
@@ -185,6 +195,7 @@ export default function CheckoutPage() {
           id: 'ord-' + crypto.randomUUID().slice(0, 8),
           user_id: user.id,
           email: user.email,
+          program,
           base_fee: baseFee,
           total_amount: total,
           tshirt_size: tshirtSize || undefined,
@@ -232,7 +243,7 @@ export default function CheckoutPage() {
     }
   }
 
-  if (isLoading && !error) return <PageLoader />;
+  if (isLoading && !loadError) return <PageLoader />;
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -260,14 +271,16 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      {error && <Alert tone="error" className="mt-6">{error} <Link href="/membership/chapters" className="ml-2 underline">Return to chapter selection</Link></Alert>}
+      {loadError && <Alert tone="error" className="mt-6">{loadError} <Link href="/membership/chapters" className="ml-2 underline">Return to chapter selection</Link></Alert>}
 
+      {!loadError && (
       <div className="mt-10 grid items-start gap-8 lg:grid-cols-2">
         {/* Step A: pay */}
         <section className="panel p-6 sm:p-8" aria-labelledby="pay-title">
           <div className="flex items-center gap-3">
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-navy text-xs font-bold text-white">1</span>
             <h2 id="pay-title" className="text-lg font-bold">Pay ₹{total}</h2>
+            <span className="rounded-full bg-sky-50 px-2.5 py-0.5 text-xs font-bold text-brand-navy">{PROGRAM_LABELS[program]}</span>
           </div>
 
           {paymentMethod === 'CASH' ? (
@@ -387,9 +400,14 @@ export default function CheckoutPage() {
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-6">
             {paymentMethod === 'UPI' && (
-              <Field label="Payment screenshot" htmlFor="proof" required hint="Upload the payment receipt or transaction screenshot from your UPI app.">
-                <FileDrop id="proof" file={file} onChange={(f) => { setFile(f); setError(''); }} />
-              </Field>
+              <>
+                <Field label="Payment screenshot" htmlFor="proof" required hint="Upload the payment receipt or transaction screenshot from your UPI app.">
+                  <FileDrop id="proof" file={file} onChange={(f) => { setFile(f); setError(''); }} />
+                </Field>
+                <Field label="UPI reference number (UTR)" htmlFor="utr" required hint="The 12-digit number in your payment app's transaction details.">
+                  <Input id="utr" inputMode="numeric" required value={utr} onChange={(e) => setUtr(e.target.value)} placeholder="423456789012" maxLength={14} />
+                </Field>
+              </>
             )}
             {paymentMethod === 'CASH' && (
               <div className="rounded-2xl bg-paper p-4 text-sm text-ink-soft">
@@ -397,7 +415,7 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            {demo && <DemoNotice>Demo mode. Any image will work. Nothing is charged.</DemoNotice>}
+            {demo && <DemoNotice>Demo mode. Any image and any 12-digit number will work. Nothing is charged.</DemoNotice>}
             {error && <Alert tone="error">{error}</Alert>}
 
             <button type="submit" disabled={isSubmitting} className="btn btn-primary btn-lg w-full">
@@ -410,6 +428,7 @@ export default function CheckoutPage() {
           </form>
         </section>
       </div>
+      )}
     </div>
   );
 }

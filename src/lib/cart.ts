@@ -5,15 +5,17 @@ export const CART_KEYS = {
   baseFee: 'checkout_base_fee',
   orderRef: 'checkout_order_ref',
   tshirtSize: 'checkout_tshirt_size',
+  program: 'checkout_program',
 };
 
-export function readCart(): { chapters: CartChapter[]; baseFee: number; tshirtSize?: string | null } | null {
+export function readCart(): { chapters: CartChapter[]; baseFee: number; tshirtSize?: string | null; program?: string | null } | null {
   const rawFee = sessionStorage.getItem(CART_KEYS.baseFee);
   if (rawFee === null) return null;
   try {
     const chapters: CartChapter[] = JSON.parse(sessionStorage.getItem(CART_KEYS.chapters) || '[]');
     const tshirtSize = sessionStorage.getItem(CART_KEYS.tshirtSize) || null;
-    return { chapters, baseFee: Number(rawFee), tshirtSize };
+    const program = sessionStorage.getItem(CART_KEYS.program) || null;
+    return { chapters, baseFee: Number(rawFee), tshirtSize, program };
   } catch {
     return null;
   }

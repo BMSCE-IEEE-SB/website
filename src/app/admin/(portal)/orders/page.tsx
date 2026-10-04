@@ -10,7 +10,8 @@ import { useAdmin } from '@/components/admin/AdminContext';
 import { downloadCsv, rejectOrders, saveNote, sendReceipt, verifyOrders, type Flag } from '@/lib/admin';
 import { resolveScreenshotUrl } from '@/lib/orders';
 import type { Order } from '@/lib/auth';
-import { chapterCode, chapters as chapterInfo, departments } from '@/data/site';
+import { chapterCode, chapters as chapterInfo, departmentName } from '@/data/site';
+import { PROGRAM_LABELS, programOf } from '@/lib/pricing';
 import { Modal, Spinner, StatusBadge } from '@/components/ui/form';
 import { timeAgo } from '@/lib/adminStats';
 import { cn, formatDateTime } from '@/lib/utils';
@@ -66,6 +67,7 @@ export default function ApplicationsPage() {
   const [query, setQuery] = useState('');
   const [chapter, setChapter] = useState('all');
   const [dept, setDept] = useState('all');
+  const [program, setProgram] = useState<'all' | 'UG' | 'PG'>('all');
   const [range, setRange] = useState<'all' | '7' | '30'>('all');
   const [flaggedOnly, setFlaggedOnly] = useState(false);
   const [sort, setSort] = useState<Sort>('newest');
@@ -112,6 +114,7 @@ export default function ApplicationsPage() {
       if (flaggedOnly && !flags.has(o.id)) return false;
       if (chapter !== 'all' && !(o.chapters ?? []).some((n) => chapterCode(n) === chapter)) return false;
       if (dept !== 'all' && o.department !== dept) return false;
+      if (program !== 'all' && programOf(o.program) !== program) return false;
       if (since && new Date(o.created_at).getTime() < since) return false;
       if (!q) return true;
       return [o.order_reference, o.student_name, o.usn, o.email, o.utr_reference, o.phone].some((v) => v?.toLowerCase().includes(q));
@@ -119,7 +122,7 @@ export default function ApplicationsPage() {
     return list.sort((a, b) =>
       sort === 'amount' ? Number(b.total_amount) - Number(a.total_amount) : sort === 'oldest' ? a.created_at.localeCompare(b.created_at) : b.created_at.localeCompare(a.created_at),
     );
-  }, [orders, status, query, chapter, dept, range, flaggedOnly, sort, flags, nowTs]);
+  }, [orders, status, query, chapter, dept, program, range, flaggedOnly, sort, flags, nowTs]);
 
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE));
   const safePage = Math.min(page, pages - 1);
@@ -184,9 +187,9 @@ export default function ApplicationsPage() {
   const exportCsv = (list: Order[]) =>
     downloadCsv(
       `bmsce_ieee_applications_${new Date().toISOString().slice(0, 10)}.csv`,
-      ['Order ref', 'Name', 'USN', 'Email', 'Phone', 'Department', 'Year', 'Chapters', 'Amount', 'Status', 'UTR', 'Submitted', 'Verified', 'Flags', 'Note'],
+      ['Order ref', 'Name', 'USN', 'Email', 'Phone', 'Department', 'Year', 'Program', 'Chapters', 'Amount', 'Status', 'UTR', 'Submitted', 'Verified', 'Flags', 'Note'],
       list.map((o) => [
-        o.order_reference, o.student_name, o.usn, o.email, o.phone, o.department, o.year_of_study, (o.chapters ?? []).map(chapterCode).join('; '),
+        o.order_reference, o.student_name, o.usn, o.email, o.phone, o.department, o.year_of_study, PROGRAM_LABELS[programOf(o.program)], (o.chapters ?? []).map(chapterCode).join('; '),
         o.total_amount, o.status, o.utr_reference, o.created_at, o.verified_at ?? '', (flags.get(o.id) ?? []).map((f) => f.kind).join('; '), o.admin_note ?? '',
       ]),
     );
@@ -281,7 +284,12 @@ export default function ApplicationsPage() {
           </select>
           <select value={dept} onChange={(e) => { setDept(e.target.value); resetPage(); }} className="input w-auto rounded-full py-2 text-sm" aria-label="Filter by department">
             <option value="all">All departments</option>
-            {deptOptions.map((d) => <option key={d} value={d}>{departments.find(([c]) => c === d)?.[1] ?? d}</option>)}
+            {deptOptions.map((d) => <option key={d} value={d}>{departmentName(d)}</option>)}
+          </select>
+          <select value={program} onChange={(e) => { setProgram(e.target.value as typeof program); resetPage(); }} className="input w-auto rounded-full py-2 text-sm" aria-label="Filter by program">
+            <option value="all">UG + PG</option>
+            <option value="UG">Undergraduate</option>
+            <option value="PG">Postgraduate</option>
           </select>
           <select value={range} onChange={(e) => { setRange(e.target.value as typeof range); resetPage(); }} className="input w-auto rounded-full py-2 text-sm" aria-label="Date range">
             <option value="all">Any time</option>
@@ -340,6 +348,9 @@ export default function ApplicationsPage() {
                       </p>
                       <p className="mt-0.5 truncate text-xs text-muted">
                         <span className="font-mono font-semibold text-brand-navy">{o.usn}</span> · {o.department} · Year {o.year_of_study}
+                        {programOf(o.program) === 'PG' && (
+                          <span className="ml-1.5 rounded-full bg-brand-orange/10 px-2 py-0.5 text-[10px] font-bold text-brand-orange">PG</span>
+                        )}
                       </p>
                     </div>
                     <div className="col-start-2 text-sm lg:col-start-auto">
@@ -580,6 +591,9 @@ function Drawer({
           <div className="flex flex-wrap items-center gap-3">
             <StatusBadge status={order.status} />
             <span className="font-display text-2xl font-bold text-ink">₹{order.total_amount}</span>
+            <span className={cn('rounded-full px-2.5 py-1 text-xs font-bold', programOf(order.program) === 'PG' ? 'bg-brand-orange/10 text-brand-orange' : 'bg-sky-50 text-brand-navy')}>
+              {PROGRAM_LABELS[programOf(order.program)]}
+            </span>
             <ChapterChips names={order.chapters} />
           </div>
 
@@ -638,7 +652,8 @@ function Drawer({
           <dl className="grid grid-cols-2 gap-4 text-sm">
             {[
               ['USN', order.usn],
-              ['Department', departments.find(([c]) => c === order.department)?.[1] ?? order.department],
+              ['Department', departmentName(order.department) || order.department],
+              ['Program', PROGRAM_LABELS[programOf(order.program)]],
               ['Year', order.year_of_study],
               ['Phone', order.phone],
               ['IEEE member ID', order.ieee_member_id],

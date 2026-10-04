@@ -22,6 +22,7 @@ async function deliverReceipt(receipt: {
   amount: number;
   chapters: string[];
   payment_method: string;
+  program?: string | null;
 }, client: ReturnType<typeof getAdminServiceClient>) {
   const config = smtpConfig();
   if (!config) throw new Error('Receipt email is unavailable.');
@@ -35,6 +36,7 @@ async function deliverReceipt(receipt: {
     receiptNumber: receipt.receipt_number,
     dateStr: formatReceiptDate(),
     chapters: receipt.chapters,
+    program: receipt.program === 'PG' ? 'Postgraduate (PG)' : 'Undergraduate (UG)',
     treasurerName: settings?.treasurer_name || 'BMSCE IEEE Treasurer',
     treasurerRole: settings?.treasurer_role || 'Treasurer',
     treasurerPhone: settings?.treasurer_phone || '',
@@ -73,8 +75,10 @@ export async function POST(request: Request) {
   const client = getAdminServiceClient();
   const { data, error } = await client.rpc('reserve_order_receipt', { p_order_id: body.orderId, p_actor_id: admin.id });
   if (error || !data) return jsonError('Only a verified order can receive an official receipt.', 409);
-  const receipt = data as { id: string; receipt_number: string; drive_year: number; recipient_email: string; student_name: string; amount: number; chapters: string[]; payment_method: string };
+  const receipt = data as { id: string; receipt_number: string; drive_year: number; recipient_email: string; student_name: string; amount: number; chapters: string[]; payment_method: string; program?: string | null };
   if (!receipt.id || !receipt.recipient_email) return jsonError('The receipt record is incomplete.', 409);
+  const { data: orderRow } = await client.from('orders').select('program').eq('id', body.orderId).maybeSingle();
+  receipt.program = (orderRow as { program?: string } | null)?.program ?? null;
   try {
     await deliverReceipt(receipt, client);
     const sentAt = new Date().toISOString();

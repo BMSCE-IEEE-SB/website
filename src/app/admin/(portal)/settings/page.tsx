@@ -6,6 +6,8 @@ import { RotateCcw, Save } from 'lucide-react';
 import { useAdmin } from '@/components/admin/AdminContext';
 import { loadSettings, saveSettings, type Settings } from '@/lib/admin';
 import { chapters as chapterInfo } from '@/data/site';
+import { PROGRAM_LABELS, type Program } from '@/lib/pricing';
+import { cn } from '@/lib/utils';
 import FeeSlip from '@/components/membership/FeeSlip';
 import { Alert, Modal, PageLoader, Spinner } from '@/components/ui/form';
 
@@ -15,6 +17,7 @@ export default function SettingsPage() {
   const { admin, reload, toast } = useAdmin();
   const [saved, setSaved] = useState<Settings | null>(null);
   const [draft, setDraft] = useState<Settings | null>(null);
+  const [feeProgram, setFeeProgram] = useState<Program>('UG');
   const [error, setError] = useState('');
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -31,7 +34,8 @@ export default function SettingsPage() {
   const changes = useMemo(() => {
     if (!saved || !draft) return [];
     const out: string[] = [];
-    if (saved.baseFee !== draft.baseFee) out.push(`Base fee: ₹${saved.baseFee} → ₹${draft.baseFee}`);
+    if (saved.baseFee !== draft.baseFee) out.push(`UG base fee: ₹${saved.baseFee} → ₹${draft.baseFee}`);
+    if (saved.pgBaseFee !== draft.pgBaseFee) out.push(`PG base fee: ₹${saved.pgBaseFee} → ₹${draft.pgBaseFee}`);
     if (saved.vpa !== draft.vpa) out.push(`UPI ID: ${saved.vpa} → ${draft.vpa}`);
     if (saved.payeeName !== draft.payeeName) out.push(`Payee name: ${saved.payeeName} → ${draft.payeeName}`);
     if (saved.isDriveOpen !== draft.isDriveOpen) out.push(`Drive status: ${draft.isDriveOpen ? 'Open' : 'Closed'}`);
@@ -40,8 +44,9 @@ export default function SettingsPage() {
     if (saved.treasurerRole !== draft.treasurerRole) out.push(`Treasurer role: ${saved.treasurerRole} → ${draft.treasurerRole}`);
     if (saved.treasurerPhone !== draft.treasurerPhone) out.push(`Treasurer phone: ${saved.treasurerPhone} → ${draft.treasurerPhone}`);
     draft.chapters.forEach((c) => {
-      const before = saved.chapters.find((x) => x.id === c.id)?.price;
-      if (before !== c.price) out.push(`${c.code}: ₹${before} → ₹${c.price}`);
+      const before = saved.chapters.find((x) => x.id === c.id);
+      if (before?.price !== c.price) out.push(`${c.code} (UG): ₹${before?.price} → ₹${c.price}`);
+      if ((before?.pgPrice ?? before?.price) !== c.pgPrice) out.push(`${c.code} (PG): ₹${before?.pgPrice ?? before?.price} → ₹${c.pgPrice}`);
     });
     return out;
   }, [saved, draft]);
@@ -50,16 +55,20 @@ export default function SettingsPage() {
   if (!draft || !saved) return <PageLoader />;
 
   const problems = [
-    !(draft.baseFee > 0) && 'The base fee must be more than ₹0.',
+    !(draft.baseFee > 0) && 'The UG base fee must be more than ₹0.',
+    !(draft.pgBaseFee > 0) && 'The PG base fee must be more than ₹0.',
     !VPA_RE.test(draft.vpa) && 'The UPI ID should look like name@bank.',
     !draft.payeeName.trim() && 'Add the payee name shown in UPI apps.',
-    draft.chapters.some((c) => !(c.price >= 0)) && 'Chapter prices cannot be negative.',
+    draft.chapters.some((c) => !(c.price >= 0) || !(c.pgPrice >= 0)) && 'Chapter prices cannot be negative.',
     !draft.treasurerName?.trim() && 'Add the branch treasurer name for official receipts.',
     !draft.treasurerRole?.trim() && 'Add the treasurer designation / role.',
   ].filter(Boolean) as string[];
 
-  const setChapterPrice = (id: string, price: number) => setDraft({ ...draft, chapters: draft.chapters.map((c) => (c.id === id ? { ...c, price } : c)) });
-  const prices = draft.chapters.map((c) => c.price);
+  const setChapterPrice = (id: string, price: number) =>
+    setDraft({ ...draft, chapters: draft.chapters.map((c) => (c.id === id ? (feeProgram === 'PG' ? { ...c, pgPrice: price } : { ...c, price }) : c)) });
+  const prices = draft.chapters.map((c) => (feeProgram === 'PG' ? c.pgPrice : c.price));
+  const paidPreview = prices.filter((p) => p > 0);
+  const activeBaseFee = feeProgram === 'PG' ? draft.pgBaseFee : draft.baseFee;
 
   const save = async () => {
     setBusy(true);
@@ -76,7 +85,7 @@ export default function SettingsPage() {
     }
   };
 
-  const upiPreview = `upi://pay?pa=${encodeURIComponent(draft.vpa)}&pn=${encodeURIComponent(draft.payeeName)}&am=${draft.baseFee.toFixed(2)}&cu=INR&tn=PREVIEW`;
+  const upiPreview = `upi://pay?pa=${encodeURIComponent(draft.vpa)}&pn=${encodeURIComponent(draft.payeeName)}&am=${activeBaseFee.toFixed(2)}&cu=INR&tn=PREVIEW`;
 
   return (
     <div className="pb-10">
@@ -116,11 +125,35 @@ export default function SettingsPage() {
           </section>
 
           <section className="panel p-6">
-            <h2 className="font-bold text-ink">Membership fee</h2>
-            <label htmlFor="base-fee" className="field-label mt-5">Base branch membership (₹)</label>
-            <input id="base-fee" type="number" min={1} step={1} value={draft.baseFee} onChange={(e) => setDraft({ ...draft, baseFee: Number(e.target.value) })} className="input max-w-xs font-mono" />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="font-bold text-ink">Membership fee</h2>
+              <div className="inline-flex rounded-full bg-paper p-1 ring-1 ring-line" role="radiogroup" aria-label="Fee program">
+                {(['UG', 'PG'] as const).map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    role="radio"
+                    aria-checked={feeProgram === p}
+                    onClick={() => setFeeProgram(p)}
+                    className={cn('rounded-full px-4 py-1.5 text-sm font-semibold transition-colors', feeProgram === p ? 'bg-white text-brand-navy shadow-sm ring-1 ring-line' : 'text-muted hover:text-ink')}
+                  >
+                    {PROGRAM_LABELS[p]}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <label htmlFor="base-fee" className="field-label mt-5">Base branch membership ({PROGRAM_LABELS[feeProgram]}, ₹)</label>
+            <input
+              id="base-fee"
+              type="number"
+              min={1}
+              step={1}
+              value={activeBaseFee}
+              onChange={(e) => setDraft({ ...draft, ...(feeProgram === 'PG' ? { pgBaseFee: Number(e.target.value) } : { baseFee: Number(e.target.value) }) })}
+              className="input max-w-xs font-mono"
+            />
 
-            <h3 className="mt-8 text-sm font-semibold text-ink">Chapter add-ons (₹)</h3>
+            <h3 className="mt-8 text-sm font-semibold text-ink">Chapter add-ons ({PROGRAM_LABELS[feeProgram]}, ₹)</h3>
             <ul className="mt-3 grid gap-3 sm:grid-cols-2 [&>*]:min-w-0">
               {draft.chapters.map((c) => {
                 const info = chapterInfo.find((x) => x.code === c.code);
@@ -128,7 +161,7 @@ export default function SettingsPage() {
                   <li key={c.id} className="flex items-center gap-3 rounded-2xl bg-paper p-3">
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[10px] font-bold text-white" style={{ background: info?.color ?? '#0b1b33' }}>{c.code.split('/')[0]}</span>
                     <label htmlFor={`price-${c.id}`} className="min-w-0 flex-1 truncate text-sm text-ink">{c.name}</label>
-                    <input id={`price-${c.id}`} type="number" min={0} step={10} value={c.price} onChange={(e) => setChapterPrice(c.id, Number(e.target.value))} className="w-24 rounded-lg border border-line bg-white px-2 py-1.5 text-right font-mono text-sm outline-none focus:border-brand-sky focus:ring-2 focus:ring-brand-sky/20" />
+                    <input id={`price-${c.id}`} type="number" min={0} step={10} value={feeProgram === 'PG' ? c.pgPrice : c.price} onChange={(e) => setChapterPrice(c.id, Number(e.target.value))} className="w-24 rounded-lg border border-line bg-white px-2 py-1.5 text-right font-mono text-sm outline-none focus:border-brand-sky focus:ring-2 focus:ring-brand-sky/20" />
                   </li>
                 );
               })}
@@ -149,7 +182,7 @@ export default function SettingsPage() {
             </div>
             <div className="mt-5 flex items-center gap-5 rounded-2xl bg-paper p-4">
               <div className="rounded-xl bg-white p-2"><QRCodeSVG value={upiPreview} size={88} marginSize={0} /></div>
-              <p className="text-sm text-ink-soft">Test this QR with your phone before saving. It should open a payment of <strong className="text-ink">₹{draft.baseFee}</strong> to <strong className="text-ink">{draft.payeeName || '—'}</strong>. Don&apos;t complete the payment.</p>
+              <p className="text-sm text-ink-soft">Test this QR with your phone before saving. It should open a {PROGRAM_LABELS[feeProgram]} payment of <strong className="text-ink">₹{activeBaseFee}</strong> to <strong className="text-ink">{draft.payeeName || '—'}</strong>. Don&apos;t complete the payment.</p>
             </div>
           </section>
 
@@ -203,8 +236,8 @@ export default function SettingsPage() {
         </div>
 
         <div className="xl:sticky xl:top-24">
-          <p className="mb-4 text-xs font-semibold tracking-wide text-muted uppercase">Preview on the membership page</p>
-          <FeeSlip baseFee={draft.baseFee} minChapter={prices.length ? Math.min(...prices) : undefined} maxChapter={prices.length ? Math.max(...prices) : undefined} />
+          <p className="mb-4 text-xs font-semibold tracking-wide text-muted uppercase">Preview on the membership page ({PROGRAM_LABELS[feeProgram]})</p>
+          <FeeSlip baseFee={activeBaseFee} minChapter={paidPreview.length ? Math.min(...paidPreview) : undefined} maxChapter={paidPreview.length ? Math.max(...paidPreview) : undefined} />
         </div>
       </div>
 

@@ -342,12 +342,51 @@ export const chapters: Chapter[] = [
     stats: { members: '', events: '', founded: '' },
     name: 'Society on Social Implications of Technology (SSIT)',
     fullName: 'IEEE Society on Social Implications of Technology',
-    tagline: 'Technical chapter',
-    description: 'Official chapter details and event records are currently being updated.',
+    tagline: 'Technology for the betterment of society',
+    description: 'Focusing on the relationship between technology and society, ethics, and social responsibility in engineering.',
+    aboutTitle: 'About Us',
+    aboutUs: [
+      'The IEEE Society on Social Implications of Technology (SSIT) focuses on the relationship between technology and society.',
+      'SSIT’s Field of Interest is "To facilitate understanding of the complex interaction between technology, science and society, including impact on individuals and society in general, ethics, professional and social responsibility in the practice of engineering, science, and technology, and open discussion of the resulting issues."'
+    ],
+    whatWeDo: [
+      'SSIT is a platform for networking and connecting ideas of various domains for the betterment of the society. Providing opportunities in professional skill development to hold responsibility for the future societal impact of technological advancement.',
+      'We encourage young minds to develop socio-problem resolving technologies of all aspects making the society a better place to live, that aims to overall engineering.'
+    ],
+    flagshipEvents: [
+      {
+        title: 'SSIT IMPACT WEEK',
+        description: 'Our flagship annual celebration involving events in which innovation meets sustainability through collaboration with other IEEE chapters and other clubs.'
+      },
+      {
+        title: 'UTSAV Flagship Events',
+        description: 'Sura vs Asura, Arena rush'
+      },
+      {
+        title: 'PhaseShift Flagship Events',
+        description: 'POKEVERSE, SUSTAIN-A-TOWN, GREENOVATE IDEATHON'
+      }
+    ],
+    majorEvents: [
+      'POWERING THE FUTURE WITH GaN: Expert Talk On One Of The Fastest-Growing Technologies In The Semiconductor Industry – Gallium Nitride Ft Madhav Sai in collaboration with BMSCE IEEE PELS & IES on PELS and IES WEEK 2025.',
+      'QUANTUM COMPUTING: Insightful Session On Quantum Computing Ft H.D.Ananda.',
+      'CRYPTIFY: A Workshop Designed To Introduce The Basics On How Digital Systems Stay Secure And How To Stay Safe Online.',
+      'Build It Felix: An AI Driven Competition Where Games Were Developed Based On SDGs in collaboration with BMSCE IEEE PES & SC on PES DAY 2026.',
+      'TechPrompts: An AI Driven Competition Where Prompting Involved Creativity And Imagination in collaboration with BMSCE WIE on WIE Week 2026.'
+    ],
+    otherInitiatives: [
+      'Sacred Souls Gathering: A Heartwarming Social Outreach Initiative Dedicated To Spend Meaningful Time With Intellectually Disabled And Visually Impaired Children.',
+      'Digital Detox: An electronic waste collection drive giving prizes to students who contributed the most E-WASTE.'
+    ],
+    futureEvents: [
+      { title: 'HACK4SDG', description: 'An Ideathon based on 17 SDGs' },
+      { title: 'SSIT WEEK 2027' },
+      { title: 'More technical workshops and events to come.' }
+    ],
+    comingSoon: false,
     tracks: ['AI Ethics', 'Policy', 'Humanitarian Tech'],
     icon: Compass,
     tone: { text: 'text-indigo-600', soft: 'bg-indigo-50', bar: 'bg-indigo-500' },
-    comingSoon: true,
   },
 ];
 
@@ -555,13 +594,15 @@ export const membershipBenefits = [
 
 /** Used by the chapter cart when the database has no chapters configured yet. */
 export const FALLBACK_BASE_FEE = 1850;
+/** Starting PG fees before an admin sets them: same as UG until configured. */
+export const FALLBACK_PG_BASE_FEE = 1850;
 export const FALLBACK_CART_CHAPTERS = [
-  { id: 'demo-cs', name: 'Computer Society (CS)', code: 'CS', price: 0 },
-  { id: 'demo-pes', name: 'Power & Energy Society', code: 'PES', price: 100 },
-  { id: 'demo-pels', name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', price: 370 },
-  { id: 'demo-wie', name: 'Women in Engineering (WIE)', code: 'WIE', price: 0 },
-  { id: 'demo-ssit', name: 'Society on Social Implications of Technology (SSIT)', code: 'SSIT', price: 50 },
-  { id: 'demo-sc', name: 'Sensors Council', code: 'SC', price: 0 },
+  { id: 'demo-cs', name: 'Computer Society (CS)', code: 'CS', price: 0, pgPrice: 0 },
+  { id: 'demo-pes', name: 'Power & Energy Society', code: 'PES', price: 100, pgPrice: 100 },
+  { id: 'demo-pels', name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', price: 370, pgPrice: 370 },
+  { id: 'demo-wie', name: 'Women in Engineering (WIE)', code: 'WIE', price: 0, pgPrice: 0 },
+  { id: 'demo-ssit', name: 'Society on Social Implications of Technology (SSIT)', code: 'SSIT', price: 50, pgPrice: 50 },
+  { id: 'demo-sc', name: 'Sensors Council', code: 'SC', price: 0, pgPrice: 0 },
 ];
 
 export const chapterBySlug = (slug: string) =>
@@ -581,6 +622,7 @@ export const pillars = [
 
 export const faqs = [
   { q: 'Who can become a member?', a: 'Any student currently enrolled at B.M.S. College of Engineering: undergraduate, postgraduate or research scholar, from any department.' },
+  { q: 'How much do postgraduates pay?', a: 'Choose Postgraduate on the academic details step. PG students pay a separate postgraduate fee set by the branch: toggle UG / PG on the pricing slip above to see both.' },
   { q: 'How do I pay?', a: 'With any UPI app. Scan the QR code on the payment step, then upload the screenshot and the 12-digit UTR number. Cash is also accepted at our registration desk.' },
   { q: 'How long does verification take?', a: 'We will match the payments against the bank statement, usually within a week. You get an email once you are verified.' },
   { q: 'When do I get my IEEE.org account?', a: 'Official IEEE credentials are provisioned by IEEE headquarters in batches. We email them to you as soon as they arrive.' },
@@ -649,4 +691,26 @@ export const departments = [
   ['AIDS', 'Artificial Intelligence and Data Science'],
   ['OTHER', 'Other'],
 ];
+
+/** Postgraduate programs shown in the Department field when PG is selected. */
+export const pgDepartments = [
+  ['PG-CA', 'Department of Computer Applications (MCA)'],
+  ['PG-MS', 'Department of Management Studies and Research Centre (MBA)'],
+  ['PG-CN', 'M.Tech Computer Networking'],
+  ['PG-TEM', 'M.Tech Transportation Engineering and Management'],
+  ['PG-VLSI', 'M.Tech VLSI Design & Embedded Systems'],
+  ['PG-CT', 'M.Tech Construction Technology'],
+  ['PG-ENV', 'M.Tech Environmental Engineering'],
+  ['PG-MD', 'M.Tech Machine Design'],
+  ['PG-PE', 'M.Tech Power Electronics'],
+  ['PG-EC', 'M.Tech Electronics'],
+  ['PG-DC', 'M.Tech Digital Communication'],
+  ['PG-CSE', 'M.Tech Computer Science and Engineering'],
+];
+
+/** Full department/program name for a stored code from either list. */
+export function departmentName(code?: string | null): string {
+  if (!code) return '';
+  return pgDepartments.find(([c]) => c === code)?.[1] ?? departments.find(([c]) => c === code)?.[1] ?? code;
+}
 

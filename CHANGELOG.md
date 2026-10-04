@@ -12,6 +12,8 @@ All notable changes to the **BMSCE IEEE Student Branch Website** will be documen
 - **Scratch & Test Ignore Rules**: Configured `.gitignore` rules for local exploratory scripts (`test-*.mjs`, `test-*.js`, `test-*.ts`).
 
 ### Changed
+- **Profile Name Split**: Split `full_name` into `first_name` and `last_name` in the database, registration flow, profile settings, admin portal, and Google Sheets export for better data structuring.
+- **SSIT Chapter Updates**: Updated SSIT chapter details with accurate flagship events, major events, future events, and removed the `comingSoon` status.
 - **Chapter Card Visuals**: Replaced stock laptop photography with official chapter logos embedded directly in card backgrounds; removed redundant corner logo badges.
 - **Women in Engineering (WIE) Fee**: Updated WIE chapter add-on price to ₹0 (included with base branch membership).
 - **Security & Error Handling**: Refactored database RPC security definer checks to use `auth.role()` and surfaced detailed error responses from checkout intent endpoints.

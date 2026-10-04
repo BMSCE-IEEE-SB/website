@@ -7,6 +7,7 @@ export interface ReceiptData {
   receiptNumber: string;
   dateStr?: string;
   chapters?: string[];
+  program?: string;
   treasurerName?: string;
   treasurerRole?: string;
   treasurerPhone?: string;
@@ -204,6 +205,17 @@ export async function generateReceiptPdf(data: ReceiptData): Promise<Buffer> {
   page.drawText('Payment Mode : ', { x: 55, y: curY, size: 14, font: fontBold, color: rgb(0.08, 0.08, 0.08) });
   page.drawText(data.paymentMethod === 'CASH' ? 'Cash (Registration Desk)' : 'UPI', {
     x: 55 + fontBold.widthOfTextAtSize('Payment Mode : ', 14),
+    y: curY,
+    size: 14,
+    font: fontRegular,
+    color: rgb(0.08, 0.08, 0.08),
+  });
+
+  // Program
+  curY -= lineSpacing;
+  page.drawText('Program : ', { x: 55, y: curY, size: 14, font: fontBold, color: rgb(0.08, 0.08, 0.08) });
+  page.drawText(data.program || 'Undergraduate (UG)', {
+    x: 55 + fontBold.widthOfTextAtSize('Program : ', 14),
     y: curY,
     size: 14,
     font: fontRegular,

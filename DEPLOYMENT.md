@@ -32,6 +32,9 @@ Before clicking Deploy, expand the **Environment Variables** section and add:
 | `SMTP_USER` | `ieee.sb@bmsce.ac.in` | Official Branch Sender Email |
 | `SMTP_PASS` | `xxxx xxxx xxxx xxxx` | 16-character App Password |
 | `SMTP_FROM` | `"BMSCE IEEE" <ieee.sb@bmsce.ac.in>` | Transactional email sender display name and address |
+| `GOOGLE_SERVICE_ACCOUNT_EMAIL` | `service-account@...` | Email of Google Service Account for Sheets integration |
+| `GOOGLE_PRIVATE_KEY` | `-----BEGIN PRIVATE KEY-----\n...` | Private key of the Google Service Account |
+| `GOOGLE_SHEET_ID` | `1BxiMVs0XRYFgPN...` | ID of the Google Sheet for registration backup |
 
 ### Step 4: Deploy
 Click **"Deploy"**. Within ~60 seconds, Vercel will build all 32+ pages and API routes with Next.js Turbopack and assign a live URL (e.g. `https://sb-website-theta.vercel.app` or `https://sb-website-ratik.vercel.app`).

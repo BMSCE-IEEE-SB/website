@@ -12,21 +12,21 @@ The public landing page (chapters, team, partnerships) and the membership regist
 | Page | What it is |
 |---|---|
 | `/` | Landing page (Hero, About, Chapters, ExeCom, Partners) |
-| `/chapters/[slug]` | Chapter detail pages (`cs`, `pes-sc`, `pels-ies`, `wie`, `ssit`) |
+| `/chapters/[slug]` | Chapter detail pages (`cs`, `pes`, `pels-ies`, `wie`, `ssit`) |
 | `/membership` | "Become a member": benefits, fee slip calculator, FAQ |
-| `/membership/register` → `/profile` → `/chapters` → `/checkout` | The four-step registration flow (UG/PG program choice on the profile step, T-shirt size selection) |
+| `/membership/register` → `/profile` → `/chapters` → `/checkout` | The four-step registration flow (includes T-shirt size selection) |
 | `/login` | Member portal sign in |
 | `/login/reset` | Password reset request for member accounts |
 | `/account` | Member portal: digital card, status tracker, payment resubmission |
 | `/admin/login` | Executive administrator sign in |
-| `/admin/orders` | Orders ledger (UG/PG filter), payment proof verification, and receipt dispatch |
+| `/admin/orders` | Orders ledger, payment proof verification, and receipt dispatch |
 | `/admin/announcement` | Sitewide announcement banner editor |
 | `/admin/team` | Executive team access & whitelist manager |
-| `/admin/settings` | Membership drive status, UG/PG base fees & chapter prices, UPI VPA & treasurer settings |
+| `/admin/settings` | Membership drive status, base fee, UPI VPA & treasurer settings |
 | `/privacy`, `/terms`, `/refund` | Official student branch legal & policy pages |
 
 ### Where to edit site content
-All landing-page text, chapters, testimonials, FAQs and ExeCom members are in `src/data/site.ts`. The testimonials there are **placeholders**. Chapter prices for payment come from the `chapters` table (`price` / `pg_price`) in live mode.
+All landing-page text, chapters, testimonials, FAQs and ExeCom members are in `src/data/site.ts`. The testimonials there are **placeholders**. Chapter prices for payment come from the `chapters` table in live mode.
 
 ---
 
@@ -34,16 +34,15 @@ All landing-page text, chapters, testimonials, FAQs and ExeCom members are in `s
 
 ### 🎓 1. Multi-Step Student Membership Flow
 - **Minimal Initial Sign-Up** (`/membership/register`): Email, password, and confirm password with an email verification gate.
-- **Academic & Personal Profile** (`/membership/profile`): First & Last Name, UG/PG program choice, USN, Department (20 UG engineering branches, or 12 PG programs for postgraduates), Year of Study (1st–4th for UG, 1st–2nd for PG), Contact Info, and optional IEEE Member ID with auto-fill sample testing helper.
+- **Academic & Personal Profile** (`/membership/profile`): Full Name, USN, Department (19 standardized engineering branches), Year of Study, Contact Info, and optional IEEE Member ID with auto-fill sample testing helper.
 - **Dynamic Chapters Shopping Cart** (`/membership/chapters`):
-  - Base Branch Membership fee (₹1,850), priced per program: separate UG and PG base fees and chapter prices, configured in admin settings and enforced server-side from the saved profile.
+  - Fixed Base Branch Membership fee (₹1,810).
   - Visual branding tiles embedding each chapter's official logo directly in the card background.
-  - Interactive add/remove for all 6 technical chapters and affinity groups (Computer Society, PES, PELS/IES, WIE, Sensors Council, SSIT; CS, WIE and SC included with base membership at ₹0).
+  - Interactive add/remove for all 5 technical chapters and affinity groups (Computer Society, PES, PELS/IES, WIE, SSIT; WIE included with base membership at ₹0).
   - **T-Shirt Size Selector**: Members select their merchandise size ('XS', 'S', 'M', 'L', 'XL', '2XL', '3XL') directly in the cart.
 - **Dynamic UPI QR Checkout** (`/membership/checkout`):
   - Server-verified checkout intent (`/api/checkout/intent`) enforcing server-side price validation and expiration.
   - Client-side generated UPI payment QR code (`qrcode.react`) encoding the exact total and a unique order reference (`BMSCE-XXXXXX`).
-  - **UPI or Cash**: students pay via UPI (12-digit UTR validated client- and server-side) or choose Cash and pay at the registration desk.
   - **Copy UPI ID** & **Copy Amount** buttons for mobile users paying on the same device.
   - **Download QR Code** image button.
   - Payment proof screenshot upload with server-validated MIME and size limits (`/api/checkout/proof`), stored securely in a private Supabase Storage bucket.
@@ -58,7 +57,7 @@ All landing-page text, chapters, testimonials, FAQs and ExeCom members are in `s
 - **Admin Sign-In** (`/admin/login`): Gated login with demo shortcuts in local testing and strict whitelist authentication (`admin_whitelist`) in live mode.
 - **Orders Verification Dashboard** (`/admin/orders`):
   - **KPI Metrics**: Total Orders, Pending Reviews, Verified Members, and Total Funds Collected.
-  - **Search & Filters**: Instant filter by status (`All`, `Pending`, `Verified`, `Rejected`) and program (UG/PG), and search by USN, Student Name, Order Ref, or UTR.
+  - **Search & Filters**: Instant filter by status (`All`, `Pending`, `Verified`, `Rejected`) and search by USN, Student Name, Order Ref, or UTR.
   - **Payment Proof Viewer**: Full modal image preview of uploaded transaction screenshots loaded via short-lived signed URLs.
   - **Verification Controls**: One-click **Verify** (promotes status to verified) and **Reject** (with student feedback prompt).
   - **Decoupled Receipt Dispatch**: On-demand **Send Receipt** button dispatches a professional HTML email with an official PDF receipt attachment. Tracks `receipt_sent` status, timestamp, and errors with retry support.
@@ -71,7 +70,7 @@ All landing-page text, chapters, testimonials, FAQs and ExeCom members are in `s
   - Grant and revoke executive access by institutional email without altering past order verification audit trails.
 - **Drive & Treasurer Settings** (`/admin/settings`):
   - Toggle live membership drive open/closed status (`is_drive_open`).
-  - Configure UG and PG base fees, per-program chapter prices, payee UPI VPA, and payee name.
+  - Configure base fee, payee UPI VPA, and payee name.
   - Configure branch treasurer credentials (name, role, phone, signature) rendered on official PDF receipts.
 - **Global Announcement Banner Manager** (`/admin/announcement`):
   - Live preview, message editing, link URL, and toggle for the sitewide announcement bar.
@@ -133,7 +132,7 @@ The application includes built-in offline/demo sessions, allowing complete testi
 
 When connecting your live Supabase project:
 1. Back up the project and review the existing `public` schema and policies.
-2. For a fresh project, execute `supabase/schema.sql`. Then, on fresh or existing projects, execute every file in `supabase/migrations/` in filename order in the SQL editor (security remediation, auto-confirm, chapter updates, payment method, and UG/PG program pricing). These preserve existing orders and profiles, privatize payment screenshots, and introduce auditable receipt numbering. Do not run `schema.sql` over a live database as a migration.
+2. For a fresh project, execute `supabase/schema.sql`. For either a fresh or existing project, then execute `supabase/migrations/20260927003133_security_remediation.sql` in the SQL editor. This migration preserves existing orders and profiles, privatizes payment screenshots, and introduces auditable receipt numbering. Do not run `schema.sql` over a live database as a migration.
 3. Admin access is provisioned through `admin_whitelist`; do not insert directly into `admins`. Existing whitelist entries are retained and active users are synchronized by the migration.
 4. Update `.env.local`:
 ```bash

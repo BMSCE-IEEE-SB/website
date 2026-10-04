@@ -11,6 +11,9 @@ All notable changes to the **BMSCE IEEE Student Branch Website** will be documen
 - **Comprehensive Branch Options**: Expanded department selection across registration and admin portal to 19 standardized engineering and postgraduate branches.
 - **Scratch & Test Ignore Rules**: Configured `.gitignore` rules for local exploratory scripts (`test-*.mjs`, `test-*.js`, `test-*.ts`).
 
+### Fixed
+- **Mobile Menu Bug**: Fixed the mobile hamburger menu incorrectly rendering with 0px height due to nested CSS positioning constraints.
+
 ### Changed
 - **Profile Name Split**: Split `full_name` into `first_name` and `last_name` in the database, registration flow, profile settings, admin portal, and Google Sheets export for better data structuring.
 - **SSIT Chapter Updates**: Updated SSIT chapter details with accurate flagship events, major events, future events, and removed the `comingSoon` status.

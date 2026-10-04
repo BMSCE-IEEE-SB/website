@@ -106,13 +106,21 @@ export default function ProfilePage() {
       return;
     }
 
+    // HTML `required` lets whitespace-only input through, so check the trimmed name.
+    const firstName = form.first_name?.trim() || '';
+    const lastName = form.last_name?.trim() || '';
+    if (!firstName) {
+      setError('Please enter your first name.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     const program = form.program === 'PG' ? 'PG' : 'UG';
     const profile: UserProfile = {
       id: user.id,
       email: user.email,
-      full_name: [form.first_name?.trim(), form.last_name?.trim()].filter(Boolean).join(' '),
+      full_name: [firstName, lastName].filter(Boolean).join(' '),
       usn: form.usn?.trim().toUpperCase(),
       department: form.department,
       year_of_study: form.year_of_study,

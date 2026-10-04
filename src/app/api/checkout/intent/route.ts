@@ -35,8 +35,10 @@ export async function POST(request: Request) {
     }
     // The program comes from the saved profile, never the client, so a
     // postgraduate cannot check out at undergraduate prices.
-    const { data: profile } = await client.from('profiles').select('program').eq('id', user.id).maybeSingle();
-    const program = programOf((profile as { program?: string } | null)?.program);
+    const { data: profile } = await client.from('profiles').select('program, department, year_of_study').eq('id', user.id).maybeSingle();
+    const typed = profile as { program?: string; department?: string; year_of_study?: string } | null;
+    if (!typed?.department || !typed?.year_of_study) return jsonError('Complete your profile before checkout.', 409);
+    const program = programOf(typed?.program);
     const { data, error } = await client.rpc('create_checkout_intent', {
       p_user_id: user.id,
       p_chapter_ids: chapterIds,

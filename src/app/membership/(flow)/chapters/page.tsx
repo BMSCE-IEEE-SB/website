@@ -90,14 +90,24 @@ export default function ChaptersPage() {
       }
       if (!alive) return;
       // The program (UG/PG) comes from the profile step; each program has its own fees.
+      // Without a saved profile there is no program to price, so send the student back.
       let prog: Program = 'UG';
       if (demo) {
         const p = getLocalProfile(user.id);
-        if (p?.department) setDepartment(p.department);
-        prog = programOf(p?.program);
+        if (!p?.department || !p?.year_of_study) {
+          router.replace('/membership/profile');
+          return;
+        }
+        setDepartment(p.department);
+        prog = programOf(p.program);
       } else {
-        const { data: p } = await supabase.from('profiles').select('department, program').eq('id', user.id).maybeSingle();
-        if (p?.department) setDepartment(p.department);
+        const { data: p } = await supabase.from('profiles').select('department, program, year_of_study').eq('id', user.id).maybeSingle();
+        if (!alive) return;
+        if (!p?.department || !p?.year_of_study) {
+          router.replace('/membership/profile');
+          return;
+        }
+        setDepartment(p.department);
         prog = programOf((p as { program?: string } | null)?.program);
       }
       if (!alive) return;
@@ -222,7 +232,7 @@ export default function ChaptersPage() {
                 onClick={() => setSizeChartOpen(true)}
                 className="inline-flex cursor-pointer items-center self-start rounded-full bg-paper px-3 py-1 text-xs font-semibold text-brand-navy transition hover:bg-sky-50 sm:self-auto"
               >
-                {/* View size chart placeholder removed */}
+                Size chart
               </button>
             </div>
 

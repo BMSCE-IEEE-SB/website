@@ -21,9 +21,9 @@ export async function POST(request: Request) {
     if (!proof || !proof.startsWith(`${user.id}/`) || proof.length > 160) return jsonError('Payment proof is invalid.');
   }
 
-  const utr = (typeof body?.utr === 'string' && /^\d{12}$/.test(body.utr.replace(/\s/g, '')))
-    ? body.utr.replace(/\s/g, '')
-    : null;
+  const cleanUtr = typeof body?.utr === 'string' ? body.utr.replace(/\s/g, '') : '';
+  if (paymentMethod === 'UPI' && !/^\d{12}$/.test(cleanUtr)) return jsonError('Enter the 12-digit UPI reference (UTR) for this payment.', 400);
+  const utr = paymentMethod === 'UPI' ? cleanUtr : null;
 
   const client = getAdminServiceClient();
   const { data: intent, error: intentError } = await client.from('checkout_intents')

@@ -53,6 +53,7 @@ export default function CheckoutPage() {
   const [utr, setUtr] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [loadError, setLoadError] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'UPI' | 'CASH'>('UPI');
 
   useEffect(() => {
@@ -130,7 +131,7 @@ export default function CheckoutPage() {
       if (alive) setIsLoading(false);
     } catch (err) {
         if (alive) {
-          setError(errorMessage(err, 'Checkout could not be loaded.'));
+          setLoadError(errorMessage(err, 'Checkout could not be loaded.'));
           setIsLoading(false);
         }
       }
@@ -242,7 +243,7 @@ export default function CheckoutPage() {
     }
   }
 
-  if (isLoading && !error) return <PageLoader />;
+  if (isLoading && !loadError) return <PageLoader />;
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -270,8 +271,9 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      {error && <Alert tone="error" className="mt-6">{error} <Link href="/membership/chapters" className="ml-2 underline">Return to chapter selection</Link></Alert>}
+      {loadError && <Alert tone="error" className="mt-6">{loadError} <Link href="/membership/chapters" className="ml-2 underline">Return to chapter selection</Link></Alert>}
 
+      {!loadError && (
       <div className="mt-10 grid items-start gap-8 lg:grid-cols-2">
         {/* Step A: pay */}
         <section className="panel p-6 sm:p-8" aria-labelledby="pay-title">
@@ -426,6 +428,7 @@ export default function CheckoutPage() {
           </form>
         </section>
       </div>
+      )}
     </div>
   );
 }

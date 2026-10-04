@@ -555,13 +555,15 @@ export const membershipBenefits = [
 
 /** Used by the chapter cart when the database has no chapters configured yet. */
 export const FALLBACK_BASE_FEE = 1850;
+/** Starting PG fees before an admin sets them: same as UG until configured. */
+export const FALLBACK_PG_BASE_FEE = 1850;
 export const FALLBACK_CART_CHAPTERS = [
-  { id: 'demo-cs', name: 'Computer Society (CS)', code: 'CS', price: 0 },
-  { id: 'demo-pes', name: 'Power & Energy Society', code: 'PES', price: 100 },
-  { id: 'demo-pels', name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', price: 370 },
-  { id: 'demo-wie', name: 'Women in Engineering (WIE)', code: 'WIE', price: 0 },
-  { id: 'demo-ssit', name: 'Society on Social Implications of Technology (SSIT)', code: 'SSIT', price: 50 },
-  { id: 'demo-sc', name: 'Sensors Council', code: 'SC', price: 0 },
+  { id: 'demo-cs', name: 'Computer Society (CS)', code: 'CS', price: 0, pgPrice: 0 },
+  { id: 'demo-pes', name: 'Power & Energy Society', code: 'PES', price: 100, pgPrice: 100 },
+  { id: 'demo-pels', name: 'Power Electronics Society and the Industrial Electronics Society (PELS & IES)', code: 'PELS/IES', price: 370, pgPrice: 370 },
+  { id: 'demo-wie', name: 'Women in Engineering (WIE)', code: 'WIE', price: 0, pgPrice: 0 },
+  { id: 'demo-ssit', name: 'Society on Social Implications of Technology (SSIT)', code: 'SSIT', price: 50, pgPrice: 50 },
+  { id: 'demo-sc', name: 'Sensors Council', code: 'SC', price: 0, pgPrice: 0 },
 ];
 
 export const chapterBySlug = (slug: string) =>
@@ -581,6 +583,7 @@ export const pillars = [
 
 export const faqs = [
   { q: 'Who can become a member?', a: 'Any student currently enrolled at B.M.S. College of Engineering: undergraduate, postgraduate or research scholar, from any department.' },
+  { q: 'How much do postgraduates pay?', a: 'Choose Postgraduate on the academic details step. PG students pay a separate postgraduate fee set by the branch: toggle UG / PG on the pricing slip above to see both.' },
   { q: 'How do I pay?', a: 'With any UPI app. Scan the QR code on the payment step, then upload the screenshot and the 12-digit UTR number. Cash is also accepted at our registration desk.' },
   { q: 'How long does verification take?', a: 'We will match the payments against the bank statement, usually within a week. You get an email once you are verified.' },
   { q: 'When do I get my IEEE.org account?', a: 'Official IEEE credentials are provisioned by IEEE headquarters in batches. We email them to you as soon as they arrive.' },

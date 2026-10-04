@@ -9,6 +9,8 @@ export interface UserProfile {
   year_of_study?: string;
   phone?: string;
   ieee_member_id?: string;
+  /** Registration program: 'UG' (list price) or 'PG' (double price). */
+  program?: string;
 }
 
 export type OrderStatus = 'pending' | 'verified' | 'rejected';
@@ -16,6 +18,8 @@ export type OrderStatus = 'pending' | 'verified' | 'rejected';
 export interface Order {
   id: string;
   user_id: string;
+  /** Registration program: 'UG' or 'PG'. Missing means UG (pre-program orders). */
+  program?: string;
   base_fee: number;
   total_amount: number;
   payment_screenshot_url?: string;
@@ -63,7 +67,7 @@ export const DUMMY_ADMIN_CREDENTIALS = { email: 'admin@bmsce.ac.in', password: '
 const DUMMY_USER_KEY = 'bmsce_dummy_user';
 const DUMMY_ADMIN_KEY = 'bmsce_dummy_admin';
 const DUMMY_PROFILE_KEY = 'bmsce_dummy_profiles';
-const DUMMY_ORDERS_KEY = 'bmsce_dummy_orders_v3';
+const DUMMY_ORDERS_KEY = 'bmsce_dummy_orders_v4';
 const ANNOUNCEMENT_KEY = 'bmsce_announcement';
 
 const isBrowser = () => typeof window !== 'undefined';
@@ -270,6 +274,8 @@ function buildSampleOrders(): Order[] {
     const created = now - daysAgo * 86400000 - Math.floor(rand() * 20) * 3600000;
     const chapterIdx = (DEPT_CHAPTERS[dept] ?? [0]).filter(() => rand() < 0.55);
     const chapters = chapterIdx.map((k) => CHAPTER_PRICES[k][0]);
+    // Every eighth sample is a postgraduate application (same sample fees for both programs).
+    const program = i % 8 === 7 ? 'PG' : 'UG';
     const total = 1850 + chapterIdx.reduce((sum, k) => sum + CHAPTER_PRICES[k][1], 0);
     const age = (now - created) / 86400000;
     const r = rand();
@@ -284,6 +290,7 @@ function buildSampleOrders(): Order[] {
       department: dept,
       year_of_study: year,
       phone: `+91 9${Math.floor(100000000 + rand() * 899999999)}`,
+      program,
       base_fee: 1850,
       total_amount: total,
       payment_screenshot_url: pick(PROOFS),
@@ -323,6 +330,7 @@ export function saveLocalOrder(order: Order) {
   const profile = getLocalProfile(order.user_id);
   const enriched: Order = {
     ...order,
+    program: order.program ?? profile?.program ?? 'UG',
     student_name: profile?.full_name ?? order.student_name,
     usn: profile?.usn ?? order.usn,
     email: profile?.email ?? order.email,

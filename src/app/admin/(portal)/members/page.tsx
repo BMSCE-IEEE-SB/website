@@ -7,6 +7,7 @@ import { useAdmin } from '@/components/admin/AdminContext';
 import { downloadCsv, markCredentialsSent, saveIeeeId } from '@/lib/admin';
 import type { Order } from '@/lib/auth';
 import { chapterCode, chapters as chapterInfo } from '@/data/site';
+import { PROGRAM_LABELS, programOf } from '@/lib/pricing';
 import { cn, formatDate } from '@/lib/utils';
 
 function IeeeIdField({ order }: { order: Order }) {
@@ -101,8 +102,8 @@ export default function MembersPage() {
   const exportRoster = (rows: Order[]) =>
     downloadCsv(
       `bmsce_ieee_roster_${chapter === 'all' ? 'all' : chapter.replace('/', '-')}_${new Date().toISOString().slice(0, 10)}.csv`,
-      ['Full name', 'Email', 'USN', 'Department', 'Year', 'Phone', 'Chapters', 'IEEE member ID', 'Verified on', 'Credentials sent'],
-      rows.map((m) => [m.student_name, m.email, m.usn, m.department, m.year_of_study, m.phone, (m.chapters ?? []).map(chapterCode).join('; '), m.ieee_member_id ?? '', m.verified_at?.slice(0, 10) ?? '', m.credentials_sent_at ? 'Yes' : 'No']),
+      ['Full name', 'Email', 'USN', 'Department', 'Year', 'Program', 'Phone', 'Chapters', 'IEEE member ID', 'Verified on', 'Credentials sent'],
+      rows.map((m) => [m.student_name, m.email, m.usn, m.department, m.year_of_study, PROGRAM_LABELS[programOf(m.program)], m.phone, (m.chapters ?? []).map(chapterCode).join('; '), m.ieee_member_id ?? '', m.verified_at?.slice(0, 10) ?? '', m.credentials_sent_at ? 'Yes' : 'No']),
     );
 
   const bccAll = list.map((m) => m.email).filter(Boolean).join(',');
@@ -222,7 +223,12 @@ export default function MembersPage() {
                     <input type="checkbox" checked={selected.has(m.id)} onChange={() => setSelected((p) => { const n = new Set(p); if (n.has(m.id)) n.delete(m.id); else n.add(m.id); return n; })} aria-label={`Select ${m.student_name}`} className="h-4 w-4 accent-brand-navy" />
                   </td>
                   <td className="py-3">
-                    <p className="font-semibold text-ink">{m.student_name}</p>
+                    <p className="font-semibold text-ink">
+                      {m.student_name}
+                      {programOf(m.program) === 'PG' && (
+                        <span className="ml-1.5 rounded-full bg-brand-orange/10 px-2 py-0.5 text-[10px] font-bold text-brand-orange">PG</span>
+                      )}
+                    </p>
                     <p className="text-xs text-muted"><span className="font-mono text-brand-navy">{m.usn}</span> · {m.department} · Year {m.year_of_study}</p>
                   </td>
                   <td className="py-3">

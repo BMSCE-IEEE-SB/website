@@ -1,5 +1,6 @@
 import { getAdminServiceClient, jsonError, requireAdmin } from '@/lib/server/supabase-admin';
 import { isUuid } from '@/lib/server/input';
+import { appendRegistrationToSheet } from '@/lib/server/google-sheets';
 
 export const runtime = 'nodejs';
 
@@ -20,6 +21,45 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       p_reason: reason,
     });
     if (error) return jsonError('The order could not be updated.', 409);
+
+    if (body.status === 'verified') {
+      const client = getAdminServiceClient();
+      const { data: orderData, error: orderError } = await client
+        .from('orders')
+        .select(`
+          order_reference,
+          total_amount,
+          tshirt_size,
+          profiles(full_name, usn, email, phone, department, year_of_study),
+          order_items(chapters(name))
+        `)
+        .eq('id', id)
+        .single();
+      
+      if (!orderError && orderData && orderData.profiles) {
+        const profile = orderData.profiles as any;
+        const items = (orderData.order_items as any[]) || [];
+        const chapters = items
+          .map((i) => i.chapters?.name)
+          .filter(Boolean)
+          .join(', ');
+
+        // Await to ensure the sync finishes before the serverless function exits
+        await appendRegistrationToSheet({
+          fullName: profile.full_name,
+          email: profile.email,
+          phone: profile.phone,
+          usn: profile.usn,
+          department: profile.department,
+          year: profile.year_of_study,
+          orderReference: orderData.order_reference,
+          amount: Number(orderData.total_amount),
+          tshirtSize: orderData.tshirt_size,
+          chapters,
+        });
+      }
+    }
+
     return Response.json({ success: true }, { headers: { 'Cache-Control': 'no-store' } });
   } catch {
     return jsonError('The order could not be updated.', 503);

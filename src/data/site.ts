@@ -642,6 +642,8 @@ export const tickerItems = [
   'STARTOPOLIS',
   'PES Day',
   'Yellarigu Electronics',
+  'CS Week',
+  'SSIT IMPACT WEEK',
 ];
 
 /** Splits the calendar into upcoming (soonest first) and past (latest first). */

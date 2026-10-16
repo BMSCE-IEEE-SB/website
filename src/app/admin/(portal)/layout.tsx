@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
-import { Activity, ClipboardCheck, ExternalLink, LayoutDashboard, LogOut, Megaphone, Settings, ShieldCheck, Users } from 'lucide-react';
+import { Activity, ClipboardCheck, ExternalLink, LayoutDashboard, LogOut, Megaphone, Settings, ShieldCheck, Trophy, Users } from 'lucide-react';
 import { AdminProvider, useAdmin } from '@/components/admin/AdminContext';
 import { clearAdminSession } from '@/lib/auth';
 import { isDemoMode } from '@/lib/supabase';
@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 const nav = [
   { href: '/admin', label: 'Overview', icon: LayoutDashboard },
   { href: '/admin/orders', label: 'Applications', icon: ClipboardCheck, badge: 'pending' as const },
+  { href: '/admin/xtreme', label: 'IEEEXtreme 20.0', icon: Trophy },
   { href: '/admin/members', label: 'Members', icon: Users },
   { href: '/admin/announcement', label: 'Announcement', icon: Megaphone },
   { href: '/admin/team', label: 'Team access', icon: ShieldCheck },

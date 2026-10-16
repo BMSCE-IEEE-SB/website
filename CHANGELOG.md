@@ -7,6 +7,13 @@ All notable changes to the **BMSCE IEEE Student Branch Website** will be documen
 ## [Unreleased]
 
 ### Added
+- **IEEEXtreme 20.0 Registration Module**: Complete lead-delegated portal for the global 24-hour virtual programming competition:
+  - **Public Landing Page** (`/xtreme`): Event rules, on-campus overnight stay information, eligibility prerequisites, live countdown timer to October 24, 2026, and FAQs.
+  - **Multi-Step Lead Registration Portal** (`/xtreme/register`): 4-step wizard (Team Info, Lead Details, Teammates, Review & Submit) supporting 1 to 3 members with live IEEE member ID lookup. Allows edits before vTools registration and locks after confirmation.
+  - **Success & Confirmation Screen** (`/xtreme/success`): Proctor assignment viewer, confetti burst, and one-click "Confirm vTools Registration" button.
+  - **Executive Admin Management** (`/admin/xtreme`): Dedicated dashboard for proctor assignment, squad metrics, editing team details, bulk legacy member CSV upload, and full data export to CSV.
+  - **Backend API Endpoints**: `/api/xtreme/validate-member`, `/api/xtreme/register`, `/api/xtreme/my-team`, `/api/xtreme/verify-vtools`, `/api/xtreme/admin/teams`, `/api/xtreme/admin/teams/[id]`, `/api/xtreme/admin/upload-members`, and `/api/xtreme/admin/export`.
+  - **Database Migration**: Added `supabase/migrations/20261016140000_ieeextreme_tables.sql` defining isolated `ieee_member_2026`, `xtreme_teams`, and `xtreme_members` tables.
 - **Official Treasurer Signature**: Configured authorized high-resolution treasurer signature asset (`public/brand/signature.png`) automatically stamped on official generated PDF receipts.
 - **Comprehensive Branch Options**: Expanded department selection across registration and admin portal to 19 standardized engineering and postgraduate branches.
 - **Scratch & Test Ignore Rules**: Configured `.gitignore` rules for local exploratory scripts (`test-*.mjs`, `test-*.js`, `test-*.ts`).

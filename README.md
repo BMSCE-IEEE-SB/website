@@ -24,6 +24,10 @@ The public landing page (chapters, team, partnerships) and the membership regist
 | `/admin/team` | Executive team access & whitelist manager |
 | `/admin/settings` | Membership drive status, base fee, UPI VPA & treasurer settings |
 | `/privacy`, `/terms`, `/refund` | Official student branch legal & policy pages |
+| `/xtreme` | IEEEXtreme 20.0 public landing page (rules, countdown, FAQ) |
+| `/xtreme/register` | Multi-step lead-delegated team registration flow (1–3 members) |
+| `/xtreme/success` | Post-registration gateway & official IEEE vTools confirmation |
+| `/admin/xtreme` | IEEEXtreme teams management, proctor assignment, and CSV export |
 
 ### Where to edit site content
 All landing-page text, chapters, testimonials, FAQs and ExeCom members are in `src/data/site.ts`. The testimonials there are **placeholders**. Chapter prices for payment come from the `chapters` table in live mode.
@@ -96,6 +100,29 @@ Interactive Bento grid showcasing all 5 technical chapters and affinity groups:
   - Sky Blue: `#18A4FE`
   - Dark Surfaces: `#0A0F1A` / `#12192B`
 - Mobile hamburger navigation drawer with quick links to registration, chapters, member portal, and admin portal.
+
+---
+
+### ⚡ 5. IEEEXtreme 20.0 Registration & Proctor Gateway
+A state-driven portal for the global 24-hour programming competition hosted on campus for BMSCE students:
+- **Lead-Delegated Registration Model** (`/xtreme/register`):
+  - Only the Team Lead logs in to represent the squad, entering academic and contact information for 1 to 3 members (solo allowed, maximum 3).
+  - Collects essential campus stay logistics (USN, department, year of study, phone, email) for overnight computer lab access.
+  - Alphanumeric team name format matching IEEE rules (`3–20` characters, unique across all teams).
+- **Dual-Database Membership Validation**:
+  - Live verification via `/api/xtreme/validate-member` against legacy member lists (`ieee_member_2026`) and active profiles (`profiles`).
+  - Cross-checks to prevent an IEEE member from registering on multiple teams concurrently.
+- **Two-Stage Official Workflow**:
+  1. *Stage 1 (Local Gateway)*: Team Lead registers the team on BMSCE IEEE.
+  2. *Stage 2 (Proctor Assignment)*: Executive committee reviews and assigns an authorized faculty proctor.
+  3. *Stage 3 (Official IEEE vTools)*: Team registers on `https://xtreme.vtools.ieee.org/` using their proctor number and confirms on `/xtreme/success`, permanently locking their squad.
+- **Executive Administration** (`/admin/xtreme`):
+  - Proctor assignment modal (assign proctor name and IEEE ID).
+  - Real-time squad and participant metrics.
+  - CSV upload modal for pre-populating past/legacy BMSCE IEEE member data.
+  - Reconciled CSV export for lab seating, internet whitelisting, and global contest coordination.
+- **Safe Database Migration**:
+  - Defined in `supabase/migrations/20261016140000_ieeextreme_tables.sql` (additive tables only: `ieee_member_2026`, `xtreme_teams`, `xtreme_members`; zero modifications to existing tables). Full demo-mode localStorage fallback supported when Supabase tables are pending.
 
 ---
 

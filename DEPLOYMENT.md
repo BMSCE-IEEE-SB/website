@@ -44,6 +44,10 @@ Click **"Deploy"**. Within ~60 seconds, Vercel will build all 32+ pages and API 
 1. **Database Provisioning**:
    - For a **fresh database**: Execute `supabase/schema.sql`, then apply `supabase/migrations/20260927003133_security_remediation.sql`.
    - For an **existing database**: Take a backup and apply `supabase/migrations/20260927003133_security_remediation.sql`. **Do not** re-run `schema.sql` over an existing live database.
+   - For **IEEEXtreme 20.0 (Hackathon Gateway)**:
+     - When ready to enable hackathon registrations on the live Supabase project, execute `supabase/migrations/20261016140000_ieeextreme_tables.sql`.
+     - This creates three isolated tables (`ieee_member_2026`, `xtreme_teams`, `xtreme_members`) and the atomic transaction procedure `save_xtreme_team` with Row-Level Security. It does **not** alter or touch any existing membership or payment tables.
+     - Until applied, the Xtreme module gracefully falls back to browser localStorage.
 2. **Admin Provisioning**:
    - Verify that your initial executive email is present in the `admin_whitelist` table (e.g. `ratikagrawal.ec24@bmsce.ac.in` or `bms.ieeesb@gmail.com`). Admin access is provisioned strictly through this whitelist.
 3. **Environment Security**:

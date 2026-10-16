@@ -11,6 +11,7 @@ The administrative portal features a unified sidebar navigation shell (responsiv
 1. **Overview (`/admin`)**: Real-time financial metrics, pending queue age, verification trends, priority attention items, and interactive SVG charts with data table views.
 2. **Applications (`/admin/orders`)**: Financial ledger for reviewing payment proofs, fraud warning flags (duplicate UTR, amount mismatch, repeat USN), sliding inspection drawer, keyboard shortcuts, bulk verification/rejection, and on-demand official PDF receipts.
 3. **Members Directory (`/admin/members`)**: Verified membership roster, chapter enrollment breakdown tiles, credential dispatch tracking (`credentials_sent_at`), inline IEEE member ID assignment, and headquarters CSV export.
+4. **IEEEXtreme 20.0 (`/admin/xtreme`)**: Squad management, local faculty proctor assignment, legacy member CSV import, and master roster export for campus hackathon operations.
 5. **Sitewide Announcement (`/admin/announcement`)**: Toggle and edit the global alert banner with live preview and safe URL validation.
 6. **Executive Team Access (`/admin/team`)**: Role-based access control whitelist (`admin_whitelist`) to grant or revoke administrative privileges with automatic database trigger synchronization.
 7. **Fees & Payment (`/admin/settings`)**: Configure membership drive status (`is_drive_open`), base membership fee, chapter add-ons, UPI VPA, payee name with live QR tester, and treasurer credentials printed on receipts.
@@ -151,6 +152,44 @@ Manage access privileges for the executive committee:
    - When the executive signs up or logs into `/admin/login`, database triggers automatically grant administrative permissions.
 3. **Revoking Privileges**: Click the trash icon to revoke access.
    - *Audit Safety*: Historical order verification records remain permanently linked via foreign key audit trails.
+
+---
+
+## ⚡ IEEEXtreme 20.0 Squads & Proctor Management (`/admin/xtreme`)
+
+The IEEEXtreme module provides centralized management for all teams participating in the global 24-hour hackathon from BMSCE:
+
+### 1. Key Responsibilities
+- **Proctor Assignment**: Assign certified BMSCE faculty proctors (Faculty Name and IEEE Member Number) to each registered team. Team Leads cannot finalize registration on IEEE vTools without this proctor number.
+- **Monitoring vTools Registration**: Track which squads have completed registration on the official global portal (`https://xtreme.vtools.ieee.org/`).
+- **Campus Logistics**: Access USN, department, phone, and year of study for all participants to coordinate overnight laboratory seating, campus security permissions, and meals.
+
+### 2. Team Actions & Modal
+- Click **"Edit / Proctor"** on any squad row to:
+  - Assign or update **Proctor Name** and **Proctor IEEE ID**.
+  - Review all members (Lead + Teammates).
+  - Add private **Admin Notes** (e.g., specific lab room assignments or hardware needs).
+  - Manually toggle **vTools Verified** status to lock or unlock a team.
+- Click the trash icon to delete an invalid team (with confirmation).
+
+### 3. Pre-loading Legacy Member Data
+Students who registered in past years or through offline drives may not yet have a web profile on `bmsceieee.com`. To ensure their IEEE Member IDs validate smoothly:
+1. Click **"Import Members CSV"** on the top toolbar.
+2. Select a `.csv` file or paste text formatted as:
+   ```csv
+   ieee_member_id, name, email
+   98451201, Rohan Sharma, rohan.cs23@bmsce.ac.in
+   100650078, Ratik Agrawal, ratikagrawal.ec24@bmsce.ac.in
+   ```
+3. Click **"Import Records"**. The IDs are saved to `ieee_member_2026` and instantly qualify students for registration.
+
+### 4. Exporting Data
+- Click **"Export Teams CSV"** to download a spreadsheet containing:
+  - Team Name, vTools Verification Status, Proctor Details, Admin Notes.
+  - Flattened row per participant: Lead/Teammate, Name, IEEE ID, Email, Phone, USN, Department, Year of Study, and Registration Date.
+
+### 5. Supabase Database Migration
+The migration script is stored at `supabase/migrations/20261016140000_ieeextreme_tables.sql`. It creates three completely independent tables (`ieee_member_2026`, `xtreme_teams`, `xtreme_members`) and Row-Level Security policies. It does **not** alter or touch any existing membership or payment tables. Apply it via the Supabase SQL editor or Supabase CLI whenever you are ready to enable live database persistence for the hackathon.
 
 ---
 

@@ -6,15 +6,15 @@ For student executive committee members, branch chairs, treasurers, and voluntee
 
 ## 🧭 Admin Portal Architecture
 
-The administrative portal features a unified sidebar navigation shell (responsive bottom tab bar on mobile devices) organizing all administrative operations into eight dedicated modules:
+The administrative portal features a unified sidebar navigation shell (responsive bottom tab bar on mobile devices) organizing all administrative operations into seven dedicated modules:
 
 1. **Overview (`/admin`)**: Real-time financial metrics, pending queue age, verification trends, priority attention items, and interactive SVG charts with data table views.
 2. **Applications (`/admin/orders`)**: Financial ledger for reviewing payment proofs, fraud warning flags (duplicate UTR, amount mismatch, repeat USN), sliding inspection drawer, keyboard shortcuts, bulk verification/rejection, and on-demand official PDF receipts.
 3. **Members Directory (`/admin/members`)**: Verified membership roster, chapter enrollment breakdown tiles, credential dispatch tracking (`credentials_sent_at`), inline IEEE member ID assignment, and headquarters CSV export.
-5. **Sitewide Announcement (`/admin/announcement`)**: Toggle and edit the global alert banner with live preview and safe URL validation.
-6. **Executive Team Access (`/admin/team`)**: Role-based access control whitelist (`admin_whitelist`) to grant or revoke administrative privileges with automatic database trigger synchronization.
-7. **Fees & Payment (`/admin/settings`)**: Configure membership drive status (`is_drive_open`), base membership fee, chapter add-ons, UPI VPA, payee name with live QR tester, and treasurer credentials printed on receipts.
-8. **Activity Log (`/admin/activity`)**: Searchable, exportable audit trail recording every administrative verification, rejection, private note, settings change, and whitelist update.
+4. **Sitewide Announcement (`/admin/announcement`)**: Toggle and edit the global alert banner with live preview and safe URL validation.
+5. **Executive Team Access (`/admin/team`)**: Role-based access control whitelist (`admin_whitelist`) to grant or revoke administrative privileges with automatic database trigger synchronization.
+6. **Fees & Payment (`/admin/settings`)**: Configure membership drive status (`is_drive_open`), base membership fee, chapter add-ons, UPI VPA, payee name with live QR tester, and treasurer credentials printed on receipts.
+7. **Activity Log (`/admin/activity`)**: Searchable, exportable audit trail recording every administrative verification, rejection, private note, settings change, and whitelist update.
 
 ---
 

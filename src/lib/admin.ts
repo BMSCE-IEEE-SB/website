@@ -254,44 +254,30 @@ export async function loadSettings(): Promise<Settings> {
       chapters: pricing.chapters.map((c) => ({ id: c.id, code: c.code, name: c.name, price: c.price, pgPrice: c.pgPrice })),
     };
   }
-  try {
-    const res = await adminFetch('/api/admin/settings');
-    if (res.ok) {
-      const { settings, chapters } = await res.json();
-      return {
-        baseFee: Number(settings?.base_fee ?? 500),
-        pgBaseFee: Number(settings?.pg_base_fee ?? settings?.base_fee ?? 500),
-        vpa: settings?.payee_vpa ?? '',
-        payeeName: settings?.payee_name ?? '',
-        driveYear: Number(settings?.drive_year ?? new Date().getFullYear()),
-        isDriveOpen: settings?.is_drive_open ?? true,
-        treasurerName: settings?.treasurer_name ?? 'Branch Treasurer',
-        treasurerRole: settings?.treasurer_role ?? 'Treasurer',
-        treasurerPhone: settings?.treasurer_phone ?? '',
-        signatureUrl: settings?.signature_url ?? '',
-        chapters: (chapters ?? []).map((c: { id: string; code: string; name: string; price: number | string; pg_price?: number | string; is_active?: boolean }) => ({
-          id: c.id,
-          code: c.code,
-          name: c.name,
-          price: Number(c.price),
-          pgPrice: Number(c.pg_price ?? c.price),
-          is_active: c.is_active ?? true,
-        })),
-      };
-    }
-  } catch {}
-  const [pricing, payee] = await Promise.all([loadPricing(), loadPayee()]);
+  const res = await adminFetch('/api/admin/settings');
+  const result = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(result?.error || 'Could not load membership settings.');
+  const { settings, chapters } = result ?? {};
+  if (!settings || !Array.isArray(chapters)) throw new Error('Membership settings are incomplete.');
   return {
-    baseFee: pricing.baseFee,
-    pgBaseFee: pricing.pgBaseFee,
-    vpa: payee.vpa,
-    payeeName: payee.name,
-    driveYear: new Date().getFullYear(),
-    isDriveOpen: true,
-    treasurerName: 'Branch Treasurer',
-    treasurerRole: 'Treasurer',
-    treasurerPhone: '',
-    chapters: pricing.chapters.map((c) => ({ id: c.id, code: c.code, name: c.name, price: c.price, pgPrice: c.pgPrice })),
+    baseFee: Number(settings.base_fee),
+    pgBaseFee: Number(settings.pg_base_fee ?? settings.base_fee),
+    vpa: settings.payee_vpa ?? '',
+    payeeName: settings.payee_name ?? '',
+    driveYear: Number(settings.drive_year ?? new Date().getFullYear()),
+    isDriveOpen: settings.is_drive_open ?? true,
+    treasurerName: settings.treasurer_name ?? 'Branch Treasurer',
+    treasurerRole: settings.treasurer_role ?? 'Treasurer',
+    treasurerPhone: settings.treasurer_phone ?? '',
+    signatureUrl: settings.signature_url ?? '',
+    chapters: chapters.map((c: { id: string; code: string; name: string; price: number | string; pg_price?: number | string; is_active?: boolean }) => ({
+      id: c.id,
+      code: c.code,
+      name: c.name,
+      price: Number(c.price),
+      pgPrice: Number(c.pg_price ?? c.price),
+      is_active: c.is_active ?? true,
+    })),
   };
 }
 

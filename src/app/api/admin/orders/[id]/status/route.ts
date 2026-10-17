@@ -4,6 +4,23 @@ import { appendRegistrationToSheet } from '@/lib/server/google-sheets';
 
 export const runtime = 'nodejs';
 
+type RegistrationOrder = {
+  order_reference: string;
+  total_amount: number | string;
+  tshirt_size: string | null;
+  program: string;
+  profiles: {
+    first_name: string | null;
+    last_name: string | null;
+    usn: string | null;
+    email: string | null;
+    phone: string | null;
+    department: string | null;
+    year_of_study: string | null;
+  } | null;
+  order_items: Array<{ chapters: { name: string } | null }> | null;
+};
+
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const admin = await requireAdmin(request);
   if (!admin) return jsonError('Administrator sign-in is required.', 401);
@@ -24,7 +41,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
 
     if (body.status === 'verified') {
       const client = getAdminServiceClient();
-      const { data: orderData, error: orderError } = await client
+      const { data, error: orderError } = await client
         .from('orders')
         .select(`
           order_reference,
@@ -36,28 +53,28 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         `)
         .eq('id', id)
         .single();
-      
+      const orderData = data as RegistrationOrder | null;
+
       if (!orderError && orderData && orderData.profiles) {
-        const profile = orderData.profiles as any;
-        const items = (orderData.order_items as any[]) || [];
-        const chapters = items
-          .map((i) => i.chapters?.name)
-          .filter(Boolean)
+        const profile = orderData.profiles;
+        const chapters = (orderData.order_items ?? [])
+          .map((item) => item.chapters?.name)
+          .filter((name): name is string => Boolean(name))
           .join(', ');
 
         // Await to ensure the sync finishes before the serverless function exits
         await appendRegistrationToSheet({
-          firstName: profile.first_name || "",
-          lastName: profile.last_name || "",
-          email: profile.email,
-          phone: profile.phone,
-          usn: profile.usn,
-          department: profile.department,
-          year: profile.year_of_study,
+          firstName: profile.first_name ?? '',
+          lastName: profile.last_name ?? '',
+          email: profile.email ?? '',
+          phone: profile.phone ?? '',
+          usn: profile.usn ?? '',
+          department: profile.department ?? '',
+          year: profile.year_of_study ?? '',
           orderReference: orderData.order_reference,
           amount: Number(orderData.total_amount),
           tshirtSize: orderData.tshirt_size,
-          program: orderData.program,
+          program: orderData.program ?? '',
           chapters,
         });
       }

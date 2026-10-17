@@ -87,9 +87,10 @@ export async function POST(request: Request) {
     if (receiptUpdateError || orderUpdateError) throw new Error('Receipt delivery tracking failed.');
     await recordAdminAudit(admin, 'receipt.sent', 'receipt', receipt.id, { receipt_number: receipt.receipt_number, order_id: body.orderId });
     return NextResponse.json({ success: true, receiptNumber: receipt.receipt_number }, { headers: { 'Cache-Control': 'no-store' } });
-  } catch (error: any) {
+  } catch (error: unknown) {
     await client.from('issued_receipts').update({ delivery_status: 'failed', last_error: 'Delivery failed' }).eq('id', receipt.id);
     await client.from('orders').update({ receipt_sent: false, receipt_error: 'Delivery failed' }).eq('id', body.orderId);
-    return jsonError(`Delivery failed: ${error.message}`, 503);
+    const message = error instanceof Error ? error.message : 'Unknown delivery error';
+    return jsonError(`Delivery failed: ${message}`, 503);
   }
 }

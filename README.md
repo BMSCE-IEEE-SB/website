@@ -63,9 +63,6 @@ All landing-page text, chapters, testimonials, FAQs and ExeCom members are in `s
   - **Decoupled Receipt Dispatch**: On-demand **Send Receipt** button dispatches a professional HTML email with an official PDF receipt attachment. Tracks `receipt_sent` status, timestamp, and errors with retry support.
   - **Manual Receipt Generator** (`/api/admin/manual-receipt`): Modal allowing executives to issue official receipts for offline or cash payments, automatically logged in `issued_receipts` and `admin_audit_log`.
   - **Ledger Export**: One-click **Export to CSV** for offline administrative recordkeeping (formula-injection protected).
-- **Events Manager** (`/admin/events`):
-  - Full CRUD operations for branch workshops, hackathons, summits, and technical talks.
-  - Live toggle for featured events displayed on the homepage.
 - **Executive Team Whitelist** (`/admin/team`):
   - Grant and revoke executive access by institutional email without altering past order verification audit trails.
 - **Drive & Treasurer Settings** (`/admin/settings`):

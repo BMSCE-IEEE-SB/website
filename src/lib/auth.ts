@@ -404,7 +404,8 @@ export function saveLocalAnnouncement(announcement: Announcement) {
 
 export async function loadAnnouncement(): Promise<Announcement | null> {
   if (isDemoMode()) return getLocalAnnouncement();
-  const { data } = await supabase.from('announcement').select('*').eq('id', 1).maybeSingle();
+  const { data, error } = await supabase.from('announcement').select('*').eq('id', 1).maybeSingle();
+  if (error) throw error;
   return data ?? null;
 }
 

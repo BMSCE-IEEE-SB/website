@@ -15,6 +15,7 @@ import { PROGRAM_LABELS, programOf } from '@/lib/pricing';
 import { Modal, Spinner, StatusBadge } from '@/components/ui/form';
 import { timeAgo } from '@/lib/adminStats';
 import { cn, formatDateTime } from '@/lib/utils';
+import { isDemoMode } from '@/lib/supabase';
 
 type Status = 'all' | 'pending' | 'verified' | 'rejected';
 type Sort = 'newest' | 'oldest' | 'amount';
@@ -144,12 +145,28 @@ export default function ApplicationsPage() {
       try {
         await verifyOrders(list, admin);
         let sent = 0;
-        for (const o of list) if (await sendReceipt(o)) sent++;
-        toast('success', `${list.length === 1 ? list[0].order_reference : `${list.length} applications`} verified.${sent ? ` ${sent} receipt email${sent > 1 ? 's' : ''} sent.` : ' Receipt email not sent (SMTP not configured).'}`);
+        let failed = 0;
+        for (const order of list) {
+          try {
+            if (await sendReceipt(order)) sent++;
+            else failed++;
+          } catch {
+            failed++;
+          }
+        }
         setSelected(new Set());
         setConfirmVerify(null);
         await reload();
+        const label = list.length === 1 ? list[0].order_reference : `${list.length} applications`;
+        if (isDemoMode()) {
+          toast('success', `${label} verified. Receipt emails are not sent in demo mode.`);
+        } else if (failed) {
+          toast('info', `${label} verified. ${sent} receipt email${sent === 1 ? '' : 's'} sent; ${failed} could not be sent. Retry from the application details.`);
+        } else {
+          toast('success', `${label} verified. ${sent} receipt email${sent === 1 ? '' : 's'} sent.`);
+        }
       } catch (err) {
+        await reload();
         toast('error', `Verification failed: ${(err as Error).message}`);
       } finally {
         setBusy(false);

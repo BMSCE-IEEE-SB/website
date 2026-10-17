@@ -18,16 +18,22 @@ export default function AdminAnnouncementPage() {
   const [linkUrl, setLinkUrl] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [status, setStatus] = useState<{ tone: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     (async () => {
-      const a = (await loadAnnouncement().catch(() => null)) ?? DEFAULT_ANNOUNCEMENT;
-      setMessage(a.message);
-      setLinkUrl(a.link_url ?? '');
-      setIsActive(a.is_active);
-      setIsLoading(false);
+      try {
+        const a = (await loadAnnouncement()) ?? DEFAULT_ANNOUNCEMENT;
+        setMessage(a.message);
+        setLinkUrl(a.link_url ?? '');
+        setIsActive(a.is_active);
+      } catch (err) {
+        setLoadError(errorMessage(err, 'Could not load announcement settings.'));
+      } finally {
+        setIsLoading(false);
+      }
     })();
   }, []);
 
@@ -63,6 +69,7 @@ export default function AdminAnnouncementPage() {
   }
 
   if (isLoading) return <PageLoader />;
+  if (loadError) return <Alert tone="error">{loadError}</Alert>;
 
   return (
     <div className="max-w-3xl pb-10">

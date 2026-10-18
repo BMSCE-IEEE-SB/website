@@ -17,97 +17,101 @@ import Countdown from '@/components/site/Countdown';
 import { SectionLabel } from '@/components/site/BrandShapes';
 
 export const metadata: Metadata = {
-  title: 'IEEEXtreme 20.0 · BMSCE Registration Gateway',
+  title: 'IEEEXtreme 20.0 · BMSCE',
   description:
-    'Register your BMSCE team for IEEEXtreme 20.0, the premier global 24-hour programming competition. Form a team, get assigned a proctor, and compete on campus.',
+    "Join IEEE's flagship algorithmic programming competition in the world’s biggest collegiate hackathon. Form your team of 1–3 members, get assigned a campus proctor, and compete globally on October 31, 2026.",
 };
 
-const EVENT_START = new Date('2026-10-24T05:30:00+05:30').getTime();
+const EVENT_START = new Date('2026-10-31T05:30:00+05:30').getTime();
 
-const rules = [
+const highlights = [
   {
     icon: Users,
-    title: 'Lead-Delegated Registration',
-    desc: 'Only the Team Lead logs in and registers the team on our portal, entering details for up to two teammates.',
+    title: 'Teams of 1 to 3 Members',
+    desc: 'Compete solo or team up with up to two friends. Work together, brainstorm solutions, and share the challenge.',
   },
   {
     icon: Code2,
-    title: 'Team Size: 1 to 3 Members',
-    desc: 'You can compete solo or in a team of up to three students. All members must belong to BMSCE.',
+    title: 'All Skill Levels Welcome',
+    desc: 'You don’t have to be a competitive coding master! Challenges range from fun, beginner-friendly logic problems to advanced algorithmic puzzles.',
   },
   {
     icon: ShieldCheck,
-    title: 'Active IEEE Members Only',
-    desc: 'All participants must have an active IEEE membership number verified against BMSCE branch records.',
+    title: 'Campus Proctor Provided',
+    desc: 'Every team needs an IEEE faculty proctor. BMSCE IEEE arranges and assigns approved faculty proctors to your squad so you don’t have to find one.',
   },
   {
-    icon: Award,
-    title: 'Proctor Assigned Locally',
-    desc: 'You do not need to hunt for a proctor. The BMSCE IEEE Student Branch assigns authorized faculty proctors to each verified team.',
+    icon: Clock,
+    title: '24 Hours of Pure Coding',
+    desc: 'Solve exciting problems at your own pace over 24 continuous hours, testing your logic and racing against thousands of students worldwide.',
   },
   {
     icon: Laptop,
-    title: '24-Hour Overnight On Campus',
-    desc: 'Participate directly from the BMSCE campus labs with high-speed internet, power backup, food, and logistics provided.',
+    title: 'On-Campus Hackathon Labs',
+    desc: 'Code with your squad directly from BMSCE campus computer labs with high-speed internet, power backup, snacks, and technical support.',
   },
   {
-    icon: Sparkles,
-    title: '100% Free Participation',
-    desc: 'There are zero registration fees for IEEEXtreme 20.0. The portal is dedicated purely to team formation and local coordination.',
+    icon: Award,
+    title: '100% Free & Certified',
+    desc: 'Zero registration fees for IEEE members. Every team that submits solutions receives an official global IEEE certificate and international ranking.',
   },
 ];
 
 const steps = [
   {
     step: '01',
-    title: 'Register on BMSCE Gateway',
-    desc: 'The Team Lead signs in to bmsceieee.com, inputs the team name, and enters IEEE member IDs and college details for all 1–3 members.',
+    title: 'Assemble Your Team',
+    desc: 'Pick an awesome team name and gather the IEEE member numbers and emails for your 1 to 3 team members.',
   },
   {
     step: '02',
-    title: 'Get Your Proctor Assigned',
-    desc: 'Our student branch assigns an IEEE-certified Proctor to your team in our portal database and notifies your team lead.',
+    title: 'Register on BMSCE Portal',
+    desc: 'Your team lead signs in and enters the squad details. The registration takes just a couple of minutes to complete.',
   },
   {
     step: '03',
-    title: 'Register on Official IEEE vTools',
-    desc: 'The Team Lead registers the team on https://xtreme.vtools.ieee.org/ using your assigned proctor number, and confirms it on your dashboard.',
+    title: 'Get Proctor & Confirm on vTools',
+    desc: 'Check your Team Dashboard for your assigned faculty proctor, then finalize your squad entry on the official IEEE vTools platform.',
   },
   {
     step: '04',
-    title: 'Compete for 24 Hours on Campus',
-    desc: 'Join us at the BMSCE computer labs for 24 continuous hours of algorithmic problem solving, ranking globally among thousands of teams.',
+    title: 'Compete on October 31',
+    desc: 'Join us on campus on competition day, solve problems, learn together, and cheer your team up the global leaderboard!',
   },
 ];
 
 const faqs = [
   {
     q: 'What is IEEEXtreme 20.0?',
-    a: 'IEEEXtreme is a global virtual challenge where teams of IEEE Student Members compete in a 24-hour time span against each other to solve a set of programming problems. It is the flagship competitive programming hackathon of IEEE.',
+    a: 'IEEEXtreme is a legendary 24-hour virtual programming challenge where student teams from universities across the globe compete simultaneously to solve a series of algorithmic and logic problems. It is the flagship competitive programming hackathon of IEEE.',
   },
   {
-    q: 'Can non-IEEE members join my team?',
-    a: 'No. Every participant must be an active IEEE member with a valid IEEE Member Number. If your teammates need to register for IEEE membership, they can do so on bmsceieee.com/membership.',
+    q: 'Do I need prior competitive programming experience?',
+    a: 'Not at all! Problems are curated across multiple difficulty levels, starting with approachable beginner challenges. It is a fantastic environment to learn, collaborate with teammates, and build real algorithmic intuition.',
   },
   {
-    q: 'Can teammates be from other colleges?',
-    a: 'No. For our local campus prerequisite gateway, all team members must be enrolled students of BMS College of Engineering.',
+    q: 'What programming languages can we use?',
+    a: 'You can use virtually all major languages, including Python, C++, C, Java, JavaScript, Kotlin, Go, and more on the competition platform. Different teammates can even tackle different problems in their preferred languages.',
   },
   {
-    q: 'Do I need to find my own proctor?',
-    a: 'No! Our Student Branch coordinates with faculty and IEEE senior members to provide approved proctors for all registered BMSCE teams. We assign proctor details directly in your portal.',
+    q: 'Do we need to find our own faculty proctor?',
+    a: 'No! The BMSCE IEEE Student Branch coordinates directly with IEEE faculty members. Once you register your squad on this portal, an approved BMSCE faculty proctor will be assigned to your team automatically.',
   },
   {
-    q: 'Can we change our team members later?',
-    a: 'You can update your team details on our portal as long as you have not completed and confirmed your official registration on IEEE vTools.',
+    q: 'Who can be on my team?',
+    a: 'Any 1 to 3 students currently enrolled at BMS College of Engineering who have an active IEEE student membership. If you or your teammates need an IEEE membership, you can join easily through the college branch.',
   },
   {
-    q: 'Is offline attendance on campus mandatory?',
-    a: 'BMSCE IEEE hosts an official proctored venue on campus with lab systems, uninterrupted power, network connectivity, refreshments, and snacks so students can stay overnight safely.',
+    q: 'Can we participate from campus overnight?',
+    a: 'Yes! BMSCE IEEE hosts an official proctored venue on campus with lab systems, uninterrupted power, fast Wi-Fi, refreshments, and a vibrant hackathon atmosphere so everyone can code comfortably and safely.',
+  },
+  {
+    q: 'What do participants receive?',
+    a: 'All participating teams that submit working solutions receive official IEEE certificates and global rankings. Top teams worldwide earn international acclaim, prizes, and sponsored swag.',
   },
 ];
 
-export default function XtremeLandingPage() {
+export default function IEEEXtremeLandingPage() {
   return (
     <div className="relative overflow-hidden">
       {/* Hero Section */}
@@ -119,8 +123,8 @@ export default function XtremeLandingPage() {
           <div className="mx-auto max-w-3xl text-center">
             <Reveal>
               <div className="inline-flex items-center gap-2 rounded-full border border-brand-orange/30 bg-brand-orange/10 px-4 py-1.5 text-xs font-semibold text-brand-orange">
-                <Clock className="h-3.5 w-3.5" />
-                <span>IEEEXtreme 20.0 · Global 24-Hour Programming Competition</span>
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>IEEEXtreme 20.0 · Worldwide 24-Hour Programming Hackathon</span>
               </div>
             </Reveal>
 
@@ -134,7 +138,7 @@ export default function XtremeLandingPage() {
 
             <Reveal delay={140}>
               <p className="lead mx-auto mt-6 max-w-2xl text-ink-soft">
-                Join BMSCE’s finest algorithmic programmers in the world’s biggest collegiate hackathon. Form your team of 1–3 members, get assigned a campus proctor, and compete globally on October 24, 2026.
+                Join IEEE&apos;s flagship algorithmic programming competetion in the world’s biggest collegiate hackathon. Form your team of 1–3 members, get assigned a campus proctor, and compete globally on October 31, 2026.
               </p>
             </Reveal>
 
@@ -143,7 +147,7 @@ export default function XtremeLandingPage() {
               <div className="mx-auto mt-8 inline-flex flex-col items-center justify-center rounded-3xl border border-line bg-white/90 p-5 shadow-lg backdrop-blur-md sm:flex-row sm:gap-6">
                 <div className="mb-3 sm:mb-0 sm:text-left">
                   <span className="text-xs font-bold uppercase tracking-wider text-brand-navy">Hackathon Countdown</span>
-                  <p className="text-xs text-muted">Starts Oct 24, 2026 · 05:30 IST</p>
+                  <p className="text-xs text-muted">Starts Oct 31, 2026 · 05:30 IST</p>
                 </div>
                 <Countdown to={EVENT_START} />
               </div>
@@ -152,45 +156,45 @@ export default function XtremeLandingPage() {
             {/* CTAs */}
             <Reveal delay={260}>
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Link href="/xtreme/register" className="btn btn-primary btn-lg shadow-xl">
+                <Link href="/ieeextreme/register" className="btn btn-primary btn-lg shadow-xl">
                   Register Your Team <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link href="/xtreme/team" className="btn btn-ghost btn-lg bg-white/70">
-                  Team Lead Dashboard
+                <Link href="/ieeextreme/team" className="btn btn-ghost btn-lg bg-white/70">
+                  Team Dashboard
                 </Link>
               </div>
               <p className="mt-3 text-xs text-muted">
-                Only the Team Lead needs an account to register the whole team.
+                Free participation for all BMSCE students · No prior competitive programming experience required
               </p>
             </Reveal>
           </div>
         </div>
       </section>
 
-      {/* Rules & Highlights */}
+      {/* Highlights */}
       <section className="border-t border-line bg-white py-20 sm:py-28">
         <div className="container-page">
           <Reveal>
             <div className="text-center">
-              <SectionLabel index="01">Competition Rules</SectionLabel>
-              <h2 className="section-title mt-4">Local Prerequisite Gateway</h2>
+              <SectionLabel index="01">What to Expect</SectionLabel>
+              <h2 className="section-title mt-4">Why You Should Join Xtreme 20.0</h2>
               <p className="lead mx-auto mt-3 max-w-xl">
-                Everything you need to know before registering your team on BMSCE IEEE.
+                A weekend of problem solving, learning, collaboration, and high-energy coding with friends.
               </p>
             </div>
           </Reveal>
 
           <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {rules.map((rule, idx) => {
-              const Icon = rule.icon;
+            {highlights.map((item, idx) => {
+              const Icon = item.icon;
               return (
-                <Reveal key={rule.title} delay={idx * 60}>
+                <Reveal key={item.title} delay={idx * 60}>
                   <div className="flex h-full flex-col rounded-3xl border border-line bg-paper/60 p-7 transition-all duration-300 hover:-translate-y-1 hover:border-brand-sky hover:bg-white hover:shadow-xl">
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-navy text-white shadow-md">
                       <Icon className="h-6 w-6" />
                     </div>
-                    <h3 className="mt-5 text-xl font-bold text-ink">{rule.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-ink-soft">{rule.desc}</p>
+                    <h3 className="mt-5 text-xl font-bold text-ink">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-ink-soft">{item.desc}</p>
                   </div>
                 </Reveal>
               );
@@ -199,15 +203,15 @@ export default function XtremeLandingPage() {
         </div>
       </section>
 
-      {/* 4-Step Registration Process */}
+      {/* Simple 4-Step Journey */}
       <section className="py-20 sm:py-28">
         <div className="container-page">
           <Reveal>
             <div className="text-center">
-              <SectionLabel index="02">Registration Roadmap</SectionLabel>
-              <h2 className="section-title mt-4">How It Works in 4 Steps</h2>
+              <SectionLabel index="02">Easy Registration</SectionLabel>
+              <h2 className="section-title mt-4">How It Works in 4 Simple Steps</h2>
               <p className="lead mx-auto mt-3 max-w-xl">
-                A simple, stress-free pathway from forming your team to competing on hackathon day.
+                From finding your squad mates to competing on hackathon day—we guide you every step of the way.
               </p>
             </div>
           </Reveal>
@@ -229,10 +233,10 @@ export default function XtremeLandingPage() {
 
           <div className="mt-12 rounded-3xl border border-brand-sky/30 bg-sky-50/60 p-6 text-center sm:p-8">
             <h4 className="text-base font-bold text-brand-navy sm:text-lg">
-              Official IEEE vTools Prerequisite Notice
+              New to Competitive Coding?
             </h4>
             <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft">
-              IEEE requires all teams globally to register with an authorized proctor. By registering here first, the BMSCE IEEE Student Branch pairs you with an approved proctor, so you don&apos;t risk disqualification.
+              IEEEXtreme is one of the friendliest platforms to dive into algorithms. You can write your solutions in Python, C, C++, Java, JavaScript, and dozens of other languages. Form a team with your classmates and discover how much you can learn in 24 hours!
             </p>
           </div>
         </div>
@@ -246,10 +250,10 @@ export default function XtremeLandingPage() {
               <SectionLabel index="03">FAQ</SectionLabel>
               <h2 className="section-title mt-4">Frequently Asked Questions</h2>
               <p className="lead mt-4">
-                Have more questions about IEEEXtreme 20.0 or the BMSCE on-campus hackathon? Reach out to the BMSCE IEEE tech team.
+                Have questions about participating, forming a team, or the on-campus lab setup? We&apos;ve got answers.
               </p>
               <div className="mt-8 rounded-2xl bg-paper p-5">
-                <p className="text-xs font-semibold text-muted">Branch Contact</p>
+                <p className="text-xs font-semibold text-muted">BMSCE IEEE Support</p>
                 <p className="mt-1 text-sm font-semibold text-ink">ieee.sb@bmsce.ac.in</p>
                 <p className="text-xs text-ink-soft mt-0.5">Basavanagudi, Bengaluru 560019</p>
               </div>
@@ -279,11 +283,11 @@ export default function XtremeLandingPage() {
             Ready to represent <span className="text-brand-orange">BMSCE</span> at IEEEXtreme 20.0?
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-sm text-white/70 sm:text-base">
-            Assemble your team, sign in with your student account, and claim your spot for the 24-hour global codefest.
+            Gather your friends, pick your team name, and get ready for the biggest coding adventure of the year.
           </p>
           <div className="mt-8">
-            <Link href="/xtreme/register" className="btn btn-primary btn-lg shadow-xl">
-              Register Now — It&apos;s Free <ArrowRight className="h-4 w-4" />
+            <Link href="/ieeextreme/register" className="btn btn-primary btn-lg shadow-xl">
+              Register Your Team Now <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </div>
@@ -291,4 +295,3 @@ export default function XtremeLandingPage() {
     </div>
   );
 }
-

@@ -162,7 +162,7 @@ The IEEEXtreme module provides centralized management for all teams participatin
 ### 1. Key Responsibilities
 - **Proctor Directory & Capacity Enforcement**: Register authorized BMSCE faculty proctors (Faculty Name and IEEE Member Number). Each proctor strictly accommodates up to **20 squads**. Proctors are assigned sequentially in order of creation and concurrency locks in the database prevent over-subscription.
 - **Organizer Squad Creation & Bulk Import**: Organizers can create squads directly with or without teammates. Organizer-created teams begin in an unclaimed state and are automatically linked to the leader upon signing in with their verified email.
-- **Participant Team Dashboard**: Team leads access their assigned squad at `/xtreme/team` to review their roster, view assigned proctor details, and lock their registration once completed on vTools.
+- **Participant Team Dashboard**: Team leads access their assigned squad at `/ieeextreme/team` to review their roster, view assigned proctor details, and lock their registration once completed on vTools.
 - **Monitoring vTools Registration**: Track which squads have completed registration on the official global portal (`https://xtreme.vtools.ieee.org/`).
 - **Campus Logistics**: Access USN, department, phone, and year of study for all participants to coordinate overnight laboratory seating, campus security permissions, and meals.
 

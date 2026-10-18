@@ -42,7 +42,7 @@ export default function Header() {
 
   const isAdmin = pathname?.startsWith('/admin');
   const isHome = pathname === '/';
-  const transparentTop = pathname === '/' || pathname === '/membership' || pathname === '/xtreme';
+  const transparentTop = pathname === '/' || pathname === '/membership' || pathname === '/ieeextreme' || pathname === '/xtreme';
 
   const isRestricted = REGISTRATION_ONLY_MODE && !isLocalhost;
 
@@ -263,7 +263,7 @@ export default function Header() {
                           <Link href="/account" onClick={close} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-paper">
                             <User className="h-4 w-4" /> Member portal
                           </Link>
-                          <Link href="/xtreme/register" onClick={close} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-paper text-brand-orange">
+                          <Link href="/ieeextreme/register" onClick={close} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-paper text-brand-orange">
                             <Sparkles className="h-4 w-4" /> IEEEXtreme 20.0 Team
                           </Link>
                           <button type="button" onClick={signOut} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50">
@@ -367,7 +367,7 @@ export default function Header() {
                       <Link href="/account" onClick={close} className="btn btn-dark btn-lg w-full">
                         <User className="h-4 w-4" /> Member portal
                       </Link>
-                      <Link href="/xtreme/register" onClick={close} className="btn btn-primary btn-lg w-full">
+                      <Link href="/ieeextreme/register" onClick={close} className="btn btn-primary btn-lg w-full">
                         <Sparkles className="h-4 w-4" /> IEEEXtreme 20.0 Team
                       </Link>
                       <button type="button" onClick={signOut} className="btn btn-ghost btn-lg w-full text-red-600">

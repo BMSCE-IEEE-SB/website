@@ -196,10 +196,10 @@ function SuccessContent() {
       </div>
 
       <div className="mt-8 flex justify-center gap-4">
-        <Link href="/xtreme" className="btn btn-ghost text-xs">
+        <Link href="/ieeextreme" className="btn btn-ghost text-xs">
           ← Return to IEEEXtreme Home
         </Link>
-        <Link href="/xtreme/team" className="btn btn-primary text-xs font-semibold">
+        <Link href="/ieeextreme/team" className="btn btn-primary text-xs font-semibold">
           View Team Dashboard →
         </Link>
       </div>

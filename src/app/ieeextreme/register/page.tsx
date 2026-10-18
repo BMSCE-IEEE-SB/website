@@ -429,7 +429,7 @@ export default function XtremeRegisterPage() {
           })),
         };
         saveLocalXtremeTeam(demoTeam);
-        router.push(`/xtreme/team`);
+        router.push(`/ieeextreme/team`);
         return;
       }
 
@@ -451,7 +451,7 @@ export default function XtremeRegisterPage() {
         throw new Error(result?.error || 'Registration failed. Please try again.');
       }
 
-      router.push(`/xtreme/success?teamId=${result.teamId}&teamName=${encodeURIComponent(result.teamName || teamName)}`);
+      router.push(`/ieeextreme/success?teamId=${result.teamId}&teamName=${encodeURIComponent(result.teamName || teamName)}`);
     } catch (err: unknown) {
       setFormError((err as Error).message || 'Failed to submit registration.');
       setSubmitting(false);
@@ -503,7 +503,7 @@ export default function XtremeRegisterPage() {
           Under the <strong>Lead-Delegated Registration Model</strong>, only the Team Lead logs in. If you are the Team Lead, please sign in with your BMSCE student account to register your team.
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Link href="/login?next=%2Fxtreme%2Fregister" className="btn btn-primary btn-lg">
+          <Link href="/login?next=%2Fieeextreme%2Fregister" className="btn btn-primary btn-lg">
             Sign In as Team Lead <ArrowRight className="h-4 w-4" />
           </Link>
           <Link href="/membership/register" className="btn btn-ghost btn-lg bg-white">
@@ -563,7 +563,7 @@ export default function XtremeRegisterPage() {
           </div>
 
           <div className="mt-6 flex justify-between items-center">
-            <Link href="/xtreme" className="link-arrow">
+            <Link href="/ieeextreme" className="link-arrow">
               ← Return to IEEEXtreme Home
             </Link>
           </div>
@@ -1084,7 +1084,7 @@ export default function XtremeRegisterPage() {
               <ArrowLeft className="h-4 w-4" /> Back
             </button>
           ) : (
-            <Link href="/xtreme" className="btn btn-ghost text-xs">
+            <Link href="/ieeextreme" className="btn btn-ghost text-xs">
               Cancel
             </Link>
           )}

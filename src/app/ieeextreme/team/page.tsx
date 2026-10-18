@@ -150,7 +150,7 @@ export default function XtremeTeamPage() {
             <Link href="/login" className="btn btn-primary w-full text-xs font-bold">
               Sign In to Your Account
             </Link>
-            <Link href="/xtreme" className="btn btn-ghost text-xs text-muted">
+            <Link href="/ieeextreme" className="btn btn-ghost text-xs text-muted">
               ← Return to IEEEXtreme Gateway
             </Link>
           </div>
@@ -175,10 +175,10 @@ export default function XtremeTeamPage() {
           </p>
           {error && <Alert tone="error">{error}</Alert>}
           <div className="pt-2 flex flex-col sm:flex-row justify-center gap-3">
-            <Link href="/xtreme/register" className="btn btn-primary text-xs font-bold">
+            <Link href="/ieeextreme/register" className="btn btn-primary text-xs font-bold">
               Register a New Team
             </Link>
-            <Link href="/xtreme" className="btn btn-ghost text-xs border border-line">
+            <Link href="/ieeextreme" className="btn btn-ghost text-xs border border-line">
               Back to IEEEXtreme
             </Link>
           </div>
@@ -196,7 +196,7 @@ export default function XtremeTeamPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <Link
-            href="/xtreme"
+            href="/ieeextreme"
             className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-ink transition"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Back to IEEEXtreme Portal
@@ -223,7 +223,7 @@ export default function XtremeTeamPage() {
         <div className="flex items-center gap-2">
           {!team.vtools_verified && (
             <Link
-              href="/xtreme/register"
+              href="/ieeextreme/register"
               className="btn btn-ghost bg-white border border-line text-xs font-semibold"
             >
               Edit Team Members

@@ -745,7 +745,7 @@ export default function XtremeRegisterPage() {
                   />
                 </Field>
 
-                <Field label="BMSCE Student Email" htmlFor="lead_email" required>
+                <Field label="Email (Associated with IEEE)" htmlFor="lead_email" required>
                   <Input
                     id="lead_email"
                     type="email"
@@ -922,7 +922,7 @@ export default function XtremeRegisterPage() {
                             />
                           </Field>
 
-                          <Field label="Student Email" htmlFor={`tm_email_${idx}`} required>
+                          <Field label="Email (Associated with IEEE)" htmlFor={`tm_email_${idx}`} required>
                             <Input
                               id={`tm_email_${idx}`}
                               type="email"

@@ -61,9 +61,10 @@ export async function POST(request: Request) {
   }
 
   if (!isSupabaseConfigured()) {
+    const demoTeamId = `demo-team-${Date.now()}`;
     return Response.json({
       success: true,
-      teamId: `demo-team-${Date.now()}`,
+      teamId: demoTeamId,
       demo: true,
     });
   }
@@ -162,6 +163,16 @@ export async function POST(request: Request) {
     if (rpcErr || !rpcResult) {
       console.error('save_xtreme_team RPC error:', rpcErr);
       return jsonError(rpcErr?.message || 'Failed to save team registration. Please try again.', 400);
+    }
+
+    // 5. Automatically assign proctor if available (fill-first by created_at)
+    if (rpcResult.team_id) {
+      const { error: autoAssignErr } = await client.rpc('auto_assign_proctor', {
+        p_team_id: rpcResult.team_id,
+      });
+      if (autoAssignErr) {
+        console.warn('auto_assign_proctor RPC notice:', autoAssignErr.message);
+      }
     }
 
     return Response.json({

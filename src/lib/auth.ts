@@ -193,19 +193,38 @@ export async function clearUserSession() {
 // ---------------------------------------------------------------------------
 
 export async function getAdminUser(): Promise<(SessionUser & { role: string }) | null> {
-  if (isDemoMode()) return readJson(DUMMY_ADMIN_KEY, null);
+  if (isDemoMode()) {
+    const admin = readJson<(SessionUser & { role?: string }) | null>(DUMMY_ADMIN_KEY, null);
+    return admin ? { ...admin, role: admin.role || 'admin' } : null;
+  }
   // Live mode: admin rights come only from the `admins` table, never from localStorage.
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return null;
   const { data: adminRecord } = await supabase.from('admins').select('role').eq('id', user.id).maybeSingle();
-  return adminRecord ? { id: user.id, email: user.email ?? '', role: adminRecord.role ?? 'admin' } : null;
+  let role = adminRecord?.role;
+  if (!role || role === 'admin') {
+    const { data: wl } = await supabase.from('admin_whitelist').select('role').ilike('email', user.email ?? '').maybeSingle();
+    if (wl?.role) role = wl.role;
+  }
+  return adminRecord ? { id: user.id, email: user.email ?? '', role: role ?? 'admin' } : null;
 }
 
-export function setDummyAdminSession(email: string = DUMMY_ADMIN_CREDENTIALS.email) {
+export function setDummyAdminSession(email: string = DUMMY_ADMIN_CREDENTIALS.email, role?: string) {
   if (!isDemoMode() || !isBrowser()) return null;
-  const admin = { id: 'demo-admin-001', email, role: 'admin' };
+  const clean = email.trim().toLowerCase();
+  let adminRole = role;
+  if (!adminRole) {
+    const whitelist = readJson<AdminWhitelistEntry[]>(WHITELIST_KEY, [
+      { email: 'ratikagrawal.ec24@bmsce.ac.in', role: 'chair', created_at: new Date().toISOString() },
+      { email: 'bms.ieeesb@gmail.com', role: 'admin', created_at: new Date().toISOString() },
+      { email: 'sac@bmsce.ac.in', role: 'sac', created_at: new Date().toISOString() },
+    ]);
+    const found = whitelist.find((w) => w.email.toLowerCase() === clean);
+    adminRole = found ? found.role : (clean.includes('sac') ? 'sac' : 'admin');
+  }
+  const admin = { id: 'demo-admin-001', email: clean, role: adminRole };
   writeJson(DUMMY_ADMIN_KEY, admin);
   return admin;
 }
@@ -610,6 +629,19 @@ export async function loadAdminWhitelist(): Promise<AdminWhitelistEntry[]> {
     return readJson(WHITELIST_KEY, [
       { email: 'ratikagrawal.ec24@bmsce.ac.in', role: 'chair', created_at: new Date().toISOString() },
       { email: 'bms.ieeesb@gmail.com', role: 'admin', created_at: new Date().toISOString() },
+      { email: 'shreyamurali.ec25@bmsce.ac.in', role: 'sac', created_at: new Date().toISOString() },
+      { email: 'mirzaareeb.ec25@bmsce.ac.in', role: 'sac', created_at: new Date().toISOString() },
+      { email: 'manasaprabhu.ai25@bmsce.ac.in', role: 'sac', created_at: new Date().toISOString() },
+      { email: 'niharikachauhan.bs25@bmsce.ac.in', role: 'sac', created_at: new Date().toISOString() },
+      { email: 'sahanadesai.bs25@bmsce.ac.in', role: 'sac', created_at: new Date().toISOString() },
+      { email: 'soundaryaprashanthrao.cs25@bmsce.ac.in', role: 'sac', created_at: new Date().toISOString() },
+      { email: 'sahanaganesh.cs25@bmsce.ac.in', role: 'sac', created_at: new Date().toISOString() },
+      { email: 'lakinanadeepak.cs25@bmsce.ac.in', role: 'sac', created_at: new Date().toISOString() },
+      { email: 'thrisha.cd25@bmsce.ac.in', role: 'sac', created_at: new Date().toISOString() },
+      { email: 'sharathchandras.ec25@bmsce.ac.in', role: 'sac', created_at: new Date().toISOString() },
+      { email: 'srujangv.ec25@bmsce.ac.in', role: 'sac', created_at: new Date().toISOString() },
+      { email: 'thanishashree.cs25@bmsce.ac.in', role: 'sac', created_at: new Date().toISOString() },
+      { email: 'vedavansika.me25@bmsce.ac.in', role: 'sac', created_at: new Date().toISOString() },
     ]);
   }
   const { data, error } = await supabase.from('admin_whitelist').select('*').order('created_at', { ascending: true });

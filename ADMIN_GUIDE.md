@@ -145,7 +145,9 @@ Control the prominent alert banner shown across the top of all public pages:
 
 Manage access privileges for the executive committee:
 
-1. **Authorized Whitelist**: View all active administrators and their designated roles (`chair`, `treasurer`, `admin`, etc.). All whitelisted administrators possess equal read/write access across all admin portal modules; roles serve as administrative titles and designate credentials for official receipts.
+1. **Authorized Whitelist**: View all active administrators and their designated roles (`chair`, `vice-chair`, `treasurer`, `secretary`, `sac`, `admin`).
+   - **Executive Roles (`chair`, `vice-chair`, `treasurer`, `secretary`, `admin`)**: Full read/write administrative access across all portal modules (membership verification, settings, team access, and events).
+   - **SAC Role (`sac`)**: Dedicated Student Activities Committee administrator. Has **full admin permissions for IEEEXtreme (`/admin/xtreme`)** (teams, proctors, bulk CSV import, roster exports, and member uploads), but has **read-only access** to membership application approvals, notes, receipts, credentials, and settings.
 2. **Authorizing an Executive**:
    - Enter the student leader's institutional email (e.g., `executive@bmsce.ac.in`).
    - Select their designated role.

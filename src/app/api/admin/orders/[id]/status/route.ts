@@ -1,4 +1,4 @@
-import { getAdminServiceClient, jsonError, requireAdmin } from '@/lib/server/supabase-admin';
+import { canModifyMembership, getAdminServiceClient, jsonError, requireAdmin } from '@/lib/server/supabase-admin';
 import { isUuid } from '@/lib/server/input';
 import { appendRegistrationToSheet } from '@/lib/server/google-sheets';
 
@@ -24,6 +24,8 @@ type RegistrationOrder = {
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const admin = await requireAdmin(request);
   if (!admin) return jsonError('Administrator sign-in is required.', 401);
+  if (!canModifyMembership(admin)) return jsonError('SAC role does not have permission to verify or reject applications.', 403);
+
   const { id } = await context.params;
   if (!isUuid(id)) return jsonError('Order was not found.', 404);
   const body = await request.json().catch(() => null);

@@ -1,4 +1,4 @@
-import { getAdminServiceClient, jsonError, requireAdmin, recordAdminAudit } from '@/lib/server/supabase-admin';
+import { canModifyMembership, getAdminServiceClient, jsonError, requireAdmin, recordAdminAudit } from '@/lib/server/supabase-admin';
 import { isUuid } from '@/lib/server/input';
 
 export const runtime = 'nodejs';
@@ -6,6 +6,7 @@ export const runtime = 'nodejs';
 export async function POST(request: Request) {
   const admin = await requireAdmin(request);
   if (!admin) return jsonError('Administrator sign-in is required.', 401);
+  if (!canModifyMembership(admin)) return jsonError('SAC role does not have permission to modify member credentials.', 403);
   
   const body = await request.json().catch(() => null);
   const orderIds = body?.orderIds;

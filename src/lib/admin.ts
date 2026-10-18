@@ -4,7 +4,12 @@ import { DEMO_SETTINGS_KEY, loadPayee, loadPricing, programChapterPrice, type De
 import { isDemoMode, supabase } from './supabase';
 import { adminFetch } from './admin-api';
 
-export type AdminIdentity = { id: string; email: string };
+export type AdminIdentity = { id: string; email: string; role?: string };
+
+export function canModifyMembership(admin?: AdminIdentity | null): boolean {
+  if (!admin) return false;
+  return (admin.role ?? 'admin').toLowerCase() !== 'sac';
+}
 
 // ---------------------------------------------------------------------------
 // Applications
@@ -44,6 +49,9 @@ function patchDemo(ids: string[], patch: (o: Order) => Order) {
 const labelFor = (list: Order[]) => (list.length === 1 ? `${list[0].order_reference}${list[0].student_name ? ` (${list[0].student_name})` : ''}` : `${list.length} applications`);
 
 export async function verifyOrders(list: Order[], admin: AdminIdentity) {
+  if (!canModifyMembership(admin)) {
+    throw new Error('SAC administrators do not have permission to verify membership applications.');
+  }
   const ids = list.map((o) => o.id);
   const now = new Date().toISOString();
   if (isDemoMode()) {
@@ -65,6 +73,9 @@ export async function verifyOrders(list: Order[], admin: AdminIdentity) {
 }
 
 export async function rejectOrders(list: Order[], reason: string, admin: AdminIdentity) {
+  if (!canModifyMembership(admin)) {
+    throw new Error('SAC administrators do not have permission to reject membership applications.');
+  }
   const ids = list.map((o) => o.id);
   if (isDemoMode()) {
     patchDemo(ids, (o) => ({ ...o, status: 'rejected', verified_at: undefined, rejection_reason: reason }));
@@ -85,6 +96,9 @@ export async function rejectOrders(list: Order[], reason: string, admin: AdminId
 }
 
 export async function saveNote(order: Order, note: string, admin: AdminIdentity) {
+  if (!canModifyMembership(admin)) {
+    throw new Error('SAC administrators do not have permission to edit application notes.');
+  }
   const id = order.id;
   if (isDemoMode()) {
     patchDemo([id], (o) => ({ ...o, admin_note: note || undefined }));
@@ -103,6 +117,9 @@ export async function saveNote(order: Order, note: string, admin: AdminIdentity)
 }
 
 export async function markCredentialsSent(list: Order[], sent: boolean, admin: AdminIdentity) {
+  if (!canModifyMembership(admin)) {
+    throw new Error('SAC administrators do not have permission to modify credential status.');
+  }
   const ids = list.map((o) => o.id);
   const value = sent ? new Date().toISOString() : null;
   if (isDemoMode()) {
@@ -122,12 +139,23 @@ export async function markCredentialsSent(list: Order[], sent: boolean, admin: A
 }
 
 export async function saveIeeeId(order: Order, ieeeId: string, admin: AdminIdentity) {
-  if (isDemoMode()) patchDemo([order.id], (o) => ({ ...o, ieee_member_id: ieeeId || undefined }));
-  else {
-    const { error } = await supabase.from('profiles').update({ ieee_member_id: ieeeId || null }).eq('id', order.user_id);
-    if (error) throw error;
+  if (!canModifyMembership(admin)) {
+    throw new Error('SAC administrators do not have permission to update IEEE member IDs.');
   }
-  await logActivity(admin, 'set the IEEE member ID for', labelFor([order]), ieeeId || 'cleared');
+  if (isDemoMode()) {
+    patchDemo([order.id], (o) => ({ ...o, ieee_member_id: ieeeId || undefined }));
+    await logActivity(admin, 'set the IEEE member ID for', labelFor([order]), ieeeId || 'cleared');
+  } else {
+    const res = await adminFetch(`/api/admin/orders/${order.id}/ieee-id`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ieeeId: ieeeId || null }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `Failed to save IEEE ID for ${order.order_reference}`);
+    }
+  }
 }
 
 /** Asks the server to generate and email the official PDF receipt. */
@@ -296,6 +324,9 @@ export async function loadSettings(): Promise<Settings> {
 }
 
 export async function saveSettings(next: Settings, admin: AdminIdentity) {
+  if (!canModifyMembership(admin)) {
+    throw new Error('SAC administrators do not have permission to modify membership settings.');
+  }
   if (isDemoMode()) {
     const demo: DemoSettings = {
       baseFee: next.baseFee, pgBaseFee: next.pgBaseFee, vpa: next.vpa, payeeName: next.payeeName,

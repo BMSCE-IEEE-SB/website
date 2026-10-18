@@ -199,8 +199,8 @@ function SuccessContent() {
         <Link href="/xtreme" className="btn btn-ghost text-xs">
           ← Return to IEEEXtreme Home
         </Link>
-        <Link href="/xtreme/register" className="btn btn-light border border-line text-xs font-semibold">
-          View / Edit Team Portal
+        <Link href="/xtreme/team" className="btn btn-primary text-xs font-semibold">
+          View Team Dashboard →
         </Link>
       </div>
     </div>

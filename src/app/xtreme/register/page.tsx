@@ -24,6 +24,7 @@ import { getCurrentUser, getLocalProfile, type SessionUser } from '@/lib/auth';
 import { isDemoMode, supabase } from '@/lib/supabase';
 import {
   getLocalTeamForUser,
+  getLocalXtremeProctors,
   saveLocalXtremeTeam,
   type XtremeMember,
   type XtremeTeam,
@@ -397,13 +398,29 @@ export default function XtremeRegisterPage() {
 
     try {
       if (isDemoMode()) {
+        let proctorId = existingTeam?.proctor_id || null;
+        let proctorName = existingTeam?.proctor_name || '';
+        let proctorIeee = existingTeam?.proctor_ieee_id || '';
+
+        if (!proctorName) {
+          const proctors = getLocalXtremeProctors();
+          const available = proctors.find((p) => (p.assigned_count ?? 0) < 20);
+          if (available) {
+            proctorId = available.id;
+            proctorName = available.name;
+            proctorIeee = available.ieee_id;
+          }
+        }
+
         const demoTeam: XtremeTeam = {
           id: existingTeam?.id || `demo-team-${Date.now()}`,
           team_name: payload.teamName,
           lead_user_id: sessionUser?.id || 'demo-usr-lead',
+          leader_email: lead.email,
+          proctor_id: proctorId,
           vtools_verified: existingTeam?.vtools_verified || false,
-          proctor_name: existingTeam?.proctor_name || '',
-          proctor_ieee_id: existingTeam?.proctor_ieee_id || '',
+          proctor_name: proctorName,
+          proctor_ieee_id: proctorIeee,
           created_at: existingTeam?.created_at || new Date().toISOString(),
           updated_at: new Date().toISOString(),
           members: payload.members.map((m, i) => ({
@@ -412,7 +429,7 @@ export default function XtremeRegisterPage() {
           })),
         };
         saveLocalXtremeTeam(demoTeam);
-        router.push(`/xtreme/success?teamId=${demoTeam.id}&teamName=${encodeURIComponent(demoTeam.team_name)}`);
+        router.push(`/xtreme/team`);
         return;
       }
 

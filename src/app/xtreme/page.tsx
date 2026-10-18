@@ -155,8 +155,8 @@ export default function XtremeLandingPage() {
                 <Link href="/xtreme/register" className="btn btn-primary btn-lg shadow-xl">
                   Register Your Team <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link href="/login?next=%2Fxtreme%2Fregister" className="btn btn-ghost btn-lg bg-white/70">
-                  Lead Sign In / Check Status
+                <Link href="/xtreme/team" className="btn btn-ghost btn-lg bg-white/70">
+                  Team Lead Dashboard
                 </Link>
               </div>
               <p className="mt-3 text-xs text-muted">

@@ -58,6 +58,7 @@ Click **"Deploy"**. Within ~60 seconds, Vercel will build all 32+ pages and API 
    - **Admin Verification**: Sign into `/admin/login`, review orders on `/admin/orders`, test signed URL payment proof viewing, approve an order, and test on-demand receipt delivery (`/api/send-receipt`) with PDF attachment.
    - **Manual Receipts**: Test issuing an offline receipt via the "Issue Manual Receipt" modal and verify entry in `issued_receipts` and `admin_audit_log`.
    - **Admin Management**: Test the Announcement Bar toggle (`/admin/announcement`), Team Whitelist (`/admin/team`), and Drive Settings (`/admin/settings`).
+   - **IEEEXtreme Gateway**: Verify public landing page at `/ieeextreme`, test multi-step team lead registration at `/ieeextreme/register`, team dashboard at `/ieeextreme/team`, vTools registration confirmation, and executive squad management at `/admin/xtreme` (proctor capacity tracking, squad creation, bulk import, and roster exports).
    - **Security Check**: Confirm direct anonymous or authenticated client writes to `orders`, `membership_config`, and `admin_whitelist` are rejected by Row-Level Security.
 
 ---

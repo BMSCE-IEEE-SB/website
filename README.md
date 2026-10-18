@@ -105,25 +105,31 @@ Interactive Bento grid showcasing all 5 technical chapters and affinity groups:
 ---
 
 ### ⚡ 5. IEEEXtreme 20.0 Registration & Proctor Gateway
-A state-driven portal for the global 24-hour programming competition hosted on campus for BMSCE students:
+A state-driven portal for the global 24-hour programming competition hosted on campus for BMSCE students (competing globally on October 31, 2026):
 - **Lead-Delegated Registration Model** (`/ieeextreme/register`):
   - Only the Team Lead logs in to represent the squad, entering academic and contact information for 1 to 3 members (solo allowed, maximum 3).
+  - Lead details feature an "Email (Associated with IEEE)" input used for official correspondence and auto-claiming organizer-created teams.
   - Collects essential campus stay logistics (USN, department, year of study, phone, email) for overnight computer lab access.
   - Alphanumeric team name format matching IEEE rules (`3–20` characters, unique across all teams).
+- **Team Lead Dashboard** (`/ieeextreme/team`):
+  - Dedicated authenticated view for the Team Lead to inspect roster details and track assigned faculty proctor credentials.
+  - Direct workflow to complete registration on IEEE vTools (`https://xtreme.vtools.ieee.org/`) and permanently lock squad details with one click.
 - **Dual-Database Membership Validation**:
   - Live verification via `/api/xtreme/validate-member` against legacy member lists (`ieee_member_2026`) and active profiles (`profiles`).
   - Cross-checks to prevent an IEEE member from registering on multiple teams concurrently.
-- **Two-Stage Official Workflow**:
-  1. *Stage 1 (Local Gateway)*: Team Lead registers the team on BMSCE IEEE (`/ieeextreme/register`).
-  2. *Stage 2 (Proctor Assignment)*: Executive committee reviews and assigns an authorized faculty proctor.
-  3. *Stage 3 (Official IEEE vTools)*: Team registers on `https://xtreme.vtools.ieee.org/` using their proctor number and confirms on `/ieeextreme/team`, permanently locking their squad.
+- **Three-Stage Official Workflow**:
+  1. *Stage 1 (Local Gateway)*: Team Lead registers the team on BMSCE IEEE (`/ieeextreme/register`), or organizers pre-create/bulk import the squad.
+  2. *Stage 2 (Proctor Assignment)*: System automatically or administrators manually assign an authorized faculty proctor from the directory.
+  3. *Stage 3 (Official IEEE vTools)*: Team registers on `https://xtreme.vtools.ieee.org/` using their proctor credentials and confirms on `/ieeextreme/team`, permanently locking their squad.
 - **Executive Administration** (`/admin/xtreme`):
-  - Proctor assignment modal (assign proctor name and IEEE ID).
-  - Real-time squad and participant metrics.
-  - CSV upload modal for pre-populating past/legacy BMSCE IEEE member data.
-  - Reconciled CSV export for lab seating, internet whitelisting, and global contest coordination.
-- **Safe Database Migration**:
-  - Defined in `supabase/migrations/20261016140000_ieeextreme_tables.sql` (additive tables only: `ieee_member_2026`, `xtreme_teams`, `xtreme_members`; zero modifications to existing tables). Full demo-mode localStorage fallback supported when Supabase tables are pending.
+  - **Managed Faculty Proctors**: Register faculty proctors with strict capacity limits (up to 20 teams per proctor IEEE ID) enforced concurrently at the database level.
+  - **Single Squad Creation & Wide-Format Bulk CSV Import**: Organizers can pre-register teams with or without teammates. Organizer-created teams start in an unclaimed state and auto-claim seamlessly when the lead logs in with their verified email.
+  - **Proctor Reassignment & Unassignment**: Reassign teams between eligible proctors or safely unassign back to `Pending Proctor`.
+  - **CSV Upload & Full Data Export**: Pre-populate legacy member records (`ieee_member_2026`) and export complete team rosters with logistics for lab seating, campus security permissions, and meals.
+- **Safe Database Migrations**:
+  - `supabase/migrations/20261016140000_ieeextreme_tables.sql`: Base tables (`ieee_member_2026`, `xtreme_teams`, `xtreme_members`), RLS policies, and team registration RPC.
+  - `supabase/migrations/20261019120000_xtreme_proctors_and_ownership.sql`: Managed proctors table (`xtreme_proctors`), nullable team ownership with auto-claim by verified email, and concurrency-safe proctor capacity enforcement procedures (`assign_proctor_to_team`, `auto_assign_proctor`).
+  - Additive tables only; zero modifications to existing membership or payment tables. Full demo-mode localStorage fallback supported when Supabase tables are pending.
 
 ---
 

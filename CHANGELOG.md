@@ -7,13 +7,19 @@ All notable changes to the **BMSCE IEEE Student Branch Website** will be documen
 ## [Unreleased]
 
 ### Added
-- **IEEEXtreme 20.0 Registration Module**: Complete lead-delegated portal for the global 24-hour virtual programming competition:
-  - **Public Landing Page** (`/xtreme`): Event rules, on-campus overnight stay information, eligibility prerequisites, live countdown timer to October 24, 2026, and FAQs.
-  - **Multi-Step Lead Registration Portal** (`/xtreme/register`): 4-step wizard (Team Info, Lead Details, Teammates, Review & Submit) supporting 1 to 3 members with live IEEE member ID lookup. Allows edits before vTools registration and locks after confirmation.
-  - **Success & Confirmation Screen** (`/xtreme/success`): Proctor assignment viewer, confetti burst, and one-click "Confirm vTools Registration" button.
-  - **Executive Admin Management** (`/admin/xtreme`): Dedicated dashboard for proctor assignment, squad metrics, editing team details, bulk legacy member CSV upload, and full data export to CSV.
-  - **Backend API Endpoints**: `/api/xtreme/validate-member`, `/api/xtreme/register`, `/api/xtreme/my-team`, `/api/xtreme/verify-vtools`, `/api/xtreme/admin/teams`, `/api/xtreme/admin/teams/[id]`, `/api/xtreme/admin/upload-members`, and `/api/xtreme/admin/export`.
-  - **Database Migration**: Added `supabase/migrations/20261016140000_ieeextreme_tables.sql` defining isolated `ieee_member_2026`, `xtreme_teams`, and `xtreme_members` tables.
+- **IEEEXtreme 20.0 Registration & Proctor Gateway**: Complete lead-delegated portal for the global 24-hour virtual programming competition:
+  - **Public Landing Page** (`/ieeextreme`): Beginner-friendly introduction to IEEEXtreme, event guidelines, on-campus overnight stay information, eligibility prerequisites, live countdown timer to October 31, 2026, and FAQs.
+  - **Multi-Step Lead Registration Portal** (`/ieeextreme/register`): 4-step wizard (Team Info, Lead Details, Teammates, Review & Submit) supporting 1 to 3 members with live IEEE member ID lookup and "Email (Associated with IEEE)" leader address. Allows edits before vTools registration and locks after confirmation.
+  - **Team Lead Dashboard** (`/ieeextreme/team`): Dedicated dashboard for team leads to review squad roster, inspect assigned faculty proctor credentials, and lock their registration once completed on IEEE vTools.
+  - **Success & Confirmation Screen** (`/ieeextreme/success`): Post-registration gateway with proctor assignment viewer, confetti burst, and one-click "Confirm vTools Registration" button.
+  - **Managed Faculty Proctors & Capacity Limit**: Registered faculty proctor directory enforcing a strict 20-squad maximum capacity limit per proctor IEEE ID, enforced atomically with concurrency locks at the database level (`assign_proctor_to_team`, `auto_assign_proctor`).
+  - **Organizer Squad Creation & Bulk CSV Import**: Organizers can pre-register squads singly or via wide-format CSV (`/api/xtreme/admin/teams/bulk`). Organizer-created teams start unlinked and seamlessly auto-claim when the leader logs in with their matching verified email address.
+  - **Executive Admin Management** (`/admin/xtreme`): Dedicated dashboard for proctor capacity monitoring, squad reassignment/unassignment, editing team details, bulk legacy member CSV upload, and full data export to CSV.
+  - **Backend API Endpoints**: `/api/xtreme/validate-member`, `/api/xtreme/register`, `/api/xtreme/my-team`, `/api/xtreme/verify-vtools`, `/api/xtreme/admin/proctors`, `/api/xtreme/admin/proctors/[id]`, `/api/xtreme/admin/teams`, `/api/xtreme/admin/teams/[id]`, `/api/xtreme/admin/teams/bulk`, `/api/xtreme/admin/upload-members`, and `/api/xtreme/admin/export`.
+  - **Database Migrations**:
+    - `supabase/migrations/20261016140000_ieeextreme_tables.sql`: Isolated `ieee_member_2026`, `xtreme_teams`, and `xtreme_members` tables.
+    - `supabase/migrations/20261019120000_xtreme_proctors_and_ownership.sql`: Managed `xtreme_proctors` table, nullable team ownership for auto-claim, and proctor capacity enforcement RPCs.
+  - **Route Redirects**: Configured permanent 308 redirects in `next.config.ts` from legacy `/xtreme` and `/xtreme/:path*` to `/ieeextreme` and `/ieeextreme/:path*`.
 - **Official Treasurer Signature**: Configured authorized high-resolution treasurer signature asset (`public/brand/signature.png`) automatically stamped on official generated PDF receipts.
 - **Comprehensive Branch Options**: Expanded department selection across registration and admin portal to 19 standardized engineering and postgraduate branches.
 - **Scratch & Test Ignore Rules**: Configured `.gitignore` rules for local exploratory scripts (`test-*.mjs`, `test-*.js`, `test-*.ts`).

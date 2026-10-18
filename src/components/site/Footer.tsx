@@ -40,6 +40,7 @@ export default function Footer() {
         { label: 'Become a member', href: '/membership/register' },
         { label: 'Member portal', href: '/login' },
         { label: 'Privacy policy', href: '/privacy' },
+        { label: 'Terms of use', href: '/terms' },
         { label: 'Refund policy', href: '/refund' },
       ],
     },

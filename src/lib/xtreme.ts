@@ -119,7 +119,7 @@ export const SAMPLE_XTREME_PROCTORS: XtremeProctor[] = [
     id: 'proc-demo-1',
     name: 'Swaroop BM',
     ieee_id: '102196859',
-    capacity: 15,
+    capacity: 20,
     sort_order: 1,
     created_at: new Date(Date.now() - 10 * 86400000).toISOString(),
   },

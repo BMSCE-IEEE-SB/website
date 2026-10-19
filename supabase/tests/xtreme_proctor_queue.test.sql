@@ -20,8 +20,8 @@ select ok(
 
 -- Live queue seeds
 select ok(
-  exists(select 1 from public.xtreme_proctors where ieee_id = '102196859' and name = 'Swaroop BM' and capacity = 15),
-  'queue #1 Swaroop BM seeded with a 15-squad cap'
+  exists(select 1 from public.xtreme_proctors where ieee_id = '102196859' and name = 'Swaroop BM' and capacity = 20),
+  'queue #1 Swaroop BM seeded with a 20-squad cap'
 );
 
 select ok(

@@ -7,6 +7,7 @@ import { BRANCH, chapters, contactInfo, socialLinks } from '@/data/site';
 import SocialIcon from './SocialIcon';
 import { BrandDots } from './BrandShapes';
 import { REGISTRATION_ONLY_MODE } from '@/config/temporary-launch';
+import { MEMBERSHIP_DRIVE_OPEN, primaryJoinCta } from '@/config/membership';
 
 export default function Footer() {
   const [isLocalhost] = useState(() => {
@@ -37,7 +38,9 @@ export default function Footer() {
     {
       title: 'Membership',
       links: [
-        { label: 'Become a member', href: '/membership/register' },
+        MEMBERSHIP_DRIVE_OPEN
+          ? { label: 'Become a member', href: '/membership/register' }
+          : { label: primaryJoinCta().label, href: primaryJoinCta().href },
         { label: 'Member portal', href: '/login' },
         { label: 'Privacy policy', href: '/privacy' },
         { label: 'Terms of use', href: '/terms' },

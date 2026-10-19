@@ -9,6 +9,7 @@ import { isDemoMode, supabase } from '@/lib/supabase';
 import { getLocalTeamForUser, saveLocalXtremeTeam } from '@/lib/xtreme';
 import { getCurrentUser } from '@/lib/auth';
 import { Spinner } from '@/components/ui/form';
+import VtoolsInstructions from '@/components/xtreme/VtoolsInstructions';
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -28,7 +29,7 @@ function SuccessContent() {
       if (!u) return;
 
       if (isDemoMode()) {
-        const t = getLocalTeamForUser(u.id);
+        const t = getLocalTeamForUser(u.id, u.email);
         if (t) {
           setVtoolsConfirmed(t.vtools_verified);
           setProctorName(t.proctor_name || null);
@@ -60,7 +61,7 @@ function SuccessContent() {
       if (isDemoMode()) {
         const u = await getCurrentUser().catch(() => null);
         if (u) {
-          const t = getLocalTeamForUser(u.id);
+          const t = getLocalTeamForUser(u.id, u.email);
           if (t) saveLocalXtremeTeam({ ...t, vtools_verified: true });
         }
         setVtoolsConfirmed(true);
@@ -192,6 +193,16 @@ function SuccessContent() {
               )}
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="mt-10 rounded-3xl border border-line bg-white p-6 text-left shadow-xl sm:p-8">
+        <h2 className="text-lg font-bold text-ink">Official vTools Registration Guide</h2>
+        <p className="mt-1 text-xs text-muted">
+          Your gateway entry is saved. Now complete the IEEE portal steps below to lock your squad in.
+        </p>
+        <div className="mt-6">
+          <VtoolsInstructions compact />
         </div>
       </div>
 

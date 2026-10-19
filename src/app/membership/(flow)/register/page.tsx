@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, LogOut, Mail, MailCheck } from 'lucide-react';
 import { isDemoMode, supabase } from '@/lib/supabase';
-import { DUMMY_CREDENTIALS, clearUserSession, hasPaidCookie, hasUserSubmittedPayment, setDummySession } from '@/lib/auth';
+import { DUMMY_CREDENTIALS, clearUserSession, hasPaidCookie, hasUserSubmittedPayment, resetDemoData, setDummySession } from '@/lib/auth';
 import { useSession } from '@/lib/useSession';
 import { Alert, Field, Input, PageLoader, Spinner } from '@/components/ui/form';
 import AuthShell from '@/components/membership/AuthShell';
@@ -233,6 +233,19 @@ export default function RegisterPage() {
               }}
             >
               Fill test account
+            </button>
+            {' · '}
+            <button
+              type="button"
+              className="font-semibold underline underline-offset-2"
+              onClick={() => {
+                if (window.confirm('Clear all saved demo data and start fresh?')) {
+                  resetDemoData();
+                  window.location.reload();
+                }
+              }}
+            >
+              Reset demo data
             </button>
           </DemoNotice>
         </div>

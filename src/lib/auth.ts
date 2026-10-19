@@ -188,6 +188,23 @@ export async function clearUserSession() {
   if (isBrowser()) window.dispatchEvent(new Event('bmsce-auth-change'));
 }
 
+/**
+ * Demo-only: wipe every `bmsce_*` localStorage entry (sessions, profiles,
+ * orders, xtreme squads, admin seeds, announcement, celebration flags) and
+ * the paid cookie, returning the browser to a first-visit state.
+ */
+export function resetDemoData() {
+  if (!isDemoMode() || !isBrowser()) return;
+  clearPaidCookie();
+  const doomed: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('bmsce_')) doomed.push(key);
+  }
+  for (const key of doomed) localStorage.removeItem(key);
+  window.dispatchEvent(new Event('bmsce-auth-change'));
+}
+
 // ---------------------------------------------------------------------------
 // Admin session
 // ---------------------------------------------------------------------------
@@ -389,8 +406,8 @@ export function updateLocalOrderReceipt(orderId: string, receipt_sent: boolean, 
 // ---------------------------------------------------------------------------
 
 export const DEFAULT_ANNOUNCEMENT: Announcement = {
-  message: 'Membership Drive 2026 is live. Register today to join IEEE and its technical chapters.',
-  link_url: '/membership',
+  message: 'IEEEXtreme 20.0 squads are forming. Register your team before October 25.',
+  link_url: '/ieeextreme',
   is_active: true,
 };
 

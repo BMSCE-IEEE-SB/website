@@ -619,40 +619,45 @@ export default function AdminXtremePage() {
           'Registered At',
         ];
 
+        const cell = (v: unknown) => {
+          let s = String(v ?? '');
+          if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; // neutralise spreadsheet formulas
+          return `"${s.replace(/"/g, '""')}"`;
+        };
         const rows: string[] = [headers.join(',')];
         for (const t of localTeams) {
           const membersList = t.members || [];
           if (membersList.length === 0) {
             rows.push(
               [
-                `"${t.team_name}"`,
-                `"${t.vtools_verified ? 'Verified on vTools' : 'Pending vTools'}"`,
-                `"${t.proctor_name || ''}"`,
-                `"${t.proctor_ieee_id || ''}"`,
-                `"${t.admin_note || ''}"`,
-                `"None"`, `""`, `""`, `""`, `""`, `""`, `""`, `""`, `""`,
-                `"${t.created_at}"`,
+                cell(t.team_name),
+                cell(t.vtools_verified ? 'Verified on vTools' : 'Pending vTools'),
+                cell(t.proctor_name || ''),
+                cell(t.proctor_ieee_id || ''),
+                cell(t.admin_note || ''),
+                cell('None'), cell(''), cell(''), cell(''), cell(''), cell(''), cell(''), cell(''), cell(''),
+                cell(t.created_at),
               ].join(',')
             );
           } else {
             for (const m of membersList) {
               rows.push(
                 [
-                  `"${t.team_name}"`,
-                  `"${t.vtools_verified ? 'Verified on vTools' : 'Pending vTools'}"`,
-                  `"${t.proctor_name || ''}"`,
-                  `"${t.proctor_ieee_id || ''}"`,
-                  `"${t.admin_note || ''}"`,
-                  `"${m.is_lead ? 'Team Lead' : 'Teammate'}"`,
-                  `"${m.first_name}"`,
-                  `"${m.last_name || ''}"`,
-                  `"${m.ieee_member_id}"`,
-                  `"${m.email}"`,
-                  `"${m.phone || ''}"`,
-                  `"${m.usn || ''}"`,
-                  `"${m.department || ''}"`,
-                  `"${m.year_of_study || ''}"`,
-                  `"${t.created_at}"`,
+                  cell(t.team_name),
+                  cell(t.vtools_verified ? 'Verified on vTools' : 'Pending vTools'),
+                  cell(t.proctor_name || ''),
+                  cell(t.proctor_ieee_id || ''),
+                  cell(t.admin_note || ''),
+                  cell(m.is_lead ? 'Team Lead' : 'Teammate'),
+                  cell(m.first_name),
+                  cell(m.last_name || ''),
+                  cell(m.ieee_member_id),
+                  cell(m.email),
+                  cell(m.phone || ''),
+                  cell(m.usn || ''),
+                  cell(m.department || ''),
+                  cell(m.year_of_study || ''),
+                  cell(t.created_at),
                 ].join(',')
               );
             }

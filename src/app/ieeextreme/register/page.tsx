@@ -47,6 +47,17 @@ const DEPARTMENTS = [
 
 const YEARS = ['1st Year', '2nd Year', '3rd Year', '4th Year', 'Postgraduate'];
 
+// profiles.year_of_study stores '1'..'4'; map to the display labels above.
+function formatStudyYear(raw: string | null | undefined): string {
+  const clean = (raw || '').trim();
+  if ((YEARS as string[]).includes(clean)) return clean;
+  if (clean === '1') return '1st Year';
+  if (clean === '2') return '2nd Year';
+  if (clean === '3') return '3rd Year';
+  if (clean === '4') return '4th Year';
+  return '3rd Year';
+}
+
 export default function XtremeRegisterPage() {
   const router = useRouter();
 
@@ -93,6 +104,39 @@ export default function XtremeRegisterPage() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
+  // Demo-only: one-click test squad so the flow can be clicked through quickly.
+  function fillTestSquad() {
+    setFormError('');
+    setStep(0);
+    setTeamName('BitShifters20');
+    setLead({
+      is_lead: true,
+      ieee_member_id: '98451201',
+      first_name: 'Rohan',
+      last_name: 'Sharma',
+      email: 'rohan.cs23@bmsce.ac.in',
+      phone: '+91 9845012345',
+      usn: '1BM23CS140',
+      department: 'CSE',
+      year_of_study: '3rd Year',
+    });
+    setLeadValidationResult({ valid: true });
+    setTeammates([
+      {
+        is_lead: false,
+        ieee_member_id: '98451202',
+        first_name: 'Diya',
+        last_name: 'Iyer',
+        email: 'diya.is23@bmsce.ac.in',
+        phone: '+91 9845012346',
+        usn: '1BM23IS045',
+        department: 'ISE',
+        year_of_study: '3rd Year',
+      },
+    ]);
+    setTeammateValidationResult({ 0: { valid: true } });
+  }
+
   function populateForm(t: XtremeTeam) {
     setExistingTeam(t);
     setTeamName(t.team_name);
@@ -129,7 +173,7 @@ export default function XtremeRegisterPage() {
 
         // Fetch pre-existing team if any
         if (isDemoMode()) {
-          const t = getLocalTeamForUser(u.id);
+          const t = getLocalTeamForUser(u.id, u.email);
           if (t && alive) {
             populateForm(t);
           } else {
@@ -144,7 +188,7 @@ export default function XtremeRegisterPage() {
                 phone: prof.phone || '',
                 usn: prof.usn || '',
                 department: prof.department || 'CSE',
-                year_of_study: prof.year_of_study ? `${prof.year_of_study}th Year` : '3rd Year',
+                year_of_study: formatStudyYear(prof.year_of_study),
                 ieee_member_id: prof.ieee_member_id || '',
               }));
             }
@@ -178,7 +222,7 @@ export default function XtremeRegisterPage() {
                   phone: profile.phone || '',
                   usn: profile.usn || '',
                   department: profile.department || 'CSE',
-                  year_of_study: profile.year_of_study ? `${profile.year_of_study}th Year` : '3rd Year',
+                  year_of_study: formatStudyYear(profile.year_of_study),
                   ieee_member_id: profile.ieee_member_id || '',
                 }));
               }
@@ -249,7 +293,7 @@ export default function XtremeRegisterPage() {
       } else if (teammateIndex !== undefined) {
         if (data?.valid) {
           setTeammateValidationResult((prev) => ({ ...prev, [teammateIndex]: { valid: true } }));
-          if (data.firstName) {
+          if (data.firstName && !teammates[teammateIndex]?.first_name.trim()) {
             setTeammates((prev) => {
               const copy = [...prev];
               copy[teammateIndex] = {
@@ -429,7 +473,7 @@ export default function XtremeRegisterPage() {
           })),
         };
         saveLocalXtremeTeam(demoTeam);
-        router.push(`/ieeextreme/team`);
+        router.push(`/ieeextreme/success?teamName=${encodeURIComponent(demoTeam.team_name)}`);
         return;
       }
 
@@ -503,7 +547,7 @@ export default function XtremeRegisterPage() {
           Under the <strong>Lead-Delegated Registration Model</strong>, only the Team Lead logs in. If you are the Team Lead, please sign in with your BMSCE student account to register your team.
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Link href="/login?next=%2Fieeextreme%2Fregister" className="btn btn-primary btn-lg">
+          <Link href="/login?redirect=%2Fieeextreme%2Fregister" className="btn btn-primary btn-lg">
             Sign In as Team Lead <ArrowRight className="h-4 w-4" />
           </Link>
           <Link href="/membership/register" className="btn btn-ghost btn-lg bg-white">
@@ -611,6 +655,21 @@ export default function XtremeRegisterPage() {
       </div>
 
       <XtremeStepper currentStep={step} steps={STEPS} />
+
+      {isDemoMode() && (
+        <div className="mt-6 rounded-2xl border-2 border-dashed border-brand-sky/50 bg-sky-50/60 p-4 text-center">
+          <p className="text-xs text-ink-soft">
+            <strong className="text-brand-navy">Demo mode.</strong> Skip the typing and test the full flow instantly.
+          </p>
+          <button
+            type="button"
+            onClick={fillTestSquad}
+            className="btn btn-ghost mt-2 bg-white text-xs font-bold"
+          >
+            Fill test squad data
+          </button>
+        </div>
+      )}
 
       {/* Form Error Banner */}
       {formError && (

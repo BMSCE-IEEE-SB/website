@@ -45,6 +45,28 @@ export interface KnownMember {
 }
 
 // ---------------------------------------------------------------------------
+// IEEEXtreme 20.0 key dates (source: ieeextreme.org)
+// ---------------------------------------------------------------------------
+
+/** Registration closes 25 October 2026, 23:59:59 UTC (05:29:59 IST, Oct 26). */
+export const XTREME_20_REGISTRATION_END_UTC = Date.UTC(2026, 9, 25, 23, 59, 59);
+
+/** Competition runs 00:00:00–23:59:59 UTC on 31 October 2026 (05:30 IST onwards). */
+export const XTREME_20_EVENT_START_UTC = Date.UTC(2026, 9, 31, 0, 0, 0);
+
+/** Referring Ambassador ID every BMSCE squad must enter on the vTools portal. */
+export const XTREME_AMBASSADOR_ID = 'IEEEXTREME20SB10123';
+
+/** Official vTools portal for team registration. */
+export const XTREME_VTOOLS_URL = 'https://xtreme.vtools.ieee.org/';
+
+/** Xtreme registration helpdesk contacts. */
+export const XTREME_SUPPORT_CONTACTS = [
+  { name: 'Shashwat Goyal', phone: '+91 6395024768', tel: 'tel:+916395024768' },
+  { name: 'Nithyaneshwar', phone: '+91 9943556666', tel: 'tel:+919943556666' },
+];
+
+// ---------------------------------------------------------------------------
 // Demo Mode / LocalStorage Storage
 // ---------------------------------------------------------------------------
 

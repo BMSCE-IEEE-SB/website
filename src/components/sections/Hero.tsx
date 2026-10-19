@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 import NetworkCanvas from '@/components/site/NetworkCanvas';
+import { MEMBERSHIP_DRIVE_OPEN, primaryJoinCta } from '@/config/membership';
 
 const WORDS = ['build', 'lead', 'compete', 'publish', 'mentor', 'belong'];
 
@@ -82,13 +84,25 @@ export default function Hero() {
           >
             <div
               className="inline-flex items-center gap-2.5 rounded-full bg-white/80 py-1.5 pr-4 pl-1.5 text-sm text-ink-soft shadow-sm ring-1 ring-ink/5 backdrop-blur"
-              aria-label="Membership drive 2026 is closed"
+              aria-label={MEMBERSHIP_DRIVE_OPEN ? 'Membership drive 2026 is live' : 'Membership drive 2026 is closed'}
             >
-              <span className="relative flex h-6 items-center rounded-full bg-gray-500 px-2.5 text-xs font-semibold text-white">
-                Closed
-              </span>
+              {MEMBERSHIP_DRIVE_OPEN ? (
+                <>
+                  <span className="relative flex h-6 items-center rounded-full bg-emerald-500 px-2.5 text-xs font-semibold text-white">
+                    Live
+                  </span>
 
-              Membership drive 2026
+                  Membership drive 2026
+                </>
+              ) : (
+                <>
+                  <span className="relative flex h-6 items-center rounded-full bg-gray-500 px-2.5 text-xs font-semibold text-white">
+                    Closed
+                  </span>
+
+                  Membership drive 2026
+                </>
+              )}
             </div>
           </motion.div>
 
@@ -148,20 +162,22 @@ export default function Hero() {
             }}
             className="mt-9 flex flex-col justify-center gap-3 sm:flex-row"
           >
-            <div
-              className="btn btn-primary btn-lg cursor-not-allowed opacity-60"
-              aria-disabled="true"
-              title="Membership applications are currently closed"
-            >
-              Membership closed
-            </div>
+            {MEMBERSHIP_DRIVE_OPEN ? (
+              <Link href="/membership/register" className="btn btn-primary btn-lg">
+                Become a member <ArrowRight className="h-4 w-4" />
+              </Link>
+            ) : (
+              <Link href={primaryJoinCta().href} className="btn btn-primary btn-lg">
+                {primaryJoinCta().label} <ArrowRight className="h-4 w-4" />
+              </Link>
+            )}
 
-            <a
+            <Link
               href="/#chapters"
               className="btn btn-ghost btn-lg bg-white/50 backdrop-blur"
             >
               Explore chapters
-            </a>
+            </Link>
           </motion.div>
 
         </div>

@@ -1,8 +1,10 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Sails } from '@/components/site/BrandShapes';
+import { MEMBERSHIP_DRIVE_OPEN, primaryJoinCta } from '@/config/membership';
 
 export default function NotFound() {
+  const joinCta = primaryJoinCta();
   return (
     <div className="container-page flex min-h-[70vh] flex-col items-center justify-center py-20 text-center">
       <Sails className="h-28 w-28 animate-float" />
@@ -10,9 +12,15 @@ export default function NotFound() {
       <p className="lead mt-4 max-w-md">This page wandered off to a hackathon. Let&apos;s get you back.</p>
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <Link href="/" className="btn btn-dark btn-lg">Go home</Link>
-        <Link href="/membership" className="btn btn-primary btn-lg">
-          Become a member <ArrowRight className="h-4 w-4" />
-        </Link>
+        {MEMBERSHIP_DRIVE_OPEN ? (
+          <Link href="/membership" className="btn btn-primary btn-lg">
+            Become a member <ArrowRight className="h-4 w-4" />
+          </Link>
+        ) : (
+          <Link href={joinCta.href} className="btn btn-primary btn-lg">
+            {joinCta.label} <ArrowRight className="h-4 w-4" />
+          </Link>
+        )}
       </div>
     </div>
   );

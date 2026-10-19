@@ -6,6 +6,7 @@ import NetworkCanvas from '@/components/site/NetworkCanvas';
 import { SectionLabel } from '@/components/site/BrandShapes';
 import PricingBreakdown from '@/components/membership/PricingBreakdown';
 import Faq from '@/components/membership/Faq';
+import { MEMBERSHIP_DRIVE_OPEN, MEMBERSHIP_DRIVE_YEAR } from '@/config/membership';
 
 export const metadata: Metadata = {
   title: 'Become a member',
@@ -60,13 +61,24 @@ export default function MembershipPage() {
               <br />
               <span className="text-brand-orange">Get the network.</span>
             </h1>
+            {!MEMBERSHIP_DRIVE_OPEN && (
+              <p className="mt-6 inline-flex items-center gap-2 rounded-full bg-ink px-4 py-1.5 text-sm font-semibold text-white">
+                {MEMBERSHIP_DRIVE_YEAR} drive has ended — registrations are closed for now
+              </p>
+            )}
             <p className="lead mt-6 max-w-lg">
               One membership gets you into IEEE worldwide, the BMSCE IEEE Student Branch and any chapters you pick. Registration takes about five minutes.
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-              <Link href="#pricing" className="btn btn-primary btn-lg">
-                See pricing & register <ArrowRight className="h-4 w-4" />
-              </Link>
+              {MEMBERSHIP_DRIVE_OPEN ? (
+                <Link href="#pricing" className="btn btn-primary btn-lg">
+                  See pricing & register <ArrowRight className="h-4 w-4" />
+                </Link>
+              ) : (
+                <Link href="/ieeextreme" className="btn btn-primary btn-lg">
+                  IEEEXtreme 20.0 is live <ArrowRight className="h-4 w-4" />
+                </Link>
+              )}
               <Link href="/login" className="btn btn-ghost btn-lg bg-white/60">
                 Already applied? Sign in
               </Link>

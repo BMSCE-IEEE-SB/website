@@ -4,10 +4,11 @@ import { getLocalXtremeTeams } from '@/lib/xtreme';
 
 export const runtime = 'nodejs';
 
-function escapeCSV(val: unknown): string {
+export function escapeCSV(val: unknown): string {
   if (val === null || val === undefined) return '""';
-  const str = String(val).replace(/"/g, '""');
-  return `"${str}"`;
+  let str = String(val);
+  if (/^[=+\-@\t\r]/.test(str)) str = `'${str}`; // neutralise spreadsheet formulas
+  return `"${str.replace(/"/g, '""')}"`;
 }
 
 export async function GET(request: Request) {

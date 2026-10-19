@@ -172,13 +172,51 @@ export async function POST(request: Request) {
       return jsonError(rpcErr?.message || 'Failed to save team registration. Please try again.', 400);
     }
 
-    // 5. Automatically assign proctor if available (queue order, per-proctor caps)
+    // 5. Automatically assign proctor: balanced & randomized distribution across all active proctors
     if (rpcResult.team_id) {
-      const { error: autoAssignErr } = await client.rpc('auto_assign_proctor', {
-        p_team_id: rpcResult.team_id,
-      });
-      if (autoAssignErr) {
-        console.warn('auto_assign_proctor RPC notice:', autoAssignErr.message);
+      try {
+        const { data: proctors } = await client
+          .from('xtreme_proctors')
+          .select('id, name, ieee_id, capacity')
+          .order('sort_order', { ascending: true });
+
+        if (proctors && proctors.length > 0) {
+          const { data: teams } = await client
+            .from('xtreme_teams')
+            .select('proctor_id')
+            .not('proctor_id', 'is', null);
+
+          const counts: Record<string, number> = {};
+          for (const p of proctors) counts[p.id] = 0;
+          for (const t of teams || []) {
+            if (t.proctor_id && counts[t.proctor_id] !== undefined) {
+              counts[t.proctor_id]++;
+            }
+          }
+
+          // Filter proctors with remaining capacity
+          const candidates = proctors.filter((p) => counts[p.id] < (p.capacity || 15));
+
+          if (candidates.length > 0) {
+            // Sort by lowest assigned count first; randomize among proctors with the same workload
+            candidates.sort((a, b) => {
+              const diff = counts[a.id] - counts[b.id];
+              if (diff !== 0) return diff;
+              return Math.random() - 0.5;
+            });
+
+            // Assign to the selected proctor (with database-level concurrency row lock)
+            for (const cand of candidates) {
+              const { data: assignRes, error: assignErr } = await client.rpc('assign_proctor_to_team', {
+                p_team_id: rpcResult.team_id,
+                p_proctor_id: cand.id,
+              });
+              if (!assignErr && assignRes?.success) break;
+            }
+          }
+        }
+      } catch (autoErr) {
+        console.warn('Balanced proctor auto-assign notice:', autoErr);
       }
     }
 

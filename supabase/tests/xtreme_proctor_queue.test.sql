@@ -25,21 +25,20 @@ select ok(
 );
 
 select ok(
-  exists(select 1 from public.xtreme_proctors where ieee_id = '90893108' and name = 'Nethravathi S' and capacity = 20),
-  'queue #2 Nethravathi S seeded with a 20-squad cap'
+  exists(select 1 from public.xtreme_proctors where ieee_id = '90893108' and capacity = 15),
+  'queue #2 Nethravathi S seeded with a 15-squad cap'
 );
 
 select ok(
-  (select sort_order from public.xtreme_proctors where ieee_id = '102196859')
-    < (select sort_order from public.xtreme_proctors where ieee_id = '90893108'),
-  'Swaroop BM sorts ahead of Nethravathi S in the fill queue'
+  exists(select 1 from public.xtreme_proctors where ieee_id = '90557111' and capacity = 15),
+  'queue #3 D N Sujatha seeded with a 15-squad cap'
 );
 
--- Auto-assign prefers queue order over creation order
+-- Auto-assign uses balanced randomized distribution
 select ok(
-  (select position('order by p.sort_order' in lower(pg_get_functiondef(oid))) > 0
+  (select position('random()' in lower(pg_get_functiondef(oid))) > 0
    from pg_proc where proname = 'auto_assign_proctor' limit 1),
-  'auto_assign_proctor fills in sort_order sequence'
+  'auto_assign_proctor uses randomized balanced assignment'
 );
 
 select * from finish();

@@ -114,7 +114,8 @@ WHERE p.id = ranked.id AND p.sort_order = 0;
 INSERT INTO public.xtreme_proctors (name, ieee_id, capacity, sort_order)
 VALUES
   ('Swaroop BM', '102196859', 15, 10),
-  ('Nethravathi S', '90893108', 20, 20)
+  ('Dr. Nethravathi S', '90893108', 15, 20),
+  ('Dr. D N Sujatha', '90557111', 15, 30)
 ON CONFLICT (ieee_id) DO UPDATE SET
   name = excluded.name,
   capacity = excluded.capacity,
@@ -212,7 +213,7 @@ GRANT EXECUTE ON FUNCTION public.assign_proctor_to_team(uuid, uuid) TO authentic
 
 
 -- ==============================================================================
--- 5. auto_assign_proctor RPC (Sequential Queue with rollover on race conditions)
+-- 5. auto_assign_proctor RPC (Balanced & Randomized with rollover on race conditions)
 -- ==============================================================================
 
 CREATE OR REPLACE FUNCTION public.auto_assign_proctor(
@@ -228,11 +229,14 @@ DECLARE
   v_assigned_res jsonb;
   v_success boolean := false;
 BEGIN
-  -- Iterate through proctors in sequential queue order
+  -- Balanced & randomized allocation: lowest team count first, random tie-breaker
   FOR v_proctor IN
     SELECT p.id
     FROM public.xtreme_proctors p
-    ORDER BY p.sort_order ASC, p.created_at ASC, p.id ASC
+    LEFT JOIN public.xtreme_teams t ON (t.proctor_id = p.id OR t.proctor_ieee_id = p.ieee_id) AND t.id <> p_team_id
+    GROUP BY p.id, p.capacity
+    HAVING count(DISTINCT t.id) < coalesce(p.capacity, 15)
+    ORDER BY count(DISTINCT t.id) ASC, random()
   LOOP
     BEGIN
       -- Try assigning to this proctor (assign_proctor_to_team acquires lock and checks capacity)
@@ -242,7 +246,7 @@ BEGIN
         EXIT; -- Successfully assigned; stop loop
       END IF;
     EXCEPTION WHEN OTHERS THEN
-      -- If capacity was filled by a concurrent transaction, rollover to the next proctor in queue
+      -- If capacity was filled by a concurrent transaction, rollover to the next proctor
       CONTINUE;
     END;
   END LOOP;

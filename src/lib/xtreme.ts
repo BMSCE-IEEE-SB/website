@@ -125,11 +125,19 @@ export const SAMPLE_XTREME_PROCTORS: XtremeProctor[] = [
   },
   {
     id: 'proc-demo-2',
-    name: 'Nethravathi S',
+    name: 'Dr. Nethravathi S',
     ieee_id: '90893108',
-    capacity: 20,
+    capacity: 15,
     sort_order: 2,
     created_at: new Date(Date.now() - 5 * 86400000).toISOString(),
+  },
+  {
+    id: 'proc-demo-3',
+    name: 'Dr. D N Sujatha',
+    ieee_id: '90557111',
+    capacity: 15,
+    sort_order: 3,
+    created_at: new Date(Date.now() - 2 * 86400000).toISOString(),
   },
 ];
 

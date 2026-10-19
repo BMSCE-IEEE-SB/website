@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
-import { getAdminServiceClient, jsonError, requireAdmin, recordAdminAudit } from '@/lib/server/supabase-admin';
+import { canModifyMembership, getAdminServiceClient, jsonError, requireAdmin, recordAdminAudit } from '@/lib/server/supabase-admin';
 import { escapeHtml } from '@/lib/server/receipt-email';
 
 export const runtime = 'nodejs'; // force reload
@@ -69,6 +69,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const admin = await requireAdmin(request);
   if (!admin) return jsonError('Administrator sign-in is required.', 401);
+  if (!canModifyMembership(admin)) return jsonError('SAC role does not have permission to send membership receipts.', 403);
   if (Number(request.headers.get('content-length') || 0) > 4096) return jsonError('Request is too large.', 413);
   const body = await request.json().catch(() => null);
   if (typeof body?.orderId !== 'string' || !/^[0-9a-f-]{36}$/i.test(body.orderId)) return jsonError('A verified order is required.');

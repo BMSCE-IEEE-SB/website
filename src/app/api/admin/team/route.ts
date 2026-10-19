@@ -1,4 +1,4 @@
-import { getAdminServiceClient, jsonError, recordAdminAudit, requireAdmin } from '@/lib/server/supabase-admin';
+import { canModifyMembership, getAdminServiceClient, jsonError, recordAdminAudit, requireAdmin } from '@/lib/server/supabase-admin';
 
 export const runtime = 'nodejs';
 
@@ -13,10 +13,12 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const admin = await requireAdmin(request);
   if (!admin) return jsonError('Administrator sign-in is required.', 401);
+  if (!canModifyMembership(admin)) return jsonError('SAC role does not have permission to manage administrator access.', 403);
+
   const body = await request.json().catch(() => null);
   const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
-  const role = typeof body?.role === 'string' ? body.role : '';
-  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !['chair','vice-chair','treasurer','secretary','admin'].includes(role)) return jsonError('Enter a valid email and role.');
+  const role = typeof body?.role === 'string' ? body.role.trim().toLowerCase() : '';
+  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !['chair','vice-chair','treasurer','secretary','admin','sac'].includes(role)) return jsonError('Enter a valid email and role.');
   const client = getAdminServiceClient();
   const { error } = await client.from('admin_whitelist').upsert({ email, role });
   if (error) return jsonError('Administrator could not be authorized.', 409);
@@ -27,6 +29,8 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   const admin = await requireAdmin(request);
   if (!admin) return jsonError('Administrator sign-in is required.', 401);
+  if (!canModifyMembership(admin)) return jsonError('SAC role does not have permission to manage administrator access.', 403);
+
   const email = new URL(request.url).searchParams.get('email')?.trim().toLowerCase() || '';
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email === admin.email.toLowerCase()) return jsonError('Cannot revoke this administrator.');
   const { error } = await getAdminServiceClient().rpc('revoke_admin_whitelist', {

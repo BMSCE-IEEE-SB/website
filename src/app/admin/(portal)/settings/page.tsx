@@ -70,7 +70,10 @@ export default function SettingsPage() {
   const paidPreview = prices.filter((p) => p > 0);
   const activeBaseFee = feeProgram === 'PG' ? draft.pgBaseFee : draft.baseFee;
 
+  const isSac = (admin.role ?? 'admin').toLowerCase() === 'sac';
+
   const save = async () => {
+    if (isSac) return;
     setBusy(true);
     try {
       await saveSettings({ ...draft, payeeName: draft.payeeName.trim(), vpa: draft.vpa.trim() }, admin);
@@ -91,6 +94,14 @@ export default function SettingsPage() {
     <div className="pb-10">
       <h1 className="display text-4xl text-ink sm:text-5xl">Fees & payment</h1>
       <p className="mt-2 max-w-xl text-sm text-muted">Change what students pay and where the money goes. Applications that were already submitted keep their original amount.</p>
+
+      {isSac && (
+        <div className="mt-6 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-xs text-amber-900 flex items-center gap-2">
+          <span>
+            <strong>SAC Role Notice:</strong> Membership fees and settings are read-only for SAC accounts.
+          </span>
+        </div>
+      )}
 
       <div className="mt-8 grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_440px] [&>*]:min-w-0">
         <div className="space-y-6">
@@ -226,7 +237,13 @@ export default function SettingsPage() {
           {problems.length > 0 && <Alert tone="error"><ul className="list-disc pl-4">{problems.map((p) => <li key={p}>{p}</li>)}</ul></Alert>}
 
           <div className="flex flex-wrap gap-3">
-            <button type="button" disabled={!changes.length || problems.length > 0} onClick={() => setConfirming(true)} className="btn btn-primary btn-lg">
+            <button
+              type="button"
+              disabled={isSac || !changes.length || problems.length > 0}
+              onClick={() => setConfirming(true)}
+              className="btn btn-primary btn-lg"
+              title={isSac ? 'SAC role cannot modify membership settings' : undefined}
+            >
               <Save className="h-4 w-4" /> Save {changes.length ? `${changes.length} change${changes.length > 1 ? 's' : ''}` : ''}
             </button>
             <button type="button" disabled={!changes.length} onClick={() => setDraft(saved)} className="btn btn-ghost btn-lg bg-white">

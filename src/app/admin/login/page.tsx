@@ -78,6 +78,17 @@ export default function AdminLoginPage() {
               >
                 Use demo admin
               </button>
+              {' · '}
+              <button
+                type="button"
+                className="font-semibold underline underline-offset-2"
+                onClick={() => {
+                  setEmail('sac@bmsce.ac.in');
+                  setPassword('adminpassword');
+                }}
+              >
+                Use SAC demo
+              </button>
             </DemoNotice>
           )}
         </form>

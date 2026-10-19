@@ -54,7 +54,7 @@ export function AdminProvider({ children, onToast }: { children: React.ReactNode
           return;
         }
         await reload();
-        if (alive) setAdmin({ id: a.id, email: a.email });
+        if (alive) setAdmin({ id: a.id, email: a.email, role: a.role });
       });
     return () => {
       alive = false;

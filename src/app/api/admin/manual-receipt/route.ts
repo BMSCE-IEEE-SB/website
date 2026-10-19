@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { getAdminServiceClient, jsonError, recordAdminAudit, requireAdmin } from '@/lib/server/supabase-admin';
+import { canModifyMembership, getAdminServiceClient, jsonError, recordAdminAudit, requireAdmin } from '@/lib/server/supabase-admin';
 import { escapeHtml } from '@/lib/server/receipt-email';
 
 export const runtime = 'nodejs';
@@ -7,6 +7,7 @@ export const runtime = 'nodejs';
 export async function POST(request: Request) {
   const admin = await requireAdmin(request);
   if (!admin) return jsonError('Administrator sign-in is required.', 401);
+  if (!canModifyMembership(admin)) return jsonError('SAC role does not have permission to issue membership receipts.', 403);
   if (Number(request.headers.get('content-length') || 0) > 12000) return jsonError('Request is too large.', 413);
   const body = await request.json().catch(() => null);
   const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';

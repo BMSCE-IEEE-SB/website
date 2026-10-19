@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Check, Download, Mail, Search, Send } from 'lucide-react';
 import { useAdmin } from '@/components/admin/AdminContext';
@@ -12,12 +12,21 @@ import { cn, formatDate } from '@/lib/utils';
 
 function IeeeIdField({ order }: { order: Order }) {
   const { admin, reload, toast } = useAdmin();
+  const isSac = (admin.role ?? 'admin').toLowerCase() === 'sac';
   const [value, setValue] = useState(order.ieee_member_id ?? '');
   const [saving, setSaving] = useState(false);
   const dirty = value.trim() !== (order.ieee_member_id ?? '');
 
+  useEffect(() => {
+    setValue(order.ieee_member_id ?? '');
+  }, [order.ieee_member_id]);
+
+  if (isSac) {
+    return <span className="font-mono text-xs font-semibold text-ink">{order.ieee_member_id || '—'}</span>;
+  }
+
   const save = async () => {
-    if (!dirty) return;
+    if (!dirty || saving) return;
     if (value.trim() && !/^\d{6,10}$/.test(value.trim())) {
       toast('error', 'IEEE member IDs are 6–10 digits.');
       return;
@@ -44,8 +53,21 @@ function IeeeIdField({ order }: { order: Order }) {
         inputMode="numeric"
         placeholder="Add ID"
         aria-label={`IEEE member ID for ${order.student_name}`}
-        className={cn('w-full rounded-lg border px-2.5 py-1.5 font-mono text-xs outline-none transition focus:border-brand-sky focus:ring-2 focus:ring-brand-sky/20', dirty ? 'border-amber-300 bg-amber-50' : 'border-transparent bg-paper hover:border-line')}
+        className={cn('w-full rounded-lg border px-2.5 py-1.5 font-mono text-xs outline-none transition pr-12 focus:border-brand-sky focus:ring-2 focus:ring-brand-sky/20', dirty ? 'border-amber-300 bg-amber-50' : 'border-transparent bg-paper hover:border-line')}
       />
+      {dirty && !saving && (
+        <button
+          type="button"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            save();
+          }}
+          title="Save IEEE member ID"
+          className="absolute top-1/2 right-1.5 -translate-y-1/2 rounded bg-brand-navy px-1.5 py-0.5 text-[10px] font-bold text-white shadow hover:bg-ink transition"
+        >
+          Save
+        </button>
+      )}
       {saving && <span className="absolute top-1/2 right-2 h-3 w-3 -translate-y-1/2 animate-spin rounded-full border-2 border-brand-sky border-t-transparent" />}
     </div>
   );
@@ -53,6 +75,7 @@ function IeeeIdField({ order }: { order: Order }) {
 
 export default function MembersPage() {
   const { admin, orders, reload, toast } = useAdmin();
+  const isSac = (admin.role ?? 'admin').toLowerCase() === 'sac';
   const [chapter, setChapter] = useState('all');
   const [creds, setCreds] = useState<'all' | 'waiting' | 'sent'>('all');
   const [query, setQuery] = useState('');
@@ -85,7 +108,7 @@ export default function MembersPage() {
   const allSelected = list.length > 0 && list.every((m) => selected.has(m.id));
 
   const mark = async (targets: Order[], sent: boolean) => {
-    if (!targets.length) return;
+    if (!targets.length || isSac) return;
     setBusy(true);
     try {
       await markCredentialsSent(targets, sent, admin);
@@ -128,6 +151,15 @@ export default function MembersPage() {
           </button>
         </div>
       </div>
+
+      {isSac && (
+        <div className="mt-6 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-xs text-amber-900 flex items-center gap-2">
+          <Check className="h-4 w-4 shrink-0 text-amber-600" />
+          <span>
+            <strong>SAC Role Notice:</strong> Membership roster is read-only. Modifying member IDs and credential delivery statuses is restricted.
+          </span>
+        </div>
+      )}
 
       {/* Chapter filter chips double as a breakdown */}
       <div className="no-scrollbar -mx-4 mt-6 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
@@ -182,12 +214,13 @@ export default function MembersPage() {
                   }) : <span className="text-xs text-muted">Base only</span>}
                 </div>
                 <div className="mt-3 flex items-center gap-2">
-                  <div className="flex-1"><IeeeIdField key={m.ieee_member_id ?? ''} order={m} /></div>
+                  <div className="flex-1"><IeeeIdField key={m.id} order={m} /></div>
                   <button
                     type="button"
-                    disabled={busy}
+                    disabled={busy || isSac}
                     onClick={() => mark([m], !m.credentials_sent_at)}
-                    className={cn('inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold', m.credentials_sent_at ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800')}
+                    className={cn('inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold', isSac && 'opacity-60 cursor-not-allowed', m.credentials_sent_at ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800')}
+                    title={isSac ? 'Read-only for SAC accounts' : undefined}
                   >
                     {m.credentials_sent_at ? <><Check className="h-3.5 w-3.5" /> Sent</> : 'Pending'}
                   </button>
@@ -240,14 +273,14 @@ export default function MembersPage() {
                     </span>
                   </td>
                   <td className="py-3 text-xs text-muted">{m.verified_at ? formatDate(m.verified_at) : '—'}</td>
-                  <td className="py-3 pr-4"><IeeeIdField key={m.ieee_member_id ?? ''} order={m} /></td>
+                  <td className="py-3 pr-4"><IeeeIdField key={m.id} order={m} /></td>
                   <td className="px-5 py-3 text-right">
                     <button
                       type="button"
-                      disabled={busy}
+                      disabled={busy || isSac}
                       onClick={() => mark([m], !m.credentials_sent_at)}
-                      className={cn('inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors', m.credentials_sent_at ? 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100' : 'bg-amber-50 text-amber-800 hover:bg-amber-100')}
-                      title={m.credentials_sent_at ? `Sent ${formatDate(m.credentials_sent_at)}. Click to undo.` : 'Mark as sent'}
+                      className={cn('inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors', isSac && 'opacity-60 cursor-not-allowed', m.credentials_sent_at ? 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100' : 'bg-amber-50 text-amber-800 hover:bg-amber-100')}
+                      title={isSac ? 'Read-only for SAC accounts' : m.credentials_sent_at ? `Sent ${formatDate(m.credentials_sent_at)}. Click to undo.` : 'Mark as sent'}
                     >
                       {m.credentials_sent_at ? <><Check className="h-3.5 w-3.5" /> Sent</> : 'Pending'}
                     </button>
@@ -263,7 +296,9 @@ export default function MembersPage() {
         {selectedList.length > 0 && (
           <motion.div initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }} className="fixed inset-x-4 bottom-4 z-40 mx-auto flex max-w-xl flex-wrap items-center gap-2 rounded-2xl bg-ink p-3 pl-5 text-white shadow-2xl">
             <span className="mr-auto text-sm font-semibold">{selectedList.length} selected</span>
-            <button type="button" disabled={busy} onClick={() => mark(selectedList.filter((m) => !m.credentials_sent_at), true)} className="btn bg-emerald-500 px-3 py-2 text-white hover:bg-emerald-600"><Send className="h-4 w-4" /> Credentials sent</button>
+            {!isSac && (
+              <button type="button" disabled={busy} onClick={() => mark(selectedList.filter((m) => !m.credentials_sent_at), true)} className="btn bg-emerald-500 px-3 py-2 text-white hover:bg-emerald-600"><Send className="h-4 w-4" /> Credentials sent</button>
+            )}
             <button type="button" onClick={() => exportRoster(selectedList)} className="btn bg-white/10 px-3 py-2 hover:bg-white/20"><Download className="h-4 w-4" /> Export</button>
             <button type="button" onClick={() => setSelected(new Set())} className="btn px-3 py-2 text-white/70 hover:text-white">Clear</button>
           </motion.div>

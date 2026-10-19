@@ -18,6 +18,8 @@ function IeeeIdField({ order }: { order: Order }) {
   const dirty = value.trim() !== (order.ieee_member_id ?? '');
 
   useEffect(() => {
+    // Resync the draft when a freshly saved ID comes back from the server.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setValue(order.ieee_member_id ?? '');
   }, [order.ieee_member_id]);
 

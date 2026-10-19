@@ -258,6 +258,8 @@ export default function ApplicationsPage() {
     return () => window.removeEventListener('keydown', onKey);
   }, [visible, cursor, requestVerify, openId, rejecting, confirmVerify, showKeys]);
 
+  const isSac = (admin.role ?? 'admin').toLowerCase() === 'sac';
+
   return (
     <div className="pb-24">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -276,6 +278,15 @@ export default function ApplicationsPage() {
           </button>
         </div>
       </div>
+
+      {isSac && (
+        <div className="mt-6 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-xs text-amber-900 flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
+          <span>
+            <strong>SAC Role Notice:</strong> Membership applications are read-only. Verification, rejection, notes, and receipts are restricted.
+          </span>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="mt-6 space-y-3">
@@ -379,18 +390,20 @@ export default function ApplicationsPage() {
                       <p className="font-display font-bold text-ink">₹{o.total_amount}</p>
                       <StatusBadge status={o.status} />
                     </div>
-                    <div className="col-start-2 flex gap-2 lg:col-start-auto lg:w-48 lg:justify-end" onClick={(e) => e.stopPropagation()}>
-                      {o.status !== 'verified' && (
-                        <button type="button" disabled={busy} onClick={() => requestVerify([o])} className="btn bg-emerald-600 px-3 py-1.5 text-white hover:bg-emerald-700">
-                          <Check className="h-4 w-4" /> Verify
-                        </button>
-                      )}
-                      {o.status === 'pending' && (
-                        <button type="button" disabled={busy} onClick={() => setRejecting([o])} className="btn px-3 py-1.5 text-red-600 ring-1 ring-red-200 ring-inset hover:bg-red-50">
-                          <X className="h-4 w-4" /> Reject
-                        </button>
-                      )}
-                    </div>
+                    {!isSac && (
+                      <div className="col-start-2 flex gap-2 lg:col-start-auto lg:w-48 lg:justify-end" onClick={(e) => e.stopPropagation()}>
+                        {o.status !== 'verified' && (
+                          <button type="button" disabled={busy} onClick={() => requestVerify([o])} className="btn bg-emerald-600 px-3 py-1.5 text-white hover:bg-emerald-700">
+                            <Check className="h-4 w-4" /> Verify
+                          </button>
+                        )}
+                        {o.status === 'pending' && (
+                          <button type="button" disabled={busy} onClick={() => setRejecting([o])} className="btn px-3 py-1.5 text-red-600 ring-1 ring-red-200 ring-inset hover:bg-red-50">
+                            <X className="h-4 w-4" /> Reject
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </li>
                 );
               })}
@@ -416,8 +429,12 @@ export default function ApplicationsPage() {
         {selected.size > 0 && (
           <motion.div initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }} className="fixed inset-x-4 bottom-4 z-40 mx-auto flex max-w-2xl flex-wrap items-center gap-2 rounded-2xl bg-ink p-3 pl-5 text-white shadow-2xl">
             <span className="mr-auto text-sm font-semibold">{selected.size} selected</span>
-            <button type="button" disabled={busy} onClick={() => requestVerify(selectedOrders)} className="btn bg-emerald-500 px-3 py-2 text-white hover:bg-emerald-600"><Check className="h-4 w-4" /> Verify</button>
-            <button type="button" disabled={busy} onClick={() => setRejecting(selectedOrders.filter((o) => o.status === 'pending'))} className="btn bg-white/10 px-3 py-2 hover:bg-white/20"><X className="h-4 w-4" /> Reject</button>
+            {!isSac && (
+              <>
+                <button type="button" disabled={busy} onClick={() => requestVerify(selectedOrders)} className="btn bg-emerald-500 px-3 py-2 text-white hover:bg-emerald-600"><Check className="h-4 w-4" /> Verify</button>
+                <button type="button" disabled={busy} onClick={() => setRejecting(selectedOrders.filter((o) => o.status === 'pending'))} className="btn bg-white/10 px-3 py-2 hover:bg-white/20"><X className="h-4 w-4" /> Reject</button>
+              </>
+            )}
             <button type="button" onClick={() => exportCsv(selectedOrders)} className="btn bg-white/10 px-3 py-2 hover:bg-white/20"><Download className="h-4 w-4" /> Export</button>
             <button type="button" onClick={() => setSelected(new Set())} className="btn px-3 py-2 text-white/70 hover:text-white">Clear</button>
           </motion.div>
@@ -525,6 +542,7 @@ function Drawer({
   onNext: () => void;
 }) {
   const { admin, reload, toast } = useAdmin();
+  const isSac = (admin.role ?? 'admin').toLowerCase() === 'sac';
   const [proof, setProof] = useState<string | null | undefined>(undefined);
   const [zoom, setZoom] = useState(false);
   const [note, setNote] = useState(order.admin_note ?? '');
@@ -721,14 +739,20 @@ function Drawer({
             <label htmlFor="admin-note" className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted uppercase">
               <StickyNote className="h-3.5 w-3.5" /> Private note
             </label>
-            <textarea id="admin-note" rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. Called the student, bank shows the payment on 12 Oct." className="input resize-none text-sm" />
-            <button type="button" onClick={storeNote} disabled={savingNote || note === (order.admin_note ?? '')} className="btn btn-ghost mt-2 px-3 py-1.5 text-xs">
-              {savingNote && <Spinner />} Save note
-            </button>
+            <textarea id="admin-note" rows={3} value={note} disabled={isSac} onChange={(e) => setNote(e.target.value)} placeholder={isSac ? 'Notes are read-only for SAC accounts.' : 'e.g. Called the student, bank shows the payment on 12 Oct.'} className="input resize-none text-sm" />
+            {!isSac && (
+              <button type="button" onClick={storeNote} disabled={savingNote || note === (order.admin_note ?? '')} className="btn btn-ghost mt-2 px-3 py-1.5 text-xs">
+                {savingNote && <Spinner />} Save note
+              </button>
+            )}
           </div>
         </div>
 
-        {order.status !== 'verified' ? (
+        {isSac ? (
+          <div className="border-t border-line p-4 text-center">
+            <p className="text-xs text-muted">SAC accounts have read-only access to membership applications.</p>
+          </div>
+        ) : order.status !== 'verified' ? (
           <div className="flex gap-3 border-t border-line p-4">
             {order.status === 'pending' && (
               <button type="button" disabled={busy} onClick={onReject} className="btn flex-1 text-red-600 ring-1 ring-red-200 ring-inset hover:bg-red-50">

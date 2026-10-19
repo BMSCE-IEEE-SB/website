@@ -1,4 +1,4 @@
-import { getAdminServiceClient, jsonError, recordAdminAudit, requireAdmin } from '@/lib/server/supabase-admin';
+import { canModifyMembership, getAdminServiceClient, jsonError, recordAdminAudit, requireAdmin } from '@/lib/server/supabase-admin';
 
 export const runtime = 'nodejs';
 
@@ -17,6 +17,7 @@ export async function GET(request: Request) {
 export async function PUT(request: Request) {
   const admin = await requireAdmin(request);
   if (!admin) return jsonError('Administrator sign-in is required.', 401);
+  if (!canModifyMembership(admin)) return jsonError('SAC role does not have permission to modify membership settings.', 403);
   const body = await request.json().catch(() => null);
   const s = body?.settings;
   if (!s || !Number.isFinite(Number(s.base_fee)) || Number(s.base_fee) < 0 || Number(s.base_fee) > 1000000 ||
@@ -40,6 +41,7 @@ export async function PUT(request: Request) {
 export async function PATCH(request: Request) {
   const admin = await requireAdmin(request);
   if (!admin) return jsonError('Administrator sign-in is required.', 401);
+  if (!canModifyMembership(admin)) return jsonError('SAC role does not have permission to modify membership settings.', 403);
   const body = await request.json().catch(() => null);
   const c = body?.chapter;
   if (typeof c?.id !== 'string' || c.id.length > 80 || typeof c.name !== 'string' || !c.name.trim() || c.name.length > 120 ||

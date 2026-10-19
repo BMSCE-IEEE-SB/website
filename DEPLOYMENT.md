@@ -44,6 +44,10 @@ Click **"Deploy"**. Within ~60 seconds, Vercel will build all 32+ pages and API 
 1. **Database Provisioning**:
    - For a **fresh database**: Execute `supabase/schema.sql`, then apply `supabase/migrations/20260927003133_security_remediation.sql`.
    - For an **existing database**: Take a backup and apply `supabase/migrations/20260927003133_security_remediation.sql`. **Do not** re-run `schema.sql` over an existing live database.
+   - For **IEEEXtreme 20.0 (Hackathon Gateway)**:
+     - When ready to enable hackathon registrations on the live Supabase project, execute `supabase/migrations/20261016140000_ieeextreme_tables.sql`, then `supabase/migrations/20261019120000_xtreme_proctors_and_ownership.sql`, then `supabase/migrations/20261019170000_xtreme_proctor_capacity_queue.sql`.
+     - This creates the isolated tables (`ieee_member_2026`, `xtreme_teams`, `xtreme_members`, `xtreme_proctors`), nullable team ownership with verified email auto-claim, and concurrency-safe proctor capacity enforcement procedures (`assign_proctor_to_team`, `auto_assign_proctor`). It does **not** alter or touch any existing membership or payment tables.
+     - Until applied, the Xtreme module gracefully falls back to browser localStorage.
 2. **Admin Provisioning**:
    - Verify that your initial executive email is present in the `admin_whitelist` table (e.g. `ratikagrawal.ec24@bmsce.ac.in` or `bms.ieeesb@gmail.com`). Admin access is provisioned strictly through this whitelist.
 3. **Environment Security**:
@@ -54,6 +58,7 @@ Click **"Deploy"**. Within ~60 seconds, Vercel will build all 32+ pages and API 
    - **Admin Verification**: Sign into `/admin/login`, review orders on `/admin/orders`, test signed URL payment proof viewing, approve an order, and test on-demand receipt delivery (`/api/send-receipt`) with PDF attachment.
    - **Manual Receipts**: Test issuing an offline receipt via the "Issue Manual Receipt" modal and verify entry in `issued_receipts` and `admin_audit_log`.
    - **Admin Management**: Test the Announcement Bar toggle (`/admin/announcement`), Team Whitelist (`/admin/team`), and Drive Settings (`/admin/settings`).
+   - **IEEEXtreme Gateway**: Verify public landing page at `/ieeextreme`, test multi-step team lead registration at `/ieeextreme/register`, team dashboard at `/ieeextreme/team`, vTools registration confirmation, and executive squad management at `/admin/xtreme` (proctor capacity tracking, squad creation, bulk import, and roster exports).
    - **Security Check**: Confirm direct anonymous or authenticated client writes to `orders`, `membership_config`, and `admin_whitelist` are rejected by Row-Level Security.
 
 ---

@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { chapterBySlug, chapters } from '@/data/site';
 import Reveal from '@/components/site/Reveal';
 import { Sails } from '@/components/site/BrandShapes';
+import { MEMBERSHIP_DRIVE_OPEN } from '@/config/membership';
 
 export const dynamicParams = false;
 
@@ -60,9 +61,15 @@ export default async function ChapterPage({ params }: { params: Promise<{ slug: 
             {c.tagline ? `${c.tagline}. ${c.description}` : c.description}
           </p>
           <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-            <Link href="/membership" className="btn btn-lg bg-white text-ink hover:-translate-y-0.5">
-              Join {c.code} with your membership <ArrowRight className="h-4 w-4" />
-            </Link>
+            {MEMBERSHIP_DRIVE_OPEN ? (
+              <Link href="/membership" className="btn btn-lg bg-white text-ink hover:-translate-y-0.5">
+                Join {c.code} with your membership <ArrowRight className="h-4 w-4" />
+              </Link>
+            ) : (
+              <Link href="/ieeextreme" className="btn btn-lg bg-white text-ink hover:-translate-y-0.5">
+                Compete with {c.code} at IEEEXtreme 20.0 <ArrowRight className="h-4 w-4" />
+              </Link>
+            )}
             {c.website && (
               <a href={c.website} target="_blank" rel="noopener noreferrer" className="btn btn-lg bg-white/20 text-white hover:-translate-y-0.5 hover:bg-white/30 backdrop-blur">
                 Visit {c.code} Website

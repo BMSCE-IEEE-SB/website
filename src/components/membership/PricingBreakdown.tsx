@@ -9,6 +9,7 @@ import Reveal from '@/components/site/Reveal';
 import { loadPricing, programBaseFee, programChapterPrice, PROGRAM_LABELS, type Pricing, type Program } from '@/lib/pricing';
 import { useSession } from '@/lib/useSession';
 import { cn } from '@/lib/utils';
+import { MEMBERSHIP_DRIVE_OPEN, MEMBERSHIP_DRIVE_YEAR } from '@/config/membership';
 
 export default function PricingBreakdown() {
   const { user } = useSession();
@@ -54,12 +55,21 @@ export default function PricingBreakdown() {
         </ul>
 
         <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <Link
-            href={user ? '/membership/profile' : '/membership/register'}
-            className="btn btn-primary btn-lg"
-          >
-            {user ? 'Continue registration' : 'Start registration'} <ArrowRight className="h-4 w-4" />
-          </Link>
+          {MEMBERSHIP_DRIVE_OPEN ? (
+            <Link
+              href={user ? '/membership/profile' : '/membership/register'}
+              className="btn btn-primary btn-lg"
+            >
+              {user ? 'Continue registration' : 'Start registration'} <ArrowRight className="h-4 w-4" />
+            </Link>
+          ) : (
+            <>
+              <Link href="/ieeextreme/register" className="btn btn-primary btn-lg">
+                Register for IEEEXtreme 20.0 <ArrowRight className="h-4 w-4" />
+              </Link>
+              <p className="text-sm text-muted">{MEMBERSHIP_DRIVE_YEAR} membership drive has ended.</p>
+            </>
+          )}
           <Link href="/login" className="btn btn-ghost btn-lg bg-white/60">
             Sign in to Member Portal
           </Link>

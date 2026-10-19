@@ -162,7 +162,20 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.admin_whitelist (email, role)
 VALUES 
   ('ratikagrawal.ec24@bmsce.ac.in', 'chair'),
-  ('bms.ieeesb@gmail.com', 'admin')
+  ('bms.ieeesb@gmail.com', 'admin'),
+  ('shreyamurali.ec25@bmsce.ac.in', 'sac'),
+  ('mirzaareeb.ec25@bmsce.ac.in', 'sac'),
+  ('manasaprabhu.ai25@bmsce.ac.in', 'sac'),
+  ('niharikachauhan.bs25@bmsce.ac.in', 'sac'),
+  ('sahanadesai.bs25@bmsce.ac.in', 'sac'),
+  ('soundaryaprashanthrao.cs25@bmsce.ac.in', 'sac'),
+  ('sahanaganesh.cs25@bmsce.ac.in', 'sac'),
+  ('lakinanadeepak.cs25@bmsce.ac.in', 'sac'),
+  ('thrisha.cd25@bmsce.ac.in', 'sac'),
+  ('sharathchandras.ec25@bmsce.ac.in', 'sac'),
+  ('srujangv.ec25@bmsce.ac.in', 'sac'),
+  ('thanishashree.cs25@bmsce.ac.in', 'sac'),
+  ('vedavansika.me25@bmsce.ac.in', 'sac')
 ON CONFLICT (email) DO NOTHING;
 
 INSERT INTO public.events (id, title, category, chapter, date, time, venue, image, description, registration_url, is_featured)

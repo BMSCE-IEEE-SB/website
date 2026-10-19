@@ -5,13 +5,14 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight, LogOut, Mail } from 'lucide-react';
 import { isDemoMode, supabase } from '@/lib/supabase';
-import { DUMMY_CREDENTIALS, clearUserSession, setDummySession } from '@/lib/auth';
+import { DUMMY_CREDENTIALS, clearUserSession, resetDemoData, setDummySession } from '@/lib/auth';
 import { useSession } from '@/lib/useSession';
 import { Alert, Field, Input, PageLoader, Spinner } from '@/components/ui/form';
 import AuthShell from '@/components/membership/AuthShell';
 import PasswordField from '@/components/membership/PasswordField';
 import DemoNotice from '@/components/membership/DemoNotice';
 import { errorMessage } from '@/lib/utils';
+import { MEMBERSHIP_DRIVE_OPEN, MEMBERSHIP_DRIVE_YEAR } from '@/config/membership';
 
 const perks = ['Track your application status', 'View your membership details & receipts', 'Add chapters any time'];
 
@@ -118,8 +119,17 @@ function LoginForm() {
         <AuthShell title={<>Member portal</>} top={top}>
           <h1 className="text-3xl font-bold sm:text-4xl">Welcome back</h1>
           <p className="mt-2 text-ink-soft">
-            New here?{' '}
-            <Link href="/membership" className="font-semibold text-brand-orange hover:underline">Become a member</Link>
+            {MEMBERSHIP_DRIVE_OPEN ? (
+              <>
+                New here?{' '}
+                <Link href="/membership" className="font-semibold text-brand-orange hover:underline">Become a member</Link>
+              </>
+            ) : (
+              <>
+                {MEMBERSHIP_DRIVE_YEAR} membership drive has ended.{' '}
+                <Link href="/ieeextreme" className="font-semibold text-brand-orange hover:underline">Join IEEEXtreme 20.0</Link>
+              </>
+            )}
           </p>
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <Field label="Email" htmlFor="login-email" required>
@@ -160,6 +170,19 @@ function LoginForm() {
                   }}
                 >
                   Fill test account
+                </button>
+                {' · '}
+                <button
+                  type="button"
+                  className="font-semibold underline underline-offset-2"
+                  onClick={() => {
+                    if (window.confirm('Clear all saved demo data and start fresh?')) {
+                      resetDemoData();
+                      window.location.reload();
+                    }
+                  }}
+                >
+                  Reset demo data
                 </button>
               </DemoNotice>
             </div>

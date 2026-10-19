@@ -12,6 +12,7 @@
 INSERT INTO public.ieee_member_2026 (ieee_member_id, name, email, source)
 VALUES
   ('999', 'Test Member', 'test999@bmsce.ac.in', 'active_member'),
+  ('102890103', 'Parikshith D Kanchan', 'parikshithd.bs25@bmsce.ac.in', 'active_member'),
   ('101911709', 'AAYUSH KARN', 'aayushkarn.ec25@bmsce.ac.in', 'legacy_upload'),
   ('101911842', 'ABHINAV', 'abhinavshankar1909@gmail.com', 'legacy_upload'),
   ('101914855', 'ABHINAV NAVARATNA', 'abhinav.ch25@bmsce.ac.in', 'legacy_upload'),

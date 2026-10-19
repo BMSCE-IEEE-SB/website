@@ -48,3 +48,7 @@ test-*.ts
 
 # supabase
 supabase/.temp/
+
+# local backups & scratch
+/backups/
+/scratch/

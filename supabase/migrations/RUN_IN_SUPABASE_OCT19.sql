@@ -76,10 +76,6 @@ CREATE POLICY "admins manage orders" ON public.orders
   FOR ALL TO authenticated
   USING (is_privileged_admin()) WITH CHECK (is_privileged_admin());
 
-DROP POLICY IF EXISTS "admins write activity" ON public.admin_activity;
-CREATE POLICY "admins write activity" ON public.admin_activity
-  FOR INSERT TO authenticated
-  WITH CHECK (is_privileged_admin());
 
 
 -- ==============================================================================

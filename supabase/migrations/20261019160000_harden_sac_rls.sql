@@ -73,9 +73,3 @@ create policy "admins manage orders" on public.orders
   for all to authenticated
   using (is_privileged_admin()) with check (is_privileged_admin());
 
--- admin_activity (audit log stays append-only for privileged admins;
--- the API writes via service_role)
-drop policy if exists "admins write activity" on public.admin_activity;
-create policy "admins write activity" on public.admin_activity
-  for insert to authenticated
-  with check (is_privileged_admin());

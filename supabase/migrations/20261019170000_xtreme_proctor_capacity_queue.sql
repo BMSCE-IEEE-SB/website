@@ -48,7 +48,7 @@ WHERE p.id = ranked.id AND p.sort_order = 0;
 -- 4. Seed the live queue (runs once; re-runnable without duplicates)
 INSERT INTO public.xtreme_proctors (name, ieee_id, capacity, sort_order)
 VALUES
-  ('Swaroop BM', '102196859', 20, 10),
+  ('Swaroop BM', '102196859', 15, 10),
   ('Nethravathi S', '90893108', 20, 20)
 ON CONFLICT (ieee_id) DO UPDATE SET
   name = excluded.name,

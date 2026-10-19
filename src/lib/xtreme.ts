@@ -119,7 +119,7 @@ export const SAMPLE_XTREME_PROCTORS: XtremeProctor[] = [
     id: 'proc-demo-1',
     name: 'Swaroop BM',
     ieee_id: '102196859',
-    capacity: 20,
+    capacity: 15,
     sort_order: 1,
     created_at: new Date(Date.now() - 10 * 86400000).toISOString(),
   },
@@ -328,6 +328,7 @@ export function deleteLocalXtremeTeam(id: string) {
 
 export function getLocalKnownMembers(): KnownMember[] {
   return readJson<KnownMember[]>(DUMMY_KNOWN_MEMBERS_KEY, [
+    { ieee_member_id: '999', name: 'Test Member', email: 'test999@bmsce.ac.in', source: 'active_member' },
     { ieee_member_id: '100650078', name: 'Ratik Agrawal', email: 'ratikagrawal.ec24@bmsce.ac.in', source: 'active_member' },
     { ieee_member_id: '98451201', name: 'Rohan Sharma', email: 'rohan.cs23@bmsce.ac.in', source: 'legacy_upload' },
     { ieee_member_id: '98451202', name: 'Diya Iyer', email: 'diya.is23@bmsce.ac.in', source: 'legacy_upload' },

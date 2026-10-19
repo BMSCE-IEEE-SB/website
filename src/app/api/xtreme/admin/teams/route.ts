@@ -116,7 +116,7 @@ export async function POST(request: Request) {
   if (!leaderEmail || !leaderEmail.includes('@')) {
     return jsonError('A valid leader email address is required.', 400);
   }
-  if (!leaderIeeeId || !/^\d{5,15}$/.test(leaderIeeeId)) {
+  if (!leaderIeeeId || (!/^\d{5,15}$/.test(leaderIeeeId) && leaderIeeeId !== '999')) {
     return jsonError('A valid IEEE Member ID (5-15 digits) is required for the leader.', 400);
   }
 
@@ -138,7 +138,7 @@ export async function POST(request: Request) {
 
     if (!mName) return jsonError('Teammate name is required.', 400);
     if (!mEmail || !mEmail.includes('@')) return jsonError('Valid teammate email is required.', 400);
-    if (!mIeeeId || !/^\d{5,15}$/.test(mIeeeId)) return jsonError(`Valid IEEE ID required for teammate ${mName}.`, 400);
+    if (!mIeeeId || (!/^\d{5,15}$/.test(mIeeeId) && mIeeeId !== '999')) return jsonError(`Valid IEEE ID required for teammate ${mName}.`, 400);
 
     if (seenIeeeIds.has(mIeeeId)) {
       return jsonError(`Duplicate IEEE Member ID "${mIeeeId}" in team roster.`, 400);

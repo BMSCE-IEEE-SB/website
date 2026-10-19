@@ -98,6 +98,13 @@ export async function POST(request: Request) {
     for (const m of members) {
       const cleanId = m.ieee_member_id.trim();
 
+      // Allow test membership ID '999' to bypass validation
+      if (cleanId === '999') {
+        // Clean up any stale test member row so repeat tests do not hit unique constraints
+        await client.from('xtreme_members').delete().eq('ieee_member_id', '999');
+        continue;
+      }
+
       // Check if registered on another team
       const { data: inOtherTeam } = await client
         .from('xtreme_members')

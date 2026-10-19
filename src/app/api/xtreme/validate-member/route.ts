@@ -16,6 +16,15 @@ export async function POST(request: Request) {
     return jsonError('IEEE Member Number is required.', 400);
   }
 
+  // Allow test membership ID '999' to bypass validation
+  if (rawId === '999') {
+    return Response.json({
+      valid: true,
+      firstName: 'Test Member',
+      source: 'test_bypass',
+    });
+  }
+
   // If Supabase is not configured (demo mode)
   if (!isSupabaseConfigured()) {
     const isPlausible = /^\d{6,12}$/.test(rawId);

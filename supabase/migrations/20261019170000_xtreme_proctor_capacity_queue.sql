@@ -140,7 +140,7 @@ BEGIN
 END;
 $$;
 
--- 5b. Auto-assign RPC: first proctor in queue order with remaining capacity
+-- 5b. Auto-assign RPC: sequential queue with concurrent race rollover
 CREATE OR REPLACE FUNCTION public.auto_assign_proctor(
   p_team_id uuid
 )
@@ -150,42 +150,49 @@ SECURITY DEFINER
 SET search_path = ''
 AS $$
 DECLARE
-  v_proctor_id uuid;
+  v_proctor RECORD;
   v_assigned_res jsonb;
+  v_success boolean := false;
 BEGIN
-  -- First proctor in queue order whose squad count is below its own cap
-  SELECT p.id INTO v_proctor_id
-  FROM public.xtreme_proctors p
-  LEFT JOIN public.xtreme_teams t
-    ON (t.proctor_id = p.id OR t.proctor_ieee_id = p.ieee_id)
-  GROUP BY p.id, p.sort_order, p.created_at
-  HAVING count(DISTINCT t.id) < coalesce(max(p.capacity), 20)
-  ORDER BY p.sort_order ASC, p.created_at ASC, p.id ASC
-  LIMIT 1;
+  -- Iterate through proctors in sequential queue order
+  FOR v_proctor IN
+    SELECT p.id
+    FROM public.xtreme_proctors p
+    ORDER BY p.sort_order ASC, p.created_at ASC, p.id ASC
+  LOOP
+    BEGIN
+      -- Try assigning to this proctor (assign_proctor_to_team acquires lock and checks capacity)
+      v_assigned_res := public.assign_proctor_to_team(p_team_id, v_proctor.id);
+      IF coalesce((v_assigned_res->>'success')::boolean, false) IS TRUE THEN
+        v_success := true;
+        EXIT; -- Successfully assigned; stop loop
+      END IF;
+    EXCEPTION WHEN OTHERS THEN
+      -- If capacity was filled by a concurrent transaction, rollover to the next proctor in queue
+      CONTINUE;
+    END;
+  END LOOP;
 
-  IF v_proctor_id IS NULL THEN
-    -- Every proctor is full; leave team unassigned (Pending Proctor) until
-    -- an admin adds capacity
+  IF v_success THEN
+    RETURN jsonb_build_object(
+      'success', true,
+      'assigned', true,
+      'assignment', v_assigned_res
+    );
+  ELSE
+    -- All proctors in queue are full (or no proctor exists); squad stays "Pending Proctor"
     RETURN jsonb_build_object(
       'success', true,
       'assigned', false,
       'reason', 'No proctor available with remaining capacity.'
     );
   END IF;
-
-  -- Delegate to assign_proctor_to_team which acquires the lock and verifies capacity
-  v_assigned_res := public.assign_proctor_to_team(p_team_id, v_proctor_id);
-  RETURN jsonb_build_object(
-    'success', true,
-    'assigned', true,
-    'assignment', v_assigned_res
-  );
-EXCEPTION WHEN OTHERS THEN
-  -- Fallback if race condition occurred on capacity
-  RETURN jsonb_build_object(
-    'success', false,
-    'assigned', false,
-    'error', SQLERRM
-  );
 END;
 $$;
+
+REVOKE ALL ON FUNCTION public.assign_proctor_to_team(uuid, uuid) FROM public, anon;
+GRANT EXECUTE ON FUNCTION public.assign_proctor_to_team(uuid, uuid) TO authenticated, service_role;
+
+REVOKE ALL ON FUNCTION public.auto_assign_proctor(uuid) FROM public, anon;
+GRANT EXECUTE ON FUNCTION public.auto_assign_proctor(uuid) TO authenticated, service_role;
+

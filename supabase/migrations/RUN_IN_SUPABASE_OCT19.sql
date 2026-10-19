@@ -1,5 +1,5 @@
 -- ==============================================================================
--- BMSCE IEEE — Consolidated Supabase Migration (19 Oct 2026)
+-- BMSCE IEEE — Consolidated & Hardened Supabase Migration (19 Oct 2026)
 -- Apply this file in the Supabase SQL Editor.
 -- Safe to re-run: all statements are idempotent.
 -- ==============================================================================
@@ -7,181 +7,93 @@
 BEGIN;
 
 -- ==============================================================================
--- Part 1: Support SAC admin role & dynamic role sync (20261019140000)
+-- 1. Helper: Ensure public.is_admin() is explicitly defined and accessible
 -- ==============================================================================
 
-create or replace function public.sync_admin_from_whitelist()
-returns trigger
-language plpgsql
-security definer
-set search_path = ''
-as $$
-begin
-  if tg_op = 'DELETE' then
-    delete from public.admins a using auth.users u
-      where a.id = u.id and lower(u.email) = lower(old.email);
-    return old;
-  end if;
-
-  if tg_op = 'UPDATE' and lower(old.email) <> lower(new.email) then
-    delete from public.admins a using auth.users u
-      where a.id = u.id and lower(u.email) = lower(old.email);
-  end if;
-
-  delete from public.admins a using auth.users u
-    where a.id = u.id and lower(u.email) = lower(new.email) and not exists (
-      select 1 from public.admin_whitelist w where lower(w.email) = lower(new.email)
-    );
-
-  insert into public.admins (id, full_name, role)
-    select u.id, coalesce(u.raw_user_meta_data->>'full_name', split_part(u.email, '@', 1)), coalesce(new.role, 'admin')
-    from auth.users u where lower(u.email) = lower(new.email)
-    on conflict (id) do update set full_name = excluded.full_name, role = excluded.role;
-
-  return new;
-end;
-$$;
-revoke all on function public.sync_admin_from_whitelist() from public, anon, authenticated;
-
-create or replace function public.provision_admin_for_auth_user()
-returns trigger
-language plpgsql
-security definer
-set search_path = ''
-as $$
-declare
-  v_role text;
-begin
-  select role into v_role from public.admin_whitelist w where lower(w.email) = lower(new.email);
-  if v_role is not null then
-    insert into public.admins (id, full_name, role)
-    values (new.id, coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)), coalesce(v_role, 'admin'))
-    on conflict (id) do update set full_name = excluded.full_name, role = excluded.role;
-  end if;
-  return new;
-end;
-$$;
-revoke all on function public.provision_admin_for_auth_user() from public, anon, authenticated;
-
-create or replace function public.sync_admin_email_change()
-returns trigger
-language plpgsql
-security definer
-set search_path = ''
-as $$
-declare
-  v_role text;
-begin
-  if lower(coalesce(old.email, '')) <> lower(coalesce(new.email, '')) then
-    select role into v_role from public.admin_whitelist w where lower(w.email) = lower(new.email);
-    if v_role is not null then
-      insert into public.admins (id, full_name, role)
-      values (new.id, coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)), coalesce(v_role, 'admin'))
-      on conflict (id) do update set full_name = excluded.full_name, role = excluded.role;
-    else
-      delete from public.admins where id = new.id;
-    end if;
-  end if;
-  return new;
-end;
-$$;
-revoke all on function public.sync_admin_email_change() from public, anon, authenticated;
-
-update public.admins a
-set role = w.role
-from auth.users u
-join public.admin_whitelist w on lower(w.email) = lower(u.email)
-where a.id = u.id and coalesce(a.role, '') <> coalesce(w.role, '');
-
-insert into public.admin_whitelist (email, role)
-values
-  ('shreyamurali.ec25@bmsce.ac.in', 'sac'),
-  ('mirzaareeb.ec25@bmsce.ac.in', 'sac'),
-  ('manasaprabhu.ai25@bmsce.ac.in', 'sac'),
-  ('niharikachauhan.bs25@bmsce.ac.in', 'sac'),
-  ('sahanadesai.bs25@bmsce.ac.in', 'sac'),
-  ('soundaryaprashanthrao.cs25@bmsce.ac.in', 'sac'),
-  ('sahanaganesh.cs25@bmsce.ac.in', 'sac'),
-  ('lakinanadeepak.cs25@bmsce.ac.in', 'sac'),
-  ('thrisha.cd25@bmsce.ac.in', 'sac'),
-  ('sharathchandras.ec25@bmsce.ac.in', 'sac'),
-  ('srujangv.ec25@bmsce.ac.in', 'sac'),
-  ('thanishashree.cs25@bmsce.ac.in', 'sac'),
-  ('vedavansika.me25@bmsce.ac.in', 'sac')
-on conflict (email) do update set role = excluded.role;
-
-
--- ==============================================================================
--- Part 2: Admins update profiles policy & harden SAC RLS (20261019150000 / 20261019160000)
--- ==============================================================================
-
-create or replace function public.is_privileged_admin() returns boolean
-language sql stable security definer set search_path = '' as $$
-  select exists (
-    select 1 from public.admins
-    where id = (select auth.uid())
-      and lower(coalesce(role, 'admin')) <> 'sac'
+CREATE OR REPLACE FUNCTION public.is_admin() RETURNS boolean
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = '' AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.admins
+    WHERE id = (SELECT auth.uid())
   );
 $$;
-revoke all on function public.is_privileged_admin() from public, anon;
-grant execute on function public.is_privileged_admin() to authenticated;
-
-drop policy if exists "admins manage chapters" on public.chapters;
-create policy "admins manage chapters" on public.chapters
-  for all to authenticated
-  using (is_privileged_admin()) with check (is_privileged_admin());
-
-drop policy if exists "admins manage config" on public.membership_config;
-create policy "admins manage config" on public.membership_config
-  for all to authenticated
-  using (is_privileged_admin()) with check (is_privileged_admin());
-
-drop policy if exists "admins manage announcement" on public.announcement;
-create policy "admins manage announcement" on public.announcement
-  for all to authenticated
-  using (is_privileged_admin()) with check (is_privileged_admin());
-
-drop policy if exists "admins manage events" on public.events;
-create policy "admins manage events" on public.events
-  for all to authenticated
-  using (is_privileged_admin()) with check (is_privileged_admin());
-
-drop policy if exists "admins manage admins" on public.admins;
-create policy "admins manage admins" on public.admins
-  for all to authenticated
-  using (is_privileged_admin()) with check (is_privileged_admin());
-
-drop policy if exists "admins manage whitelist" on public.admin_whitelist;
-create policy "admins manage whitelist" on public.admin_whitelist
-  for all to authenticated
-  using (is_privileged_admin()) with check (is_privileged_admin());
-
-drop policy if exists "admins update profiles" on public.profiles;
-create policy "admins update profiles" on public.profiles
-  for update to authenticated
-  using (is_privileged_admin()) with check (is_privileged_admin());
-
-drop policy if exists "admins manage orders" on public.orders;
-create policy "admins manage orders" on public.orders
-  for all to authenticated
-  using (is_privileged_admin()) with check (is_privileged_admin());
-
-drop policy if exists "admins write activity" on public.admin_activity;
-create policy "admins write activity" on public.admin_activity
-  for insert to authenticated
-  with check (is_privileged_admin());
+REVOKE ALL ON FUNCTION public.is_admin() FROM public, anon;
+GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated, service_role;
 
 
 -- ==============================================================================
--- Part 3: Sequential Proctor Queue with Per-Proctor Squad Caps (20261019170000)
+-- 2. Privileged admin check and RLS policies (Restricts SAC to Xtreme only)
+-- ==============================================================================
+
+CREATE OR REPLACE FUNCTION public.is_privileged_admin() RETURNS boolean
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = '' AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.admins
+    WHERE id = (SELECT auth.uid())
+      AND lower(coalesce(role, 'admin')) <> 'sac'
+  );
+$$;
+REVOKE ALL ON FUNCTION public.is_privileged_admin() FROM public, anon;
+GRANT EXECUTE ON FUNCTION public.is_privileged_admin() TO authenticated, service_role;
+
+DROP POLICY IF EXISTS "admins manage chapters" ON public.chapters;
+CREATE POLICY "admins manage chapters" ON public.chapters
+  FOR ALL TO authenticated
+  USING (is_privileged_admin()) WITH CHECK (is_privileged_admin());
+
+DROP POLICY IF EXISTS "admins manage config" ON public.membership_config;
+CREATE POLICY "admins manage config" ON public.membership_config
+  FOR ALL TO authenticated
+  USING (is_privileged_admin()) WITH CHECK (is_privileged_admin());
+
+DROP POLICY IF EXISTS "admins manage announcement" ON public.announcement;
+CREATE POLICY "admins manage announcement" ON public.announcement
+  FOR ALL TO authenticated
+  USING (is_privileged_admin()) WITH CHECK (is_privileged_admin());
+
+DROP POLICY IF EXISTS "admins manage events" ON public.events;
+CREATE POLICY "admins manage events" ON public.events
+  FOR ALL TO authenticated
+  USING (is_privileged_admin()) WITH CHECK (is_privileged_admin());
+
+DROP POLICY IF EXISTS "admins manage admins" ON public.admins;
+CREATE POLICY "admins manage admins" ON public.admins
+  FOR ALL TO authenticated
+  USING (is_privileged_admin()) WITH CHECK (is_privileged_admin());
+
+DROP POLICY IF EXISTS "admins manage whitelist" ON public.admin_whitelist;
+CREATE POLICY "admins manage whitelist" ON public.admin_whitelist
+  FOR ALL TO authenticated
+  USING (is_privileged_admin()) WITH CHECK (is_privileged_admin());
+
+DROP POLICY IF EXISTS "admins update profiles" ON public.profiles;
+CREATE POLICY "admins update profiles" ON public.profiles
+  FOR UPDATE TO authenticated
+  USING (is_privileged_admin()) WITH CHECK (is_privileged_admin());
+
+DROP POLICY IF EXISTS "admins manage orders" ON public.orders;
+CREATE POLICY "admins manage orders" ON public.orders
+  FOR ALL TO authenticated
+  USING (is_privileged_admin()) WITH CHECK (is_privileged_admin());
+
+DROP POLICY IF EXISTS "admins write activity" ON public.admin_activity;
+CREATE POLICY "admins write activity" ON public.admin_activity
+  FOR INSERT TO authenticated
+  WITH CHECK (is_privileged_admin());
+
+
+-- ==============================================================================
+-- 3. Sequential Faculty Proctor Queue & Capacity Columns
 -- ==============================================================================
 
 ALTER TABLE public.xtreme_proctors
   ADD COLUMN IF NOT EXISTS capacity int NOT NULL DEFAULT 20
     CHECK (capacity > 0 AND capacity <= 500);
+
 ALTER TABLE public.xtreme_proctors
   ADD COLUMN IF NOT EXISTS sort_order int NOT NULL DEFAULT 0;
 
+-- Safely unassign teams linked to sample proctors before removing them
 UPDATE public.xtreme_teams
 SET proctor_id = NULL,
     proctor_name = NULL,
@@ -192,6 +104,7 @@ WHERE proctor_ieee_id IN ('90451234', '90455678');
 DELETE FROM public.xtreme_proctors
 WHERE ieee_id IN ('90451234', '90455678');
 
+-- Preserve order for existing proctors by creation time
 WITH ranked AS (
   SELECT id, (row_number() OVER (ORDER BY created_at ASC, id ASC)) * 10 AS rn
   FROM public.xtreme_proctors
@@ -201,6 +114,7 @@ SET sort_order = ranked.rn
 FROM ranked
 WHERE p.id = ranked.id AND p.sort_order = 0;
 
+-- Seed verified BMSCE faculty proctors with designated squad limits
 INSERT INTO public.xtreme_proctors (name, ieee_id, capacity, sort_order)
 VALUES
   ('Swaroop BM', '102196859', 15, 10),
@@ -209,6 +123,11 @@ ON CONFLICT (ieee_id) DO UPDATE SET
   name = excluded.name,
   capacity = excluded.capacity,
   sort_order = excluded.sort_order;
+
+
+-- ==============================================================================
+-- 4. assign_proctor_to_team RPC (with row lock & capacity check)
+-- ==============================================================================
 
 CREATE OR REPLACE FUNCTION public.assign_proctor_to_team(
   p_team_id uuid,
@@ -220,11 +139,12 @@ SECURITY DEFINER
 SET search_path = ''
 AS $$
 DECLARE
-  v_proctor RECORD;
+  v_proctor public.xtreme_proctors%ROWTYPE;
   v_current_count int;
   v_cap int;
   v_team_exists boolean;
 BEGIN
+  -- Authorization check: service_role or admin
   IF coalesce(auth.role(), '') <> 'service_role'
      AND current_setting('role', true) NOT IN ('postgres', 'service_role')
      AND (auth.uid() IS NULL OR NOT public.is_admin()) THEN
@@ -236,6 +156,7 @@ BEGIN
     RAISE EXCEPTION 'Team not found.';
   END IF;
 
+  -- Case 1: Unassign proctor (p_proctor_id IS NULL)
   IF p_proctor_id IS NULL THEN
     UPDATE public.xtreme_teams
     SET proctor_id = NULL,
@@ -250,6 +171,7 @@ BEGIN
     );
   END IF;
 
+  -- Case 2: Assign specified proctor (row lock prevents concurrency overfill)
   SELECT * INTO v_proctor
   FROM public.xtreme_proctors
   WHERE id = p_proctor_id
@@ -261,6 +183,7 @@ BEGIN
 
   v_cap := coalesce(v_proctor.capacity, 20);
 
+  -- Count existing teams assigned to this proctor (excluding this team to avoid self-count)
   SELECT count(*) INTO v_current_count
   FROM public.xtreme_teams
   WHERE (proctor_id = v_proctor.id OR proctor_ieee_id = v_proctor.ieee_id)
@@ -288,6 +211,14 @@ BEGIN
 END;
 $$;
 
+REVOKE ALL ON FUNCTION public.assign_proctor_to_team(uuid, uuid) FROM public, anon;
+GRANT EXECUTE ON FUNCTION public.assign_proctor_to_team(uuid, uuid) TO authenticated, service_role;
+
+
+-- ==============================================================================
+-- 5. auto_assign_proctor RPC (Sequential Queue with rollover on race conditions)
+-- ==============================================================================
+
 CREATE OR REPLACE FUNCTION public.auto_assign_proctor(
   p_team_id uuid
 )
@@ -297,39 +228,47 @@ SECURITY DEFINER
 SET search_path = ''
 AS $$
 DECLARE
-  v_proctor_id uuid;
+  v_proctor RECORD;
   v_assigned_res jsonb;
+  v_success boolean := false;
 BEGIN
-  SELECT p.id INTO v_proctor_id
-  FROM public.xtreme_proctors p
-  LEFT JOIN public.xtreme_teams t
-    ON (t.proctor_id = p.id OR t.proctor_ieee_id = p.ieee_id)
-  GROUP BY p.id, p.sort_order, p.created_at
-  HAVING count(DISTINCT t.id) < coalesce(max(p.capacity), 20)
-  ORDER BY p.sort_order ASC, p.created_at ASC, p.id ASC
-  LIMIT 1;
+  -- Iterate through proctors in sequential queue order
+  FOR v_proctor IN
+    SELECT p.id
+    FROM public.xtreme_proctors p
+    ORDER BY p.sort_order ASC, p.created_at ASC, p.id ASC
+  LOOP
+    BEGIN
+      -- Try assigning to this proctor (assign_proctor_to_team acquires lock and checks capacity)
+      v_assigned_res := public.assign_proctor_to_team(p_team_id, v_proctor.id);
+      IF coalesce((v_assigned_res->>'success')::boolean, false) IS TRUE THEN
+        v_success := true;
+        EXIT; -- Successfully assigned; stop loop
+      END IF;
+    EXCEPTION WHEN OTHERS THEN
+      -- If capacity was filled by a concurrent transaction, rollover to the next proctor in queue
+      CONTINUE;
+    END;
+  END LOOP;
 
-  IF v_proctor_id IS NULL THEN
+  IF v_success THEN
+    RETURN jsonb_build_object(
+      'success', true,
+      'assigned', true,
+      'assignment', v_assigned_res
+    );
+  ELSE
+    -- All proctors in queue are full (or no proctor exists); squad stays "Pending Proctor"
     RETURN jsonb_build_object(
       'success', true,
       'assigned', false,
       'reason', 'No proctor available with remaining capacity.'
     );
   END IF;
-
-  v_assigned_res := public.assign_proctor_to_team(p_team_id, v_proctor_id);
-  RETURN jsonb_build_object(
-    'success', true,
-    'assigned', true,
-    'assignment', v_assigned_res
-  );
-EXCEPTION WHEN OTHERS THEN
-  RETURN jsonb_build_object(
-    'success', false,
-    'assigned', false,
-    'error', SQLERRM
-  );
 END;
 $$;
+
+REVOKE ALL ON FUNCTION public.auto_assign_proctor(uuid) FROM public, anon;
+GRANT EXECUTE ON FUNCTION public.auto_assign_proctor(uuid) TO authenticated, service_role;
 
 COMMIT;

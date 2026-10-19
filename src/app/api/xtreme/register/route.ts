@@ -165,7 +165,7 @@ export async function POST(request: Request) {
       return jsonError(rpcErr?.message || 'Failed to save team registration. Please try again.', 400);
     }
 
-    // 5. Automatically assign proctor if available (fill-first by created_at)
+    // 5. Automatically assign proctor if available (queue order, per-proctor caps)
     if (rpcResult.team_id) {
       const { error: autoAssignErr } = await client.rpc('auto_assign_proctor', {
         p_team_id: rpcResult.team_id,

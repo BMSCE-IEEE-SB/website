@@ -1,6 +1,6 @@
 import { getAdminServiceClient, jsonError, requireAdmin } from '@/lib/server/supabase-admin';
 import { isSupabaseConfigured } from '@/lib/supabase';
-import { getLocalXtremeProctors, getLocalXtremeTeams, saveLocalXtremeTeam, type XtremeMember, type XtremeTeam } from '@/lib/xtreme';
+import { getLocalXtremeProctors, getLocalXtremeTeams, proctorCapacity, saveLocalXtremeTeam, type XtremeMember, type XtremeTeam } from '@/lib/xtreme';
 
 export const runtime = 'nodejs';
 
@@ -169,8 +169,9 @@ export async function POST(request: Request) {
       const proctors = getLocalXtremeProctors();
       const proc = proctors.find((p) => p.id === proctorId);
       if (proc) {
-        if ((proc.assigned_count ?? 0) >= 20) {
-          return jsonError(`Proctor "${proc.name}" already has 20 teams assigned.`, 400);
+        const cap = proctorCapacity(proc);
+        if ((proc.assigned_count ?? 0) >= cap) {
+          return jsonError(`Proctor "${proc.name}" already has ${cap} squads assigned.`, 400);
         }
         proctorName = proc.name;
         proctorIeee = proc.ieee_id;

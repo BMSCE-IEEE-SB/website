@@ -122,13 +122,14 @@ A state-driven portal for the global 24-hour programming competition hosted on c
   2. *Stage 2 (Proctor Assignment)*: System automatically or administrators manually assign an authorized faculty proctor from the directory.
   3. *Stage 3 (Official IEEE vTools)*: Team registers on `https://xtreme.vtools.ieee.org/` using their proctor credentials and confirms on `/ieeextreme/team`, permanently locking their squad.
 - **Executive Administration** (`/admin/xtreme`):
-  - **Managed Faculty Proctors**: Register faculty proctors with strict capacity limits (up to 20 teams per proctor IEEE ID) enforced concurrently at the database level.
+  - **Managed Faculty Proctors**: Register faculty proctors with per-proctor squad limits, filled strictly in queue order and enforced concurrently at the database level.
   - **Single Squad Creation & Wide-Format Bulk CSV Import**: Organizers can pre-register teams with or without teammates. Organizer-created teams start in an unclaimed state and auto-claim seamlessly when the lead logs in with their verified email.
   - **Proctor Reassignment & Unassignment**: Reassign teams between eligible proctors or safely unassign back to `Pending Proctor`.
   - **CSV Upload & Full Data Export**: Pre-populate legacy member records (`ieee_member_2026`) and export complete team rosters with logistics for lab seating, campus security permissions, and meals.
 - **Safe Database Migrations**:
   - `supabase/migrations/20261016140000_ieeextreme_tables.sql`: Base tables (`ieee_member_2026`, `xtreme_teams`, `xtreme_members`), RLS policies, and team registration RPC.
   - `supabase/migrations/20261019120000_xtreme_proctors_and_ownership.sql`: Managed proctors table (`xtreme_proctors`), nullable team ownership with auto-claim by verified email, and concurrency-safe proctor capacity enforcement procedures (`assign_proctor_to_team`, `auto_assign_proctor`).
+  - `supabase/migrations/20261019170000_xtreme_proctor_capacity_queue.sql`: Per-proctor squad caps, sequential fill queue, and the live proctor seeds.
   - Additive tables only; zero modifications to existing membership or payment tables. Full demo-mode localStorage fallback supported when Supabase tables are pending.
 
 ---

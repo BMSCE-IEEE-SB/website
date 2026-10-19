@@ -5,6 +5,8 @@ import {
   XTREME_AMBASSADOR_ID,
   XTREME_SUPPORT_CONTACTS,
   XTREME_VTOOLS_URL,
+  proctorCapacity,
+  sortProctorsByQueue,
 } from '@/lib/xtreme';
 
 describe('xtreme constants', () => {
@@ -28,5 +30,27 @@ describe('xtreme constants', () => {
       expect(c.name.trim().length).toBeGreaterThan(0);
       expect(c.tel).toMatch(/^tel:\+\d+$/);
     }
+  });
+});
+
+describe('proctor queue', () => {
+  it('falls back to 20 squads for rows without a capacity', () => {
+    expect(proctorCapacity({ capacity: 15 })).toBe(15);
+    expect(proctorCapacity({})).toBe(20);
+    expect(proctorCapacity({ capacity: 0 })).toBe(20);
+    expect(proctorCapacity({ capacity: -4 })).toBe(20);
+  });
+
+  it('orders proctors by queue position, then creation time', () => {
+    const list = [
+      { sort_order: 2, created_at: '2026-10-02T00:00:00Z', name: 'second' },
+      { sort_order: 1, created_at: '2026-10-03T00:00:00Z', name: 'first' },
+      { created_at: '2026-10-01T00:00:00Z', name: 'unranked-oldest' },
+    ];
+    expect(sortProctorsByQueue(list).map((p) => p.name)).toEqual([
+      'first',
+      'second',
+      'unranked-oldest',
+    ]);
   });
 });

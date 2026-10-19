@@ -18,7 +18,26 @@ export interface XtremeProctor {
   name: string;
   ieee_id: string;
   created_at: string;
+  /** Max squads this proctor takes before the next in queue. Defaults to 20. */
+  capacity?: number;
+  /** Queue position; new squads fill lowest first. Defaults to creation order. */
+  sort_order?: number;
   assigned_count?: number;
+}
+
+/** Fallback squad cap when a proctor row predates per-proctor capacities. */
+export const DEFAULT_PROCTOR_CAPACITY = 20;
+
+export function proctorCapacity(p: Pick<XtremeProctor, 'capacity'>): number {
+  return typeof p.capacity === 'number' && p.capacity > 0 ? p.capacity : DEFAULT_PROCTOR_CAPACITY;
+}
+
+export function sortProctorsByQueue<T extends Pick<XtremeProctor, 'sort_order' | 'created_at'>>(list: T[]): T[] {
+  return [...list].sort((a, b) => {
+    const order = (a.sort_order ?? Number.MAX_SAFE_INTEGER) - (b.sort_order ?? Number.MAX_SAFE_INTEGER);
+    if (order !== 0) return order;
+    return a.created_at.localeCompare(b.created_at);
+  });
 }
 
 export interface XtremeTeam {
@@ -98,14 +117,18 @@ function writeJson(key: string, value: unknown) {
 export const SAMPLE_XTREME_PROCTORS: XtremeProctor[] = [
   {
     id: 'proc-demo-1',
-    name: 'Dr. Ramesh Kumar',
-    ieee_id: '90451234',
+    name: 'Swaroop BM',
+    ieee_id: '102196859',
+    capacity: 15,
+    sort_order: 1,
     created_at: new Date(Date.now() - 10 * 86400000).toISOString(),
   },
   {
     id: 'proc-demo-2',
-    name: 'Prof. Anitha Rao',
-    ieee_id: '90455678',
+    name: 'Nethravathi S',
+    ieee_id: '90893108',
+    capacity: 20,
+    sort_order: 2,
     created_at: new Date(Date.now() - 5 * 86400000).toISOString(),
   },
 ];
@@ -118,8 +141,8 @@ export const SAMPLE_XTREME_TEAMS: XtremeTeam[] = [
     leader_email: 'rohan.cs23@bmsce.ac.in',
     proctor_id: 'proc-demo-1',
     vtools_verified: true,
-    proctor_name: 'Dr. Ramesh Kumar',
-    proctor_ieee_id: '90451234',
+    proctor_name: 'Swaroop BM',
+    proctor_ieee_id: '102196859',
     admin_note: 'Proctor verified and venue assigned.',
     created_at: new Date(Date.now() - 3 * 86400000).toISOString(),
     members: [

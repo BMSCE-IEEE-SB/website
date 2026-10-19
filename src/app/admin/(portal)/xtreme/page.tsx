@@ -25,8 +25,10 @@ import {
   deleteLocalXtremeTeam,
   getLocalXtremeProctors,
   getLocalXtremeTeams,
+  proctorCapacity,
   saveLocalXtremeProctor,
   saveLocalXtremeTeam,
+  sortProctorsByQueue,
   updateLocalXtremeTeam,
   type KnownMember,
   type XtremeMember,
@@ -61,6 +63,10 @@ export default function AdminXtremePage() {
   const [showProctorsSection, setShowProctorsSection] = useState(false);
   const [newProctorName, setNewProctorName] = useState('');
   const [newProctorIeee, setNewProctorIeee] = useState('');
+  const [newProctorCapacity, setNewProctorCapacity] = useState('20');
+  const [editingCapId, setEditingCapId] = useState<string | null>(null);
+  const [editingCapValue, setEditingCapValue] = useState('');
+  const [savingCap, setSavingCap] = useState(false);
   const [addingProctor, setAddingProctor] = useState(false);
   const [proctorActionMsg, setProctorActionMsg] = useState<{ tone: 'success' | 'error'; text: string } | null>(null);
 
@@ -231,24 +237,33 @@ export default function AdminXtremePage() {
   async function handleAddProctor(e: React.FormEvent) {
     e.preventDefault();
     if (!newProctorName.trim() || !newProctorIeee.trim()) return;
+    const capacity = Number(newProctorCapacity);
+    if (!Number.isInteger(capacity) || capacity < 1 || capacity > 500) {
+      setProctorActionMsg({ tone: 'error', text: 'Squad capacity must be a whole number between 1 and 500.' });
+      return;
+    }
 
     setAddingProctor(true);
     setProctorActionMsg(null);
 
     try {
       if (isDemoMode()) {
+        const nextOrder = proctors.reduce((m, p) => Math.max(m, p.sort_order ?? 0), 0) + 1;
         const proc: XtremeProctor = {
           id: `proc-demo-${Date.now()}`,
           name: newProctorName.trim(),
           ieee_id: newProctorIeee.trim(),
+          capacity,
+          sort_order: nextOrder,
           created_at: new Date().toISOString(),
           assigned_count: 0,
         };
         saveLocalXtremeProctor(proc);
-        setProctors((prev) => [...prev, proc]);
+        setProctors((prev) => sortProctorsByQueue([...prev, proc]));
         setNewProctorName('');
         setNewProctorIeee('');
-        setProctorActionMsg({ tone: 'success', text: `Proctor "${proc.name}" added successfully.` });
+        setNewProctorCapacity('20');
+        setProctorActionMsg({ tone: 'success', text: `Proctor "${proc.name}" added successfully (takes ${capacity} squads).` });
         return;
       }
 
@@ -263,6 +278,7 @@ export default function AdminXtremePage() {
         body: JSON.stringify({
           name: newProctorName.trim(),
           ieee_id: newProctorIeee.trim(),
+          capacity,
         }),
       });
 
@@ -271,14 +287,56 @@ export default function AdminXtremePage() {
         throw new Error(data?.error || 'Failed to add proctor.');
       }
 
-      setProctors((prev) => [...prev, data.proctor]);
+      setProctors((prev) => sortProctorsByQueue([...prev, data.proctor]));
       setNewProctorName('');
       setNewProctorIeee('');
-      setProctorActionMsg({ tone: 'success', text: `Proctor "${data.proctor.name}" added successfully.` });
+      setNewProctorCapacity('20');
+      setProctorActionMsg({ tone: 'success', text: `Proctor "${data.proctor.name}" added successfully (takes ${capacity} squads).` });
     } catch (err: unknown) {
       setProctorActionMsg({ tone: 'error', text: (err as Error).message || 'Failed to add proctor.' });
     } finally {
       setAddingProctor(false);
+    }
+  }
+
+  async function handleUpdateCapacity(id: string) {
+    const capacity = Number(editingCapValue);
+    if (!Number.isInteger(capacity) || capacity < 1 || capacity > 500) {
+      setProctorActionMsg({ tone: 'error', text: 'Squad capacity must be a whole number between 1 and 500.' });
+      return;
+    }
+
+    setSavingCap(true);
+    setProctorActionMsg(null);
+
+    try {
+      if (isDemoMode()) {
+        const target = getLocalXtremeProctors().find((p) => p.id === id);
+        if (!target) throw new Error('Proctor not found.');
+        target.capacity = capacity;
+        saveLocalXtremeProctor(target);
+        setProctors((prev) => prev.map((p) => (p.id === id ? { ...p, capacity } : p)));
+      } else {
+        const { data: session } = await supabase.auth.getSession();
+        const token = session.session?.access_token;
+        const res = await fetch(`/api/xtreme/admin/proctors/${id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ capacity }),
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok) throw new Error(data?.error || 'Failed to update capacity.');
+        setProctors((prev) => prev.map((p) => (p.id === id ? { ...p, capacity: data.proctor.capacity } : p)));
+      }
+      setEditingCapId(null);
+      setProctorActionMsg({ tone: 'success', text: 'Squad limit updated. Existing assignments are kept.' });
+    } catch (err: unknown) {
+      setProctorActionMsg({ tone: 'error', text: (err as Error).message || 'Failed to update capacity.' });
+    } finally {
+      setSavingCap(false);
     }
   }
 
@@ -898,7 +956,7 @@ export default function AdminXtremePage() {
                 Managed Faculty Proctors ({proctors.length})
               </h2>
               <p className="text-xs text-muted">
-                Each proctor accommodates up to 20 squads. Assignments fill sequentially in addition order.
+                New squads fill proctors in queue order (#1 first). Set how many squads each proctor takes — new proctors join the end of the queue.
               </p>
             </div>
           </div>
@@ -916,8 +974,8 @@ export default function AdminXtremePage() {
 
             {/* Add Proctor Inline Form */}
             <form onSubmit={handleAddProctor} className="rounded-2xl border border-line bg-paper/40 p-4">
-              <span className="block text-xs font-bold text-ink mb-2">Register New Faculty Proctor</span>
-              <div className="grid gap-3 sm:grid-cols-3">
+              <span className="block text-xs font-bold text-ink mb-2">Register New Faculty Proctor (joins the end of the queue)</span>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_140px_auto]">
                 <Input
                   placeholder="Proctor Full Name (e.g. Dr. B. Kanmani)"
                   value={newProctorName}
@@ -926,16 +984,27 @@ export default function AdminXtremePage() {
                   required
                 />
                 <Input
-                  placeholder="IEEE Member Number (e.g. 90451234)"
+                  placeholder="IEEE Member Number (e.g. 102196859)"
                   value={newProctorIeee}
                   onChange={(e) => setNewProctorIeee(e.target.value.replace(/\D/g, ''))}
+                  className="text-xs py-2 bg-white"
+                  required
+                />
+                <Input
+                  type="number"
+                  min={1}
+                  max={500}
+                  title="How many squads this proctor takes"
+                  placeholder="Squads (e.g. 20)"
+                  value={newProctorCapacity}
+                  onChange={(e) => setNewProctorCapacity(e.target.value.replace(/\D/g, ''))}
                   className="text-xs py-2 bg-white"
                   required
                 />
                 <button
                   type="submit"
                   disabled={addingProctor || !newProctorName.trim() || !newProctorIeee.trim()}
-                  className="btn btn-primary text-xs font-bold"
+                  className="btn btn-primary text-xs font-bold whitespace-nowrap"
                 >
                   {addingProctor ? <Spinner className="h-3.5 w-3.5" /> : <><Plus className="h-3.5 w-3.5" /> Add Proctor</>}
                 </button>
@@ -952,32 +1021,90 @@ export default function AdminXtremePage() {
                 <table className="w-full text-left text-xs">
                   <thead className="bg-paper border-b border-line text-muted uppercase font-semibold">
                     <tr>
+                      <th className="px-4 py-3">Queue</th>
                       <th className="px-4 py-3">Proctor Name</th>
                       <th className="px-4 py-3">IEEE Member ID</th>
-                      <th className="px-4 py-3">Assigned Squads (Max 20)</th>
+                      <th className="px-4 py-3">Assigned Squads</th>
                       <th className="px-4 py-3 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-line bg-white">
-                    {proctors.map((proc) => {
+                    {sortProctorsByQueue(proctors).map((proc, qi) => {
                       const count = proc.assigned_count ?? 0;
-                      const isFull = count >= 20;
+                      const cap = proctorCapacity(proc);
+                      const isFull = count >= cap;
+                      const isEditing = editingCapId === proc.id;
                       return (
                         <tr key={proc.id} className="hover:bg-paper/40">
+                          <td className="px-4 py-3">
+                            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-navy/10 text-[11px] font-bold text-brand-navy">
+                              {qi + 1}
+                            </span>
+                          </td>
                           <td className="px-4 py-3 font-bold text-ink">{proc.name}</td>
                           <td className="px-4 py-3 font-mono text-muted">{proc.ieee_id}</td>
                           <td className="px-4 py-3">
-                            <span
-                              className={`badge text-xs font-semibold ${
-                                isFull
-                                  ? 'bg-red-50 text-red-700'
-                                  : count >= 15
-                                  ? 'bg-amber-50 text-amber-800'
-                                  : 'bg-emerald-50 text-emerald-800'
-                              }`}
-                            >
-                              {count} / 20 squads {isFull ? '(FULL)' : ''}
-                            </span>
+                            {isEditing ? (
+                              <span className="inline-flex items-center gap-1.5">
+                                <span className="font-semibold text-ink">{count} /</span>
+                                <input
+                                  type="number"
+                                  min={1}
+                                  max={500}
+                                  value={editingCapValue}
+                                  onChange={(e) => setEditingCapValue(e.target.value.replace(/\D/g, ''))}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') handleUpdateCapacity(proc.id);
+                                    if (e.key === 'Escape') setEditingCapId(null);
+                                  }}
+                                  className="input w-16 px-2 py-1 text-xs"
+                                  aria-label={`Squad limit for ${proc.name}`}
+                                  autoFocus
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleUpdateCapacity(proc.id)}
+                                  disabled={savingCap}
+                                  className="p-1 text-emerald-700 hover:bg-emerald-50 rounded transition"
+                                  title="Save squad limit"
+                                >
+                                  {savingCap ? <Spinner className="h-3.5 w-3.5" /> : <Check className="h-3.5 w-3.5" />}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingCapId(null)}
+                                  className="p-1 text-muted hover:bg-paper rounded transition"
+                                  title="Cancel"
+                                >
+                                  ✕
+                                </button>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5">
+                                <span
+                                  className={`badge text-xs font-semibold ${
+                                    isFull
+                                      ? 'bg-red-50 text-red-700'
+                                      : count >= cap - 5
+                                      ? 'bg-amber-50 text-amber-800'
+                                      : 'bg-emerald-50 text-emerald-800'
+                                  }`}
+                                >
+                                  {count} / {cap} squads {isFull ? '(FULL)' : ''}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingCapId(proc.id);
+                                    setEditingCapValue(String(cap));
+                                  }}
+                                  className="p-1 text-muted hover:bg-paper rounded transition"
+                                  title="Edit squad limit"
+                                >
+                                  <Edit2 className="h-3.5 w-3.5" />
+                                </button>
+                              </span>
+                            )}
                           </td>
                           <td className="px-4 py-3 text-right">
                             <button
@@ -1227,7 +1354,7 @@ export default function AdminXtremePage() {
                 <span>Assign Faculty Proctor</span>
               </div>
               <p className="text-[11px] text-ink-soft">
-                Select an authorized faculty proctor from the directory. The maximum capacity is 20 squads per proctor.
+                Select an authorized faculty proctor from the directory. Proctors at their squad limit are disabled.
               </p>
 
               <Field label="Selected Proctor" htmlFor="modal_proc_select">
@@ -1243,12 +1370,13 @@ export default function AdminXtremePage() {
                   className="input text-xs py-2 w-full bg-white"
                 >
                   <option value="">(No Proctor Assigned)</option>
-                  {proctors.map((proc) => {
+                  {sortProctorsByQueue(proctors).map((proc, qi) => {
                     const count = proc.assigned_count ?? 0;
-                    const isFull = count >= 20 && proc.id !== editingTeam.proctor_id;
+                    const cap = proctorCapacity(proc);
+                    const isFull = count >= cap && proc.id !== editingTeam.proctor_id;
                     return (
                       <option key={proc.id} value={proc.id} disabled={isFull}>
-                        {proc.name} (IEEE ID: {proc.ieee_id}) — {count}/20 squads {isFull ? '[CAPACITY FULL]' : ''}
+                        #{qi + 1} {proc.name} (IEEE ID: {proc.ieee_id}) — {count}/{cap} squads {isFull ? '[CAPACITY FULL]' : ''}
                       </option>
                     );
                   })}
@@ -1363,12 +1491,13 @@ export default function AdminXtremePage() {
                   className="input text-xs py-2 w-full bg-white"
                 >
                   <option value="">(No Proctor Assigned)</option>
-                  {proctors.map((proc) => {
+                  {sortProctorsByQueue(proctors).map((proc, qi) => {
                     const count = proc.assigned_count ?? 0;
-                    const isFull = count >= 20;
+                    const cap = proctorCapacity(proc);
+                    const isFull = count >= cap;
                     return (
                       <option key={proc.id} value={proc.id} disabled={isFull}>
-                        {proc.name} (IEEE ID: {proc.ieee_id}) — {count}/20 {isFull ? '[FULL]' : ''}
+                        #{qi + 1} {proc.name} (IEEE ID: {proc.ieee_id}) — {count}/{cap} {isFull ? '[FULL]' : ''}
                       </option>
                     );
                   })}
@@ -1608,7 +1737,7 @@ export default function AdminXtremePage() {
               <p className="font-semibold text-ink">Expected format (header row optional):</p>
               <code className="block bg-white p-2 rounded border border-line font-mono text-[10px] overflow-x-auto whitespace-pre">
                 team_name, lead_name, lead_phone, lead_email, lead_ieee_id, proctor_ieee_id, mate1_name, mate1_phone, mate1_email, mate1_ieee_id, mate2_name, mate2_phone, mate2_email, mate2_ieee_id{'\n'}
-                BitShifters, Rohan Sharma, +919845012345, rohan@bmsce.ac.in, 98451201, 90451234, Diya Iyer, +919845012346, diya@bmsce.ac.in, 98451202, , , ,
+                BitShifters, Rohan Sharma, +919845012345, rohan@bmsce.ac.in, 98451201, 102196859, Diya Iyer, +919845012346, diya@bmsce.ac.in, 98451202, , , ,
               </code>
             </div>
 
@@ -1627,7 +1756,7 @@ export default function AdminXtremePage() {
                 rows={4}
                 value={bulkText}
                 onChange={(e) => setBulkText(e.target.value)}
-                placeholder="BitShifters, Rohan Sharma, 9845012345, rohan@bmsce.ac.in, 98451201, 90451234..."
+                placeholder="BitShifters, Rohan Sharma, 9845012345, rohan@bmsce.ac.in, 98451201, 102196859..."
                 className="input font-mono text-[11px] py-2 w-full"
               />
             </div>

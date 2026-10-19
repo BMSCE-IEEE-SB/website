@@ -162,16 +162,18 @@ Manage access privileges for the executive committee:
 The IEEEXtreme module provides centralized management for all teams participating in the global 24-hour hackathon from BMSCE:
 
 ### 1. Key Responsibilities
-- **Proctor Directory & Capacity Enforcement**: Register authorized BMSCE faculty proctors (Faculty Name and IEEE Member Number). Each proctor strictly accommodates up to **20 squads**. Proctors are assigned sequentially in order of creation and concurrency locks in the database prevent over-subscription.
+- **Proctor Directory & Capacity Enforcement**: Register authorized BMSCE faculty proctors (Faculty Name, IEEE Member Number, and how many squads they take). New squads fill proctors strictly in queue order (#1 first, e.g. Swaroop BM takes the first 15, then Nethravathi S takes the next 20). Concurrency locks in the database prevent over-subscription.
 - **Organizer Squad Creation & Bulk Import**: Organizers can create squads directly with or without teammates. Organizer-created teams begin in an unclaimed state and are automatically linked to the leader upon signing in with their verified email.
 - **Participant Team Dashboard**: Team leads access their assigned squad at `/ieeextreme/team` to review their roster, view assigned proctor details, and lock their registration once completed on vTools.
 - **Monitoring vTools Registration**: Track which squads have completed registration on the official global portal (`https://xtreme.vtools.ieee.org/`).
 - **Campus Logistics**: Access USN, department, phone, and year of study for all participants to coordinate overnight laboratory seating, campus security permissions, and meals.
 
-### 2. Managed Faculty Proctors & 20-Team Limit
+### 2. Managed Faculty Proctors & Squad Limits
 - Expand the **"Managed Faculty Proctors"** section at the top of the page.
+- When adding a proctor, set **how many squads** they take (e.g. 15). New proctors join the end of the fill queue automatically.
+- Squad limits can be raised or lowered later with the edit icon next to each count; existing assignments are always kept.
 - Add new proctors with full name and global IEEE Member ID.
-- The system tracks live squad assignments (e.g., `14 / 20 squads`). Proctors reaching 20 squads are marked `[FULL]` and automatically excluded from further auto-assignments and creation dropdowns.
+- The system tracks live squad assignments (e.g., `14 / 15 squads`). Proctors reaching their limit are marked `[FULL]` and automatically excluded from further auto-assignments and creation dropdowns.
 - Deleting a proctor safely unassigns any assigned squads back to `Pending Proctor`.
 
 ### 3. Squad Creation & Bulk Import
@@ -185,7 +187,7 @@ The IEEEXtreme module provides centralized management for all teams participatin
 
 ### 4. Team Actions & Proctor Reassignment
 - Click **"Edit / Proctor"** on any squad row to:
-  - Reassign to any proctor with available capacity (< 20) via dropdown, or select `(No Proctor Assigned)` to unassign.
+  - Reassign to any proctor with available capacity (below their squad limit) via dropdown, or select `(No Proctor Assigned)` to unassign.
   - Review all members (Lead + Teammates).
   - Add private **Admin Notes** (e.g., specific lab room assignments or hardware needs).
   - Manually toggle **vTools Verified** status to lock or unlock a team.
@@ -211,6 +213,7 @@ Students who registered in past years or through offline drives may not yet have
 The IEEEXtreme schema is stored across two isolated migrations:
 1. `supabase/migrations/20261016140000_ieeextreme_tables.sql`: Base tables (`ieee_member_2026`, `xtreme_teams`, `xtreme_members`), RLS policies, and save RPC.
 2. `supabase/migrations/20261019120000_xtreme_proctors_and_ownership.sql`: Managed proctors table (`xtreme_proctors`), nullable team ownership with auto-claim by verified email, and concurrency-safe proctor capacity enforcement RPCs.
+3. `supabase/migrations/20261019170000_xtreme_proctor_capacity_queue.sql`: Per-proctor squad caps, sequential fill queue, and the live proctor seeds.
 
 ---
 

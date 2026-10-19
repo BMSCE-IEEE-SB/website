@@ -1,6 +1,6 @@
 import { getAdminServiceClient, jsonError, requireAdmin } from '@/lib/server/supabase-admin';
 import { isSupabaseConfigured } from '@/lib/supabase';
-import { deleteLocalXtremeTeam, getLocalXtremeProctors, updateLocalXtremeTeam, type XtremeTeam } from '@/lib/xtreme';
+import { deleteLocalXtremeTeam, getLocalXtremeProctors, proctorCapacity, updateLocalXtremeTeam, type XtremeTeam } from '@/lib/xtreme';
 
 export const runtime = 'nodejs';
 
@@ -33,8 +33,9 @@ export async function PATCH(request: Request, context: { params: Promise<{ id: s
         const proctors = getLocalXtremeProctors();
         const proc = proctors.find((p) => p.id === body.proctor_id);
         if (!proc) return jsonError('Proctor not found.', 404);
-        if ((proc.assigned_count ?? 0) >= 20) {
-          return jsonError(`Proctor "${proc.name}" already has 20 teams assigned.`, 400);
+        const cap = proctorCapacity(proc);
+        if ((proc.assigned_count ?? 0) >= cap) {
+          return jsonError(`Proctor "${proc.name}" already has ${cap} squads assigned.`, 400);
         }
         patch.proctor_id = proc.id;
         patch.proctor_name = proc.name;

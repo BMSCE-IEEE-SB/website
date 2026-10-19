@@ -232,7 +232,9 @@ describe('SAC Role & Membership Permissions', () => {
           if (table === 'xtreme_proctors') {
             return {
               select: () => ({
-                order: () => Promise.resolve({ data: [{ id: 'p1', name: 'Dr. Proctor', ieee_id: '99999999' }], error: null }),
+                order: () => ({
+                  order: () => Promise.resolve({ data: [{ id: 'p1', name: 'Dr. Proctor', ieee_id: '99999999' }], error: null }),
+                }),
               }),
             };
           }

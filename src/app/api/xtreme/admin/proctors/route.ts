@@ -1,6 +1,6 @@
 import { getAdminServiceClient, jsonError, requireAdmin } from '@/lib/server/supabase-admin';
 import { isSupabaseConfigured } from '@/lib/supabase';
-import { getLocalXtremeProctors, saveLocalXtremeProctor } from '@/lib/xtreme';
+import { DEFAULT_PROCTOR_CAPACITY, getLocalXtremeProctors, saveLocalXtremeProctor } from '@/lib/xtreme';
 
 export const runtime = 'nodejs';
 
@@ -20,7 +20,8 @@ export async function GET(request: Request) {
 
     const { data: proctors, error } = await client
       .from('xtreme_proctors')
-      .select('id, name, ieee_id, created_at')
+      .select('id, name, ieee_id, capacity, sort_order, created_at')
+      .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true });
 
     if (error) throw error;
@@ -58,6 +59,9 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const name = typeof body?.name === 'string' ? body.name.trim() : '';
   const ieee_id = typeof body?.ieee_id === 'string' ? body.ieee_id.trim() : '';
+  const capacity = body?.capacity === undefined || body?.capacity === null || body?.capacity === ''
+    ? DEFAULT_PROCTOR_CAPACITY
+    : Number(body.capacity);
 
   if (!name || name.length < 2) {
     return jsonError('Proctor name is required (minimum 2 characters).', 400);
@@ -67,11 +71,19 @@ export async function POST(request: Request) {
     return jsonError('A valid IEEE Member ID (5-15 digits) is required for the proctor.', 400);
   }
 
+  if (!Number.isInteger(capacity) || capacity < 1 || capacity > 500) {
+    return jsonError('Squad capacity must be a whole number between 1 and 500.', 400);
+  }
+
   if (!isSupabaseConfigured()) {
+    const existingProctors = getLocalXtremeProctors();
+    const nextOrder = existingProctors.reduce((m, p) => Math.max(m, p.sort_order ?? 0), 0) + 1;
     const newProctor = {
       id: `proc-demo-${Date.now()}`,
       name,
       ieee_id,
+      capacity,
+      sort_order: nextOrder,
       created_at: new Date().toISOString(),
       assigned_count: 0,
     };
@@ -93,10 +105,18 @@ export async function POST(request: Request) {
       return jsonError(`A proctor with IEEE Member ID "${ieee_id}" already exists.`, 409);
     }
 
+    // New proctors join the end of the fill queue
+    const { data: lastInQueue } = await client
+      .from('xtreme_proctors')
+      .select('sort_order')
+      .order('sort_order', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
     const { data: proctor, error } = await client
       .from('xtreme_proctors')
-      .insert({ name, ieee_id })
-      .select('id, name, ieee_id, created_at')
+      .insert({ name, ieee_id, capacity, sort_order: (lastInQueue?.sort_order ?? 0) + 10 })
+      .select('id, name, ieee_id, capacity, sort_order, created_at')
       .single();
 
     if (error) throw error;

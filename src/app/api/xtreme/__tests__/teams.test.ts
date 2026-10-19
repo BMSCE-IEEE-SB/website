@@ -104,7 +104,7 @@ describe('Xtreme Teams API & Ownership Workflow', () => {
       expect(data.team.proctor_name).toBe('Dr. Kumar');
     });
 
-    it('rejects team creation if proctor has reached 20 teams capacity', async () => {
+    it('rejects team creation if proctor has reached its squad capacity', async () => {
       vi.mocked(requireAdmin).mockResolvedValue({ id: 'admin-1', email: 'admin@bmsce.ac.in' });
 
       const mockCreatedTeam = {
@@ -154,7 +154,7 @@ describe('Xtreme Teams API & Ownership Workflow', () => {
           if (fnName === 'assign_proctor_to_team') {
             return Promise.resolve({
               data: null,
-              error: { message: 'Proctor "Dr. Kumar" already has 20 teams assigned.' },
+              error: { message: 'Proctor "Swaroop BM" (102196859) already has 15 squads assigned.' },
             });
           }
           return Promise.resolve({ data: null, error: null });
@@ -178,7 +178,7 @@ describe('Xtreme Teams API & Ownership Workflow', () => {
 
       expect(res.status).toBe(400);
       const data = await res.json();
-      expect(data.error).toContain('already has 20 teams assigned');
+      expect(data.error).toContain('already has 15 squads assigned');
     });
   });
 

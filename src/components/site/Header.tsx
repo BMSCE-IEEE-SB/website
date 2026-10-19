@@ -11,6 +11,7 @@ import { clearUserSession } from '@/lib/auth';
 import { useSession } from '@/lib/useSession';
 import { cn } from '@/lib/utils';
 import { REGISTRATION_ONLY_MODE } from '@/config/temporary-launch';
+import { MEMBERSHIP_DRIVE_OPEN, primaryJoinCta } from '@/config/membership';
 
 function initialsOf(name?: string, email?: string) {
   const src = name || email || '?';
@@ -42,7 +43,7 @@ export default function Header() {
 
   const isAdmin = pathname?.startsWith('/admin');
   const isHome = pathname === '/';
-  const transparentTop = pathname === '/' || pathname === '/membership';
+  const transparentTop = pathname === '/' || pathname === '/membership' || pathname === '/ieeextreme' || pathname === '/xtreme';
 
   const isRestricted = REGISTRATION_ONLY_MODE && !isLocalhost;
 
@@ -263,6 +264,9 @@ export default function Header() {
                           <Link href="/account" onClick={close} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-paper">
                             <User className="h-4 w-4" /> Member portal
                           </Link>
+                          <Link href="/ieeextreme/register" onClick={close} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium hover:bg-paper text-brand-orange">
+                            <Sparkles className="h-4 w-4" /> IEEEXtreme 20.0 Team
+                          </Link>
                           <button type="button" onClick={signOut} className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50">
                             <LogOut className="h-4 w-4" /> Sign out
                           </button>
@@ -273,11 +277,16 @@ export default function Header() {
                 ) : (
                   <Link href="/login" className="btn text-ink-soft hover:text-ink">Member portal</Link>
                 )}
-                {!signedIn && (
-                  <Link href="/membership/register" className="btn btn-primary">
-                    Become a member <ArrowRight className="h-4 w-4" />
-                  </Link>
-                )}
+                {!signedIn &&
+                  (MEMBERSHIP_DRIVE_OPEN ? (
+                    <Link href="/membership/register" className="btn btn-primary">
+                      Become a member <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  ) : (
+                    <Link href={primaryJoinCta().href} className="btn btn-primary">
+                      <Sparkles className="h-4 w-4" /> {primaryJoinCta().label}
+                    </Link>
+                  ))}
               </>
             )}
           </div>
@@ -364,15 +373,24 @@ export default function Header() {
                       <Link href="/account" onClick={close} className="btn btn-dark btn-lg w-full">
                         <User className="h-4 w-4" /> Member portal
                       </Link>
+                      <Link href="/ieeextreme/register" onClick={close} className="btn btn-primary btn-lg w-full">
+                        <Sparkles className="h-4 w-4" /> IEEEXtreme 20.0 Team
+                      </Link>
                       <button type="button" onClick={signOut} className="btn btn-ghost btn-lg w-full text-red-600">
                         <LogOut className="h-4 w-4" /> Sign out
                       </button>
                     </>
                   ) : (
                     <>
-                      <Link href="/membership/register" onClick={close} className="btn btn-primary btn-lg w-full">
-                        Become a member <ArrowRight className="h-4 w-4" />
-                      </Link>
+                      {MEMBERSHIP_DRIVE_OPEN ? (
+                        <Link href="/membership/register" onClick={close} className="btn btn-primary btn-lg w-full">
+                          Become a member <ArrowRight className="h-4 w-4" />
+                        </Link>
+                      ) : (
+                        <Link href={primaryJoinCta().href} onClick={close} className="btn btn-primary btn-lg w-full">
+                          <Sparkles className="h-4 w-4" /> {primaryJoinCta().label}
+                        </Link>
+                      )}
                       <Link href="/login" onClick={close} className="btn btn-ghost btn-lg w-full">
                         Member portal sign in
                       </Link>

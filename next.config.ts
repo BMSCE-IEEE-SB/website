@@ -29,6 +29,16 @@ const nextConfig: NextConfig = {
         destination: '/chapters/pels-ies',
         permanent: true,
       },
+      {
+        source: '/xtreme',
+        destination: '/ieeextreme',
+        permanent: true,
+      },
+      {
+        source: '/xtreme/:path*',
+        destination: '/ieeextreme/:path*',
+        permanent: true,
+      },
     ];
   },
 };

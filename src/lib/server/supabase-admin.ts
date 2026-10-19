@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { isSupabaseConfigured } from '@/lib/supabase';
 
-type AdminIdentity = { id: string; email: string };
+export type AdminIdentity = { id: string; email: string; role?: string };
 type AuthIdentity = { id: string; email: string };
 
 let adminClient: SupabaseClient | null = null;
@@ -18,6 +18,11 @@ export function getAdminServiceClient() {
   return adminClient;
 }
 
+export function canModifyMembership(admin: AdminIdentity | null): boolean {
+  if (!admin) return false;
+  return (admin.role ?? 'admin').toLowerCase() !== 'sac';
+}
+
 export async function requireAdmin(request: Request): Promise<AdminIdentity | null> {
   const token = request.headers.get('authorization')?.match(/^Bearer\s+(.+)$/i)?.[1];
   if (!token || !isSupabaseConfigured() || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || !process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
@@ -29,12 +34,25 @@ export async function requireAdmin(request: Request): Promise<AdminIdentity | nu
     const { data, error } = await authClient.auth.getUser(token);
     if (error || !data.user?.email) return null;
 
-    const { data: admin, error: adminError } = await getAdminServiceClient()
+    const serviceClient = getAdminServiceClient();
+    const { data: admin, error: adminError } = await serviceClient
       .from('admins')
-      .select('id')
+      .select('id, role')
       .eq('id', data.user.id)
       .maybeSingle();
-    return adminError || !admin ? null : { id: data.user.id, email: data.user.email };
+    if (adminError || !admin) return null;
+
+    let role = admin.role;
+    if (!role || role === 'admin') {
+      const { data: wl } = await serviceClient
+        .from('admin_whitelist')
+        .select('role')
+        .ilike('email', data.user.email)
+        .maybeSingle();
+      if (wl?.role) role = wl.role;
+    }
+
+    return { id: data.user.id, email: data.user.email, role: role || 'admin' };
   } catch {
     return null;
   }

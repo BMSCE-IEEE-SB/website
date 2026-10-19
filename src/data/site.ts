@@ -21,6 +21,7 @@ export const contactInfo = {
 export const navItems = [
   { label: 'About', href: '/#about', id: 'about' },
   { label: 'Chapters', href: '/#chapters', id: 'chapters' },
+  { label: 'IEEEXtreme 20.0', href: '/ieeextreme', id: 'ieeextreme' },
   { label: 'Team', href: '/#team', id: 'team' },
   { label: 'Contact', href: '/#contact', id: 'contact' },
 ];

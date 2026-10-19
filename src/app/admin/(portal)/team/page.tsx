@@ -20,6 +20,7 @@ const roles = [
   { value: 'vice-chair', label: 'Vice Chair' },
   { value: 'treasurer', label: 'Branch Treasurer (Dues & Finance)' },
   { value: 'secretary', label: 'Branch Secretary' },
+  { value: 'sac', label: 'SAC (Student Activities Committee)' },
   { value: 'admin', label: 'Executive Committee Member' },
 ];
 
@@ -27,6 +28,7 @@ export default function AdminTeamPage() {
   const router = useRouter();
   const demo = isDemoMode();
   const [adminEmail, setAdminEmail] = useState('');
+  const [currentRole, setCurrentRole] = useState('admin');
   const [whitelist, setWhitelist] = useState<AdminWhitelistEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -67,6 +69,7 @@ export default function AdminTeamPage() {
         return;
       }
       setAdminEmail(admin.email);
+      setCurrentRole(admin.role || 'admin');
       await load();
       setIsLoading(false);
     })();
@@ -122,6 +125,8 @@ export default function AdminTeamPage() {
 
   if (isLoading) return <PageLoader />;
 
+  const isSac = currentRole.toLowerCase() === 'sac';
+
   return (
     <div className="pb-10 max-w-5xl">
       <div>
@@ -131,51 +136,62 @@ export default function AdminTeamPage() {
         </p>
       </div>
 
-        {/* 1. Add New Admin */}
-        <form onSubmit={handleAddAdmin} className="panel mt-8 p-6 sm:p-8 space-y-6">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-brand-sky">
-              <UserCheck className="h-5 w-5" />
-            </span>
-            <div>
-              <h2 className="text-lg font-bold">Authorize New Administrator</h2>
-              <p className="text-xs text-muted">Pre-approved emails will automatically receive admin rights upon sign-in</p>
-            </div>
+      {isSac && (
+        <div className="mt-6 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-xs text-amber-900 flex items-start gap-2.5">
+          <ShieldAlert className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+          <p>
+            <strong>SAC Role Notice:</strong> Administrator team access and whitelist management are restricted to executive committee members.
+          </p>
+        </div>
+      )}
+
+      {/* 1. Add New Admin */}
+      <form onSubmit={handleAddAdmin} className="panel mt-8 p-6 sm:p-8 space-y-6">
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-brand-sky">
+            <UserCheck className="h-5 w-5" />
+          </span>
+          <div>
+            <h2 className="text-lg font-bold">Authorize New Administrator</h2>
+            <p className="text-xs text-muted">Pre-approved emails will automatically receive admin rights upon sign-in</p>
           </div>
+        </div>
 
-          <div className="grid gap-6 sm:grid-cols-[1fr_240px_auto] sm:items-end">
-            <Field label="Institutional or Executive Email" htmlFor="new-admin-email" required>
-              <Input
-                id="new-admin-email"
-                type="email"
-                icon={Mail}
-                required
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                placeholder="executive.dept@bmsce.ac.in"
-              />
-            </Field>
+        <div className="grid gap-6 sm:grid-cols-[1fr_240px_auto] sm:items-end">
+          <Field label="Institutional or Executive Email" htmlFor="new-admin-email" required>
+            <Input
+              id="new-admin-email"
+              type="email"
+              icon={Mail}
+              required
+              disabled={isSac}
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              placeholder="executive.dept@bmsce.ac.in"
+            />
+          </Field>
 
-            <Field label="Designated Role" htmlFor="new-admin-role" required>
-              <Select
-                id="new-admin-role"
-                value={newRole}
-                onChange={(e) => setNewRole(e.target.value)}
-              >
-                {roles.map((r) => (
-                  <option key={r.value} value={r.value}>
-                    {r.label}
-                  </option>
-                ))}
-              </Select>
-            </Field>
+          <Field label="Designated Role" htmlFor="new-admin-role" required>
+            <Select
+              id="new-admin-role"
+              value={newRole}
+              disabled={isSac}
+              onChange={(e) => setNewRole(e.target.value)}
+            >
+              {roles.map((r) => (
+                <option key={r.value} value={r.value}>
+                  {r.label}
+                </option>
+              ))}
+            </Select>
+          </Field>
 
-            <button type="submit" disabled={isSubmitting} className="btn btn-dark sm:mb-0.5">
-              {isSubmitting ? <Spinner /> : <Plus className="h-4 w-4" />}
-              Authorize Email
-            </button>
-          </div>
-        </form>
+          <button type="submit" disabled={isSubmitting || isSac} className="btn btn-dark sm:mb-0.5">
+            {isSubmitting ? <Spinner /> : <Plus className="h-4 w-4" />}
+            Authorize Email
+          </button>
+        </div>
+      </form>
 
         {/* 2. Whitelist Ledger */}
         <div className="panel mt-8 p-6 sm:p-8">
@@ -204,7 +220,7 @@ export default function AdminTeamPage() {
                       )}
                     </div>
                     <p className="mt-0.5 text-xs text-muted capitalize">
-                      Role: {roles.find((r) => r.value === item.role)?.label ?? item.role}
+                      Role: {roles.find((r) => r.value.toLowerCase() === (item.role || '').toLowerCase())?.label ?? item.role}
                       {item.created_at && ` · Added ${new Date(item.created_at).toLocaleDateString()}`}
                     </p>
                   </div>
@@ -212,15 +228,15 @@ export default function AdminTeamPage() {
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      disabled={isCurrent || deletingEmail === item.email}
+                      disabled={isSac || isCurrent || deletingEmail === item.email}
                       onClick={() => handleRemoveAdmin(item.email)}
                       className={cn(
                         'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
-                        isCurrent
+                        isSac || isCurrent
                           ? 'opacity-40 cursor-not-allowed text-muted'
                           : 'text-red-600 hover:bg-red-50',
                       )}
-                      title={isCurrent ? 'You cannot remove your own active account' : 'Revoke admin access'}
+                      title={isSac ? 'SAC role cannot revoke administrators' : isCurrent ? 'You cannot remove your own active account' : 'Revoke admin access'}
                     >
                       {deletingEmail === item.email ? <Spinner className="h-3.5 w-3.5" /> : <Trash2 className="h-3.5 w-3.5" />}
                       <span>Revoke Access</span>

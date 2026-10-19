@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
-import { Activity, ClipboardCheck, ExternalLink, LayoutDashboard, LogOut, Megaphone, Settings, ShieldCheck, Users } from 'lucide-react';
+import { Activity, ClipboardCheck, ExternalLink, LayoutDashboard, LogOut, Megaphone, Settings, ShieldCheck, Trophy, Users } from 'lucide-react';
 import { AdminProvider, useAdmin } from '@/components/admin/AdminContext';
 import { clearAdminSession } from '@/lib/auth';
 import { isDemoMode } from '@/lib/supabase';
@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 const nav = [
   { href: '/admin', label: 'Overview', icon: LayoutDashboard },
   { href: '/admin/orders', label: 'Applications', icon: ClipboardCheck, badge: 'pending' as const },
+  { href: '/admin/xtreme', label: 'IEEEXtreme 20.0', icon: Trophy },
   { href: '/admin/members', label: 'Members', icon: Users },
   { href: '/admin/announcement', label: 'Announcement', icon: Megaphone },
   { href: '/admin/team', label: 'Team access', icon: ShieldCheck },
@@ -41,7 +42,12 @@ function Sidebar() {
           <div className="rounded-2xl bg-ink p-4 text-white">
             <p className="text-xs text-white/55">Signed in as</p>
             <p className="mt-0.5 truncate text-sm font-semibold">{admin.email}</p>
-            {isDemoMode() && <span className="mt-2 inline-block rounded-full bg-brand-orange/20 px-2 py-0.5 text-[11px] font-semibold text-brand-orange">Demo mode · sample data</span>}
+            {admin.role && (
+              <span className="mt-2 inline-block rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-white/85">
+                {admin.role === 'sac' ? 'Role: SAC (IEEEXtreme)' : `Role: ${admin.role}`}
+              </span>
+            )}
+            {isDemoMode() && <span className="mt-1.5 block rounded-full bg-brand-orange/20 px-2 py-0.5 text-[11px] font-semibold text-brand-orange">Demo mode · sample data</span>}
           </div>
           <nav className="space-y-1" aria-label="Admin">
             {nav.map((n) => {

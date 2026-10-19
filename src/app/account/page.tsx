@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, ArrowUpRight, Check, Clock, Layers, LogOut, Pencil, Plus, RefreshCw, X } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Check, Clock, Layers, LogOut, Pencil, Plus, RefreshCw, Trophy, X } from 'lucide-react';
+import { MEMBERSHIP_DRIVE_OPEN, MEMBERSHIP_DRIVE_YEAR } from '@/config/membership';
 import { isDemoMode, supabase } from '@/lib/supabase';
 import {
   clearUserSession,
@@ -225,11 +226,18 @@ export default function AccountPage() {
                   </div>
                 )}
               </>
-            ) : (
+            ) : MEMBERSHIP_DRIVE_OPEN ? (
               <div className="mt-6 rounded-2xl bg-paper p-6">
                 <p className="text-ink-soft">You haven&apos;t submitted a membership application yet. Pick up where you left off.</p>
                 <Link href={profile ? '/membership/chapters' : '/membership/profile'} className="btn btn-primary mt-5">
                   Continue registration <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            ) : (
+              <div className="mt-6 rounded-2xl bg-paper p-6">
+                <p className="text-ink-soft">The {MEMBERSHIP_DRIVE_YEAR} membership drive has ended, so new applications are closed for now. Meanwhile, squads are forming for IEEEXtreme 20.0.</p>
+                <Link href="/ieeextreme" className="btn btn-primary mt-5">
+                  Explore IEEEXtreme 20.0 <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             )}
@@ -238,10 +246,16 @@ export default function AccountPage() {
 
         {/* Quick links */}
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
-          {[
-            { href: '/membership', icon: Plus, title: 'Add chapters', text: 'Start a new application with more chapters.' },
-            { href: '/#chapters', icon: Layers, title: 'Explore chapters', text: 'See what each community is working on.' },
-          ].map((q) => (
+          {(MEMBERSHIP_DRIVE_OPEN
+            ? [
+                { href: '/membership', icon: Plus, title: 'Add chapters', text: 'Start a new application with more chapters.' },
+                { href: '/#chapters', icon: Layers, title: 'Explore chapters', text: 'See what each community is working on.' },
+              ]
+            : [
+                { href: '/ieeextreme', icon: Trophy, title: 'IEEEXtreme 20.0', text: 'Register your squad for the 24-hour competition.' },
+                { href: '/#chapters', icon: Layers, title: 'Explore chapters', text: 'See what each community is working on.' },
+              ]
+          ).map((q) => (
             <Link key={q.title} href={q.href} className="group panel flex items-start gap-4 p-5 transition-transform hover:-translate-y-1">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-paper text-brand-orange transition-colors group-hover:bg-brand-orange group-hover:text-white">
                 <q.icon className="h-5 w-5" />

@@ -12,6 +12,7 @@ import { useSession } from '@/lib/useSession';
 import { cn } from '@/lib/utils';
 import { REGISTRATION_ONLY_MODE } from '@/config/temporary-launch';
 import { MEMBERSHIP_DRIVE_OPEN, primaryJoinCta } from '@/config/membership';
+import { loadDriveStatus } from '@/lib/pricing';
 
 function initialsOf(name?: string, email?: string) {
   const src = name || email || '?';
@@ -28,6 +29,19 @@ export default function Header() {
   const router = useRouter();
   const { user, name } = useSession();
   const [open, setOpen] = useState(false);
+  const [driveOpen, setDriveOpen] = useState(MEMBERSHIP_DRIVE_OPEN);
+
+  useEffect(() => {
+    let alive = true;
+    loadDriveStatus()
+      .then((status) => {
+        if (alive) setDriveOpen(status);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [menu, setMenu] = useState<'chapters' | 'account' | null>(null);
@@ -38,6 +52,7 @@ export default function Header() {
     return h === 'localhost' || h === '127.0.0.1' || h === '::1';
   });
   const [notice, setNotice] = useState<string | null>(null);
+  const [topOffset, setTopOffset] = useState(64);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const headerRef = useRef<HTMLElement>(null);
 
@@ -93,22 +108,57 @@ export default function Header() {
   }, [open]);
 
   useEffect(() => {
-    if (!menu) return;
+    if (!open) return;
+    const onResize = () => {
+      if (window.innerWidth >= 1024) {
+        setOpen(false);
+        return;
+      }
+      if (headerRef.current) {
+        setTopOffset(headerRef.current.getBoundingClientRect().bottom);
+      }
+    };
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [open]);
+
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
+    setOpen(false);
+    setMenu(null);
+  }
+
+  useEffect(() => {
+    if (!menu && !open) return;
     const onDown = (e: PointerEvent) => {
       if (!headerRef.current?.contains(e.target as Node)) setMenu(null);
     };
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenu(null);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMenu(null);
+        setOpen(false);
+      }
+    };
     document.addEventListener('pointerdown', onDown);
     document.addEventListener('keydown', onKey);
     return () => {
       document.removeEventListener('pointerdown', onDown);
       document.removeEventListener('keydown', onKey);
     };
-  }, [menu]);
+  }, [menu, open]);
 
   const close = () => {
     setOpen(false);
     setMenu(null);
+  };
+
+  const toggleOpen = () => {
+    if (!open && headerRef.current) {
+      setTopOffset(headerRef.current.getBoundingClientRect().bottom);
+    }
+    setOpen((v) => !v);
   };
 
   const signOut = async () => {
@@ -278,13 +328,13 @@ export default function Header() {
                   <Link href="/login" className="btn text-ink-soft hover:text-ink">Member portal</Link>
                 )}
                 {!signedIn &&
-                  (MEMBERSHIP_DRIVE_OPEN ? (
+                  (driveOpen ? (
                     <Link href="/membership/register" className="btn btn-primary">
                       Become a member <ArrowRight className="h-4 w-4" />
                     </Link>
                   ) : (
-                    <Link href={primaryJoinCta().href} className="btn btn-primary">
-                      <Sparkles className="h-4 w-4" /> {primaryJoinCta().label}
+                    <Link href={primaryJoinCta(driveOpen).href} className="btn btn-primary">
+                      <Sparkles className="h-4 w-4" /> {primaryJoinCta(driveOpen).label}
                     </Link>
                   ))}
               </>
@@ -294,7 +344,7 @@ export default function Header() {
           <button
             type="button"
             className="-mr-2 rounded-full p-2.5 text-ink hover:bg-white lg:hidden"
-            onClick={() => setOpen((v) => !v)}
+            onClick={toggleOpen}
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? 'Close menu' : 'Open menu'}
@@ -302,106 +352,107 @@ export default function Header() {
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
-
-        <AnimatePresence>
-          {open && (
-            <motion.div
-              id="mobile-menu"
-              initial={{ opacity: 0, y: -12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.22 }}
-              className="fixed inset-x-0 top-16 bottom-0 overflow-y-auto bg-paper lg:hidden"
-            >
-              <nav className="container-page flex flex-col pt-2 pb-10" aria-label="Mobile">
-                {!isAdmin &&
-                  navItems.map((item, i) => (
-                    <motion.div key={item.href} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.04 * i }}>
-                      {item.id === 'chapters' ? (
-                        <div className="border-b border-line py-4">
-                          <div className="flex items-center justify-between font-display text-3xl font-extrabold text-ink" style={{ fontStretch: '110%' }}>
-                            <span>{item.label}</span>
-                            {isRestricted && <span className="rounded-full bg-brand-orange/10 px-2.5 py-0.5 text-xs font-semibold text-brand-orange">Coming soon</span>}
-                          </div>
-                          <div className="no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 py-1">
-                            {chapters.map((c) =>
-                              isRestricted ? (
-                                <button
-                                  key={c.slug}
-                                  type="button"
-                                  onClick={() => {
-                                    close();
-                                    showComingSoon(`${c.name} page coming soon! Select this chapter in registration.`);
-                                  }}
-                                  className="shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold text-white"
-                                  style={{ background: c.color }}
-                                >
-                                  {c.code}
-                                </button>
-                              ) : (
-                                <Link key={c.slug} href={`/chapters/${c.slug}`} onClick={close} className="shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold text-white" style={{ background: c.color }}>
-                                  {c.code}
-                                </Link>
-                              ),
-                            )}
-                          </div>
-                        </div>
-                      ) : isRestricted ? (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            close();
-                            showComingSoon(`${item.label} section coming soon! Membership drive 2026 is currently live.`);
-                          }}
-                          className="flex w-full items-center justify-between border-b border-line py-4 text-left font-display text-3xl font-extrabold text-ink"
-                          style={{ fontStretch: '110%' }}
-                        >
-                          {item.label}
-                          <span className="rounded-full bg-brand-orange/10 px-2.5 py-1 text-xs font-semibold text-brand-orange">Coming soon</span>
-                        </button>
-                      ) : (
-                        <Link href={item.href} onClick={close} className="flex items-center justify-between border-b border-line py-4 font-display text-3xl font-extrabold text-ink" style={{ fontStretch: '110%' }}>
-                          {item.label}
-                          <ArrowRight className="h-5 w-5 text-muted" />
-                        </Link>
-                      )}
-                    </motion.div>
-                  ))}
-                <div className="mt-8 flex flex-col gap-3">
-                  {signedIn ? (
-                    <>
-                      <Link href="/account" onClick={close} className="btn btn-dark btn-lg w-full">
-                        <User className="h-4 w-4" /> Member portal
-                      </Link>
-                      <Link href="/ieeextreme/register" onClick={close} className="btn btn-primary btn-lg w-full">
-                        <Sparkles className="h-4 w-4" /> IEEEXtreme 20.0 Team
-                      </Link>
-                      <button type="button" onClick={signOut} className="btn btn-ghost btn-lg w-full text-red-600">
-                        <LogOut className="h-4 w-4" /> Sign out
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      {MEMBERSHIP_DRIVE_OPEN ? (
-                        <Link href="/membership/register" onClick={close} className="btn btn-primary btn-lg w-full">
-                          Become a member <ArrowRight className="h-4 w-4" />
-                        </Link>
-                      ) : (
-                        <Link href={primaryJoinCta().href} onClick={close} className="btn btn-primary btn-lg w-full">
-                          <Sparkles className="h-4 w-4" /> {primaryJoinCta().label}
-                        </Link>
-                      )}
-                      <Link href="/login" onClick={close} className="btn btn-ghost btn-lg w-full">
-                        Member portal sign in
-                      </Link>
-                    </>
-                  )}
-                </div>
-              </nav>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </header>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            id="mobile-menu"
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.22 }}
+            style={{ top: `${topOffset}px` }}
+            className="fixed inset-x-0 bottom-0 z-40 overflow-y-auto bg-paper lg:hidden"
+          >
+            <nav className="container-page flex flex-col pt-2 pb-10" aria-label="Mobile">
+              {!isAdmin &&
+                navItems.map((item, i) => (
+                  <motion.div key={item.href} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.04 * i }}>
+                    {item.id === 'chapters' ? (
+                      <div className="border-b border-line py-4">
+                        <div className="flex items-center justify-between font-display text-3xl font-extrabold text-ink" style={{ fontStretch: '110%' }}>
+                          <span>{item.label}</span>
+                          {isRestricted && <span className="rounded-full bg-brand-orange/10 px-2.5 py-0.5 text-xs font-semibold text-brand-orange">Coming soon</span>}
+                        </div>
+                        <div className="no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 py-1">
+                          {chapters.map((c) =>
+                            isRestricted ? (
+                              <button
+                                key={c.slug}
+                                type="button"
+                                onClick={() => {
+                                  close();
+                                  showComingSoon(`${c.name} page coming soon! Select this chapter in registration.`);
+                                }}
+                                className="shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold text-white"
+                                style={{ background: c.color }}
+                              >
+                                {c.code}
+                              </button>
+                            ) : (
+                              <Link key={c.slug} href={`/chapters/${c.slug}`} onClick={close} className="shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold text-white" style={{ background: c.color }}>
+                                {c.code}
+                              </Link>
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    ) : isRestricted ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          close();
+                          showComingSoon(`${item.label} section coming soon! Membership drive 2026 is currently live.`);
+                        }}
+                        className="flex w-full items-center justify-between border-b border-line py-4 text-left font-display text-3xl font-extrabold text-ink"
+                        style={{ fontStretch: '110%' }}
+                      >
+                        {item.label}
+                        <span className="rounded-full bg-brand-orange/10 px-2.5 py-1 text-xs font-semibold text-brand-orange">Coming soon</span>
+                      </button>
+                    ) : (
+                      <Link href={item.href} onClick={close} className="flex items-center justify-between border-b border-line py-4 font-display text-3xl font-extrabold text-ink" style={{ fontStretch: '110%' }}>
+                        {item.label}
+                        <ArrowRight className="h-5 w-5 text-muted" />
+                      </Link>
+                    )}
+                  </motion.div>
+                ))}
+              <div className="mt-8 flex flex-col gap-3">
+                {signedIn ? (
+                  <>
+                    <Link href="/account" onClick={close} className="btn btn-dark btn-lg w-full">
+                      <User className="h-4 w-4" /> Member portal
+                    </Link>
+                    <Link href="/ieeextreme/register" onClick={close} className="btn btn-primary btn-lg w-full">
+                      <Sparkles className="h-4 w-4" /> IEEEXtreme 20.0 Team
+                    </Link>
+                    <button type="button" onClick={signOut} className="btn btn-ghost btn-lg w-full text-red-600">
+                      <LogOut className="h-4 w-4" /> Sign out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {driveOpen ? (
+                      <Link href="/membership/register" onClick={close} className="btn btn-primary btn-lg w-full">
+                        Become a member <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    ) : (
+                      <Link href={primaryJoinCta(driveOpen).href} onClick={close} className="btn btn-primary btn-lg w-full">
+                        <Sparkles className="h-4 w-4" /> {primaryJoinCta(driveOpen).label}
+                      </Link>
+                    )}
+                    <Link href="/login" onClick={close} className="btn btn-ghost btn-lg w-full">
+                      Member portal sign in
+                    </Link>
+                  </>
+                )}
+              </div>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Floating 'Coming Soon' Toast */}
       <AnimatePresence>

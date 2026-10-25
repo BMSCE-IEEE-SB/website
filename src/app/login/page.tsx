@@ -12,7 +12,7 @@ import AuthShell from '@/components/membership/AuthShell';
 import PasswordField from '@/components/membership/PasswordField';
 import DemoNotice from '@/components/membership/DemoNotice';
 import { errorMessage } from '@/lib/utils';
-import { MEMBERSHIP_DRIVE_OPEN, MEMBERSHIP_DRIVE_YEAR } from '@/config/membership';
+import { MEMBERSHIP_DRIVE_OPEN } from '@/config/membership';
 import { loadDriveStatus } from '@/lib/pricing';
 
 const perks = ['Track your application status', 'View your membership details & receipts', 'Add chapters any time'];
@@ -140,8 +140,8 @@ function LoginForm() {
               </>
             ) : (
               <>
-                {MEMBERSHIP_DRIVE_YEAR} membership drive has ended.{' '}
-                <Link href="/ieeextreme" className="font-semibold text-brand-orange hover:underline">Join IEEEXtreme 20.0</Link>
+                New here?{' '}
+                <Link href="/ieeextreme/register" className="font-semibold text-brand-orange hover:underline">Register as Team Lead for IEEEXtreme 20.0</Link>
               </>
             )}
           </p>

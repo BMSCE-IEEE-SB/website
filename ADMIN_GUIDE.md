@@ -233,9 +233,12 @@ The script reads `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from
 
 ## ⚙️ Fees & Payment Settings (`/admin/settings`)
 
-Configure the financial parameters of the membership drive:
+Configure the financial parameters and operational state of the membership drive:
 
-1. **Drive Status**: Toggle whether membership applications are open or closed.
+1. **Drive Status (`is_drive_open`)**:
+   - **Active / Open (Registrations accepted)**: Front-end hero, navigation, and footer CTAs prominently display "Become a member" and guide visitors through the registration flow. Students can submit new membership applications.
+   - **Closed (Public message shown)**: Front-end CTAs dynamically redirect focus to IEEEXtreme 20.0 (`/ieeextreme`). Any student visiting `/membership/register`, `/membership/profile`, or `/membership/chapters` is presented with an official "Membership drive has ended / Applications Closed" banner with one-click links to the Member Portal and IEEEXtreme 20.0, blocking new application submissions.
+   - Status updates are reflected immediately across the entire site without needing a redeployment.
 2. **Base Membership Fee (₹)**: Mandatory branch membership fee.
 3. **Chapter Add-ons (₹)**: Individual dues for CS, PES, PELS/IES, WIE, and SSIT.
 4. **Branch UPI ID & Payee Name**: Configure the branch VPA (e.g. `bmsceieee@okhdfcbank`) and registered account title.

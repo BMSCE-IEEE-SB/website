@@ -55,6 +55,9 @@ All landing-page text, chapters, testimonials, FAQs and ExeCom members are in `s
 - **Member Dashboard** (`/account`):
   - Real-time status tracking (`Pending Verification`, `Verified`, or `Rejected`).
   - **Interactive Resubmission** (`/api/checkout/resubmit`): If an application is rejected with admin feedback, students can resubmit a clear screenshot and correct their UTR directly without re-ordering.
+- **Dynamic Drive Gating & Route Protection**:
+  - Live drive state fetched via `loadDriveStatus()` from `membership_config.is_drive_open` (and demo storage).
+  - When closed, all CTAs across the site adapt automatically to point to IEEEXtreme 20.0, and applicants navigating to `/membership/register`, `/membership/profile`, or `/membership/chapters` are protected by route guards displaying an official closure notice with instant pathways to the Member Portal and IEEEXtreme.
 
 ---
 
@@ -118,6 +121,9 @@ A state-driven portal for the global 24-hour programming competition hosted on c
   1. *Stage 1 (Local Gateway)*: Team Lead registers the team on BMSCE IEEE (`/ieeextreme/register`), or organizers pre-create/bulk import the squad.
   2. *Stage 2 (Proctor Assignment)*: System automatically or administrators manually assign an authorized faculty proctor from the directory.
   3. *Stage 3 (Official IEEE vTools)*: Team registers on `https://xtreme.vtools.ieee.org/` using their proctor credentials and confirms on `/ieeextreme/team`, permanently locking their squad.
+- **Official Region 10 20.0 Edition Visuals**:
+  - High-resolution logos (`public/ieeextreme/xtreme-logo-light.png`, `xtreme-logo-dark.png`, webp formats, and glow variants).
+  - Ambient watermarks, official Region 10 badges, and branding integrated across the landing page (`/ieeextreme`), registration wizard (`/ieeextreme/register`), gateway confirmation (`/ieeextreme/success`), team lead dashboard (`/ieeextreme/team`), and homepage spotlight.
 - **Executive Administration** (`/admin/xtreme`):
   - **Managed Faculty Proctors**: Register faculty proctors with per-proctor squad limits, filled in queue order and enforced concurrently at the database level.
   - **Single Squad Creation & Wide-Format Bulk CSV Import**: Organizers can pre-register teams with or without teammates. Organizer-created teams start in an unclaimed state and auto-claim seamlessly when the lead logs in with their verified email.

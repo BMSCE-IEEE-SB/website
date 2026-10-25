@@ -7,6 +7,17 @@ All notable changes to the **BMSCE IEEE Student Branch Website** will be documen
 ## [Unreleased]
 
 ### Added
+- **Dynamic Membership Drive Status & Guarded Intake**:
+  - Dynamic Drive State helper (`loadDriveStatus()` in `src/lib/pricing.ts`) querying Supabase `membership_config.is_drive_open` with fallback to demo settings and build-time flag.
+  - Closed Drive Protective Route Guards: When the drive is inactive, `/membership/profile` and `/membership/chapters` automatically redirect to `/membership/register`, which renders a dedicated "Drive has ended / Applications Closed" screen with clear guidance directing applicants to Member Portal or `/ieeextreme`.
+  - Reactive Front-End CTA Updates: Dynamic status synchronization across `Header`, `Hero`, `Footer`, `PricingBreakdown`, and `login` views reflecting live open/closed states.
+  - Admin Drive Status Feedback: Real-time visual status badges in `/admin/settings` clarifying front-end behavior and application acceptance when toggling between "Active / Open" and "Closed".
+- **Official IEEEXtreme Region 10 20.0 Branding & Assets**:
+  - High-resolution visual assets (`xtreme-logo-light.png`, `xtreme-logo-dark.png`, webp formats, and glow effects) in `public/ieeextreme/`.
+  - Ambient watermarks, official Region 10 edition badges, and branding embedded across `/ieeextreme` landing hero, 20.0 at a Glance card, registration wizard stepper header (`/ieeextreme/register`), gateway confirmation screen (`/ieeextreme/success`), team lead dashboard (`/ieeextreme/team`), and homepage spotlight (`XtremeSpotlight.tsx`).
+- **Header Navigation & Mobile Menu UX Hardening**:
+  - Dynamic top-offset calculation on open and resize: tracks header bounding rectangle bottom coordinate to ensure the mobile menu docks accurately without gaps or overlaps.
+  - Route change auto-closing and Escape key dismissal across all mobile navigation drawers and desktop dropdown menus.
 - **IEEEXtreme 20.0 Registration & Proctor Gateway**: Complete lead-delegated portal for the global 24-hour virtual programming competition:
   - **Public Landing Page** (`/ieeextreme`): Beginner-friendly introduction to IEEEXtreme, event guidelines, on-campus overnight stay information, eligibility prerequisites, live countdown timer to October 31, 2026, and FAQs.
   - **Multi-Step Lead Registration Portal** (`/ieeextreme/register`): 4-step wizard (Team Info, Lead Details, Teammates, Review & Submit) supporting 1 to 3 members with live IEEE member ID lookup and "Email (Associated with IEEE)" leader address. Allows edits before vTools registration and locks after confirmation.

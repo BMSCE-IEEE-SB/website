@@ -3,6 +3,12 @@ import { isSupabaseConfigured } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
 
+/**
+ * When true, skip DB lookups and accept any plausible IEEE member number.
+ * Set to false to re-enable strict validation against the BMSCE member roster.
+ */
+const VALIDATION_PAUSED = true;
+
 export async function POST(request: Request) {
   const user = await requireUser(request);
   if (!user && isSupabaseConfigured()) {
@@ -14,6 +20,15 @@ export async function POST(request: Request) {
 
   if (!rawId) {
     return jsonError('IEEE Member Number is required.', 400);
+  }
+
+  // Validation paused — accept any plausible-format member number without DB checks.
+  if (VALIDATION_PAUSED) {
+    const isPlausible = /^\d{6,12}$/.test(rawId) || rawId === '999';
+    if (!isPlausible) {
+      return Response.json({ valid: false, reason: 'Invalid member ID format. IEEE IDs are 6–12 digit numbers.' });
+    }
+    return Response.json({ valid: true, firstName: 'Member', source: 'validation_paused' });
   }
 
   // Allow test membership ID '999' to bypass validation

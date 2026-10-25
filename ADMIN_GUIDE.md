@@ -162,7 +162,7 @@ Manage access privileges for the executive committee:
 The IEEEXtreme module provides centralized management for all teams participating in the global 24-hour hackathon from BMSCE:
 
 ### 1. Key Responsibilities
-- **Proctor Directory & Capacity Enforcement**: Register authorized BMSCE faculty proctors (Faculty Name, IEEE Member Number, and how many squads they take). New squads fill proctors strictly in queue order (#1 first, e.g. Swaroop BM takes the first 15, then Nethravathi S takes the next 20). Concurrency locks in the database prevent over-subscription.
+- **Proctor Directory & Capacity Enforcement**: Register authorized BMSCE faculty proctors (Faculty Name, IEEE Member Number, and how many squads they take). New squads fill proctors in sequential order (#1 Swaroop BM takes 15 squads, #2 Nethravathi S takes 20 squads, #3 Dr. D N Sujatha takes 15 squads, #4 Dr. Namratha M takes 15 squads). Concurrency locks in the database prevent over-subscription.
 - **Organizer Squad Creation & Bulk Import**: Organizers can create squads directly with or without teammates. Organizer-created teams begin in an unclaimed state and are automatically linked to the leader upon signing in with their verified email.
 - **Participant Team Dashboard**: Team leads access their assigned squad at `/ieeextreme/team` to review their roster, view assigned proctor details, and lock their registration once completed on vTools.
 - **Monitoring vTools Registration**: Track which squads have completed registration on the official global portal (`https://xtreme.vtools.ieee.org/`).
@@ -185,13 +185,18 @@ The IEEEXtreme module provides centralized management for all teams participatin
   ```
 - Teams created by organizers are flagged as **"Unclaimed"** until the leader logs in with their matching verified email address, at which point ownership is claimed seamlessly.
 
-### 4. Team Actions & Proctor Reassignment
-- Click **"Edit / Proctor"** on any squad row to:
-  - Reassign to any proctor with available capacity (below their squad limit) via dropdown, or select `(No Proctor Assigned)` to unassign.
-  - Review all members (Lead + Teammates).
-  - Add private **Admin Notes** (e.g., specific lab room assignments or hardware needs).
-  - Manually toggle **vTools Verified** status to lock or unlock a team.
-- Click the trash icon to delete an invalid team (with confirmation).
+### 4. Team Actions, Full Squad Roster Editing & Proctor Reassignment
+- Click **"Edit / Proctor"** on any squad row to open the complete squad editing modal:
+  - **Edit Team Name**: Change the squad name with real-time alphanumeric format validation (`3–20` characters) and duplicate conflict checking across all existing squads.
+  - **Full Member Roster Management**:
+    - **Edit Participant Details**: Modify first name, last name, IEEE Member ID, email address, phone number, USN, department, and year of study.
+    - **Add / Remove Members**: Flexibly resize squads between 1 and 3 members.
+    - **Designate Team Lead**: Click the crown icon on any member to designate them as the squad lead. When the lead email changes, team ownership is automatically transferred and reset so the new leader can claim the squad.
+    - **One-Click Email Copy**: Click **"Copy Emails"** to instantly copy all squad members' email addresses separated by commas to the clipboard.
+  - **Proctor Assignment**: Reassign to any proctor with available capacity (below their squad limit) via dropdown, or select `(No Proctor Assigned)` to unassign.
+  - **Private Admin Notes**: Record internal notes (e.g., room/seating allocations, lab computer IDs, or hardware needs).
+  - **vTools Verification**: Manually toggle **vTools Verified** status to lock or unlock a team.
+- **Delete Squad**: Click the trash icon to permanently remove an invalid squad (guarded by a confirmation dialog).
 
 ### 5. Pre-loading Legacy Member Data
 Students who registered in past years or through offline drives may not yet have a web profile on `bmsceieee.com`. To ensure their IEEE Member IDs validate smoothly:
@@ -210,10 +215,19 @@ Students who registered in past years or through offline drives may not yet have
   - Flattened row per participant: Lead/Teammate, Name, IEEE ID, Email, Phone, USN, Department, Year of Study, and Registration Date.
 
 ### 7. Supabase Database Migrations
-The IEEEXtreme schema is stored across two isolated migrations:
+The IEEEXtreme schema is stored across isolated migrations:
 1. `supabase/migrations/20261016140000_ieeextreme_tables.sql`: Base tables (`ieee_member_2026`, `xtreme_teams`, `xtreme_members`), RLS policies, and save RPC.
 2. `supabase/migrations/20261019120000_xtreme_proctors_and_ownership.sql`: Managed proctors table (`xtreme_proctors`), nullable team ownership with auto-claim by verified email, and concurrency-safe proctor capacity enforcement RPCs.
-3. `supabase/migrations/20261019170000_xtreme_proctor_capacity_queue.sql`: Per-proctor squad caps, sequential fill queue, and the live proctor seeds.
+3. `supabase/migrations/20261019160000_harden_sac_rls.sql`: Row-Level Security hardening ensuring SAC roles have full admin ownership on `xtreme_*` tables while keeping membership and financial tables read-only.
+4. `supabase/migrations/20261019170000_xtreme_proctor_capacity_queue.sql`: Per-proctor squad caps, sequential fill queue, and live proctor seeds.
+5. `supabase/migrations/20261024194500_import_squads_and_namratha_proctor.sql`: Addition of Dr. Namratha M (capacity 15, sort order 40) to proctor queue and idempotent squads roster import.
+
+### 8. Database Snapshots & Automated Backups
+To create an offline backup before running migrations, importing bulk rosters, or performing database maintenance:
+```bash
+node scripts/backup_database.mjs
+```
+The script reads `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from your environment and dumps complete JSON snapshots of all 17 public tables into `backups/backup_<timestamp>/` with record counts and error handling.
 
 ---
 

@@ -3,7 +3,7 @@ import type { CartChapter } from './cart';
 import { isDemoMode, supabase } from './supabase';
 
 export type ChapterPricing = CartChapter & { pgPrice: number };
-export type Pricing = { baseFee: number; pgBaseFee: number; chapters: ChapterPricing[] };
+export type Pricing = { baseFee: number; pgBaseFee: number; isDriveOpen?: boolean; chapters: ChapterPricing[] };
 export type Payee = { vpa: string; name: string };
 
 /** Registration program. Each program has its own base fee and chapter prices, set in admin settings. */
@@ -36,7 +36,15 @@ export function resolveProgramPricing(pricing: Pricing, program?: string | null)
 export const FALLBACK_PAYEE: Payee = { vpa: 'neharamiah2006-1@oksbi', name: 'Neha Ramiah' };
 
 /** Demo-mode settings saved from /admin/settings. */
-export type DemoSettings = { baseFee: number; pgBaseFee: number; vpa: string; payeeName: string; prices: Record<string, number>; pgPrices: Record<string, number> };
+export type DemoSettings = {
+  baseFee: number;
+  pgBaseFee: number;
+  vpa: string;
+  payeeName: string;
+  isDriveOpen?: boolean;
+  prices: Record<string, number>;
+  pgPrices: Record<string, number>;
+};
 export const DEMO_SETTINGS_KEY = 'bmsce_demo_settings';
 
 export function readDemoSettings(): DemoSettings | null {
@@ -46,6 +54,25 @@ export function readDemoSettings(): DemoSettings | null {
     return raw ? (JSON.parse(raw) as DemoSettings) : null;
   } catch {
     return null;
+  }
+}
+
+/** Check whether the membership drive is currently open (dynamic from Supabase/demo). */
+export async function loadDriveStatus(): Promise<boolean> {
+  if (isDemoMode()) {
+    const demo = readDemoSettings();
+    return demo?.isDriveOpen ?? false;
+  }
+  try {
+    const { data, error } = await supabase
+      .from('membership_config')
+      .select('is_drive_open')
+      .eq('id', 1)
+      .maybeSingle();
+    if (error || !data) return false;
+    return Boolean(data.is_drive_open);
+  } catch {
+    return false;
   }
 }
 
@@ -65,6 +92,7 @@ export async function loadPricing(): Promise<Pricing> {
     return {
       baseFee: o?.baseFee ?? FALLBACK_BASE_FEE,
       pgBaseFee: o?.pgBaseFee ?? FALLBACK_PG_BASE_FEE,
+      isDriveOpen: o?.isDriveOpen ?? false,
       chapters: FALLBACK_CART_CHAPTERS.map((c) => ({
         ...c,
         price: o?.prices[c.id] ?? c.price,
@@ -74,7 +102,7 @@ export async function loadPricing(): Promise<Pricing> {
   }
   const [chaptersRes, configRes] = await Promise.all([
     supabase.from('chapters').select('id, name, code, price, pg_price').eq('is_active', true).order('display_order'),
-    supabase.from('membership_config').select('base_fee, pg_base_fee').eq('id', 1).maybeSingle(),
+    supabase.from('membership_config').select('base_fee, pg_base_fee, is_drive_open').eq('id', 1).maybeSingle(),
   ]);
   if (chaptersRes.error || configRes.error || !configRes.data) {
     throw new Error('Membership pricing is not available right now. Please try again later or contact the branch.');
@@ -91,6 +119,7 @@ export async function loadPricing(): Promise<Pricing> {
   return {
     baseFee: Number(configRes.data.base_fee),
     pgBaseFee: Number(configRes.data.pg_base_fee ?? configRes.data.base_fee),
+    isDriveOpen: configRes.data.is_drive_open ?? false,
     chapters: list,
   };
 }

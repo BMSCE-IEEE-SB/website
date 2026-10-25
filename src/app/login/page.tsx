@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight, LogOut, Mail } from 'lucide-react';
@@ -13,6 +13,7 @@ import PasswordField from '@/components/membership/PasswordField';
 import DemoNotice from '@/components/membership/DemoNotice';
 import { errorMessage } from '@/lib/utils';
 import { MEMBERSHIP_DRIVE_OPEN, MEMBERSHIP_DRIVE_YEAR } from '@/config/membership';
+import { loadDriveStatus } from '@/lib/pricing';
 
 const perks = ['Track your application status', 'View your membership details & receipts', 'Add chapters any time'];
 
@@ -21,6 +22,7 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const demo = isDemoMode();
   const { user } = useSession();
+  const [driveOpen, setDriveOpen] = useState(MEMBERSHIP_DRIVE_OPEN);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,6 +30,18 @@ function LoginForm() {
   const [info, setInfo] = useState('');
   const [unconfirmedEmail, setUnconfirmedEmail] = useState('');
   const [resending, setResending] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    loadDriveStatus()
+      .then((status) => {
+        if (alive) setDriveOpen(status);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const redirectParam = searchParams.get('redirect');
   const redirectTarget =
@@ -119,7 +133,7 @@ function LoginForm() {
         <AuthShell title={<>Member portal</>} top={top}>
           <h1 className="text-3xl font-bold sm:text-4xl">Welcome back</h1>
           <p className="mt-2 text-ink-soft">
-            {MEMBERSHIP_DRIVE_OPEN ? (
+            {driveOpen ? (
               <>
                 New here?{' '}
                 <Link href="/membership" className="font-semibold text-brand-orange hover:underline">Become a member</Link>

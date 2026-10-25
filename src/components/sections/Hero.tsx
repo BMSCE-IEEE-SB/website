@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from 'motion/react';
 import { ArrowRight } from 'lucide-react';
 import NetworkCanvas from '@/components/site/NetworkCanvas';
 import { MEMBERSHIP_DRIVE_OPEN, primaryJoinCta } from '@/config/membership';
+import { loadDriveStatus } from '@/lib/pricing';
 
 const WORDS = ['build', 'lead', 'compete', 'publish', 'mentor', 'belong'];
 
@@ -61,6 +62,20 @@ function RotatingWord() {
 }
 
 export default function Hero() {
+  const [driveOpen, setDriveOpen] = useState(MEMBERSHIP_DRIVE_OPEN);
+
+  useEffect(() => {
+    let alive = true;
+    loadDriveStatus()
+      .then((open) => {
+        if (alive) setDriveOpen(open);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   return (
     <section className="relative -mt-16 overflow-hidden pt-16 lg:-mt-[76px] lg:pt-[76px]">
 
@@ -84,9 +99,9 @@ export default function Hero() {
           >
             <div
               className="inline-flex items-center gap-2.5 rounded-full bg-white/80 py-1.5 pr-4 pl-1.5 text-sm text-ink-soft shadow-sm ring-1 ring-ink/5 backdrop-blur"
-              aria-label={MEMBERSHIP_DRIVE_OPEN ? 'Membership drive 2026 is live' : 'Membership drive 2026 is closed'}
+              aria-label={driveOpen ? 'Membership drive 2026 is live' : 'Membership drive 2026 is closed'}
             >
-              {MEMBERSHIP_DRIVE_OPEN ? (
+              {driveOpen ? (
                 <>
                   <span className="relative flex h-6 items-center rounded-full bg-emerald-500 px-2.5 text-xs font-semibold text-white">
                     Live
@@ -162,13 +177,13 @@ export default function Hero() {
             }}
             className="mt-9 flex flex-col justify-center gap-3 sm:flex-row"
           >
-            {MEMBERSHIP_DRIVE_OPEN ? (
+            {driveOpen ? (
               <Link href="/membership/register" className="btn btn-primary btn-lg">
                 Become a member <ArrowRight className="h-4 w-4" />
               </Link>
             ) : (
-              <Link href={primaryJoinCta().href} className="btn btn-primary btn-lg">
-                {primaryJoinCta().label} <ArrowRight className="h-4 w-4" />
+              <Link href={primaryJoinCta(driveOpen).href} className="btn btn-primary btn-lg">
+                {primaryJoinCta(driveOpen).label} <ArrowRight className="h-4 w-4" />
               </Link>
             )}
 

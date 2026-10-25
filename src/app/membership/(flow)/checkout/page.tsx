@@ -271,7 +271,16 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      {loadError && <Alert tone="error" className="mt-6">{loadError} <Link href="/membership/chapters" className="ml-2 underline">Return to chapter selection</Link></Alert>}
+      {loadError && (
+        <Alert tone="error" className="mt-6">
+          {loadError}
+          {loadError.toLowerCase().includes('closed') ? (
+            <Link href="/ieeextreme" className="ml-2 font-semibold underline">Explore IEEEXtreme 20.0</Link>
+          ) : (
+            <Link href="/membership/chapters" className="ml-2 underline">Return to chapter selection</Link>
+          )}
+        </Alert>
+      )}
 
       {!loadError && (
       <div className="mt-10 grid items-start gap-8 lg:grid-cols-2">

@@ -9,7 +9,7 @@ import { ArrowLeft, ArrowRight, Check, Plus, Shirt, X } from 'lucide-react';
 import { getCurrentUser, getLocalProfile, hasPaidCookie, hasUserSubmittedPayment } from '@/lib/auth';
 import { isDemoMode, supabase } from '@/lib/supabase';
 import { chapters as chapterInfo, departmentName } from '@/data/site';
-import { loadPricing, programOf, resolveProgramPricing, PROGRAM_LABELS, type Program } from '@/lib/pricing';
+import { loadDriveStatus, loadPricing, programOf, resolveProgramPricing, PROGRAM_LABELS, type Program } from '@/lib/pricing';
 import AnimatedNumber from '@/components/site/AnimatedNumber';
 import { Alert, PageLoader, Spinner, Modal } from '@/components/ui/form';
 import { cn } from '@/lib/utils';
@@ -65,6 +65,13 @@ export default function ChaptersPage() {
     window.addEventListener('pageshow', onPageShow);
 
     (async () => {
+      const open = await loadDriveStatus().catch(() => true);
+      if (!alive) return;
+      if (!open) {
+        router.replace('/membership/register');
+        return;
+      }
+
       const paid = await hasUserSubmittedPayment();
       if (!alive) return;
       if (paid) {

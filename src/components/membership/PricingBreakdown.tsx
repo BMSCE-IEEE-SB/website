@@ -28,6 +28,7 @@ export default function PricingBreakdown() {
   const min = paidPrices.length ? Math.min(...paidPrices) : 0;
   const max = paidPrices.length ? Math.max(...paidPrices) : 0;
   const baseFee = pricing ? programBaseFee(pricing, program) : undefined;
+  const isDriveOpen = pricing?.isDriveOpen ?? MEMBERSHIP_DRIVE_OPEN;
 
   return (
     <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
@@ -55,7 +56,7 @@ export default function PricingBreakdown() {
         </ul>
 
         <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
-          {MEMBERSHIP_DRIVE_OPEN ? (
+          {isDriveOpen ? (
             <Link
               href={user ? '/membership/profile' : '/membership/register'}
               className="btn btn-primary btn-lg"

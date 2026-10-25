@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -193,12 +194,34 @@ export default function IEEEXtremeLandingPage() {
         <NetworkCanvas className="absolute inset-0 -z-10 h-full w-full opacity-40" />
         <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[500px] bg-gradient-to-b from-brand-sky/15 via-brand-orange/5 to-transparent" />
 
+        {/* Subtle ambient watermark behind hero */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute top-10 left-1/2 -z-10 -translate-x-1/2 w-[520px] max-w-full opacity-[0.045] select-none"
+        >
+          <Image
+            src="/ieeextreme/xtreme-logo-light.png"
+            alt=""
+            width={826}
+            height={439}
+            priority
+          />
+        </div>
+
         <div className="container-page">
           <div className="mx-auto max-w-3xl text-center">
             <Reveal>
-              <div className="inline-flex items-center gap-2 rounded-full border border-brand-orange/30 bg-brand-orange/10 px-4 py-1.5 text-xs font-semibold text-brand-orange">
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>IEEEXtreme 20.0 · Worldwide 24-Hour Programming Hackathon</span>
+              <div className="inline-flex items-center gap-2.5 rounded-full border border-brand-orange/30 bg-white/80 px-3.5 py-1.5 text-xs font-semibold text-ink shadow-sm backdrop-blur-md">
+                <Image
+                  src="/ieeextreme/xtreme-logo-light.png"
+                  alt="IEEEXtreme Region 10 20.0 Edition"
+                  width={90}
+                  height={48}
+                  className="h-4.5 w-auto object-contain"
+                  priority
+                />
+                <span className="h-3 w-px bg-line" aria-hidden="true" />
+                <span className="text-brand-orange">Worldwide 24-Hour Programming Hackathon</span>
               </div>
             </Reveal>
 
@@ -295,9 +318,36 @@ export default function IEEEXtremeLandingPage() {
             </Reveal>
 
             <Reveal delay={120} className="lg:col-span-5">
-              <div className="rounded-3xl bg-ink p-6 text-white sm:p-8">
-                <h3 className="text-lg font-bold">20.0 at a Glance</h3>
-                <dl className="mt-5 space-y-4 text-sm">
+              <div className="relative overflow-hidden rounded-3xl bg-ink p-6 text-white sm:p-8">
+                {/* Subtle dark logo watermark in corner */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute -bottom-10 -right-10 w-56 opacity-[0.08] select-none"
+                >
+                  <Image
+                    src="/ieeextreme/xtreme-logo-dark.png"
+                    alt=""
+                    width={826}
+                    height={439}
+                  />
+                </div>
+
+                <div className="relative flex items-center justify-between border-b border-white/10 pb-4">
+                  <div>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-brand-orange">
+                      Official Edition
+                    </span>
+                    <h3 className="text-lg font-bold">20.0 at a Glance</h3>
+                  </div>
+                  <Image
+                    src="/ieeextreme/xtreme-logo-dark.png"
+                    alt="IEEEXtreme Region 10 20.0"
+                    width={100}
+                    height={53}
+                    className="h-7 w-auto object-contain opacity-95"
+                  />
+                </div>
+                <dl className="relative mt-5 space-y-4 text-sm">
                   {[
                     ['Competition', '31 October 2026 · 24 hours'],
                     ['Registration ends', '25 October 2026 · 23:59 UTC'],
@@ -542,8 +592,30 @@ export default function IEEEXtremeLandingPage() {
       </section>
 
       {/* Bottom CTA Banner */}
-      <section className="bg-ink py-16 text-white sm:py-20">
-        <div className="container-page text-center">
+      <section className="relative overflow-hidden bg-ink py-16 text-white sm:py-20">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[680px] max-w-none opacity-[0.05] select-none"
+        >
+          <Image
+            src="/ieeextreme/xtreme-logo-dark.png"
+            alt=""
+            width={826}
+            height={439}
+          />
+        </div>
+        <div className="container-page relative text-center">
+          <div className="mx-auto mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 backdrop-blur-md">
+            <Image
+              src="/ieeextreme/xtreme-logo-dark.png"
+              alt="IEEEXtreme Region 10"
+              width={80}
+              height={42}
+              className="h-4.5 w-auto object-contain"
+            />
+            <span className="h-3 w-px bg-white/20" aria-hidden="true" />
+            <span className="text-xs font-medium text-white/90">Region 10 Official Edition</span>
+          </div>
           <h2 className="display text-3xl sm:text-4xl md:text-5xl">
             Ready to represent <span className="text-brand-orange">BMSCE</span> at IEEEXtreme 20.0?
           </h2>

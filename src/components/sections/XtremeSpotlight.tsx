@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowRight, ExternalLink, Trophy } from 'lucide-react';
 import Reveal from '@/components/site/Reveal';
 import Countdown from '@/components/site/Countdown';
@@ -20,12 +21,34 @@ export default function XtremeSpotlight() {
           <div aria-hidden className="absolute inset-0">
             <div className="absolute -top-40 -right-20 h-[480px] w-[480px] rounded-full bg-brand-sky/25 blur-3xl" />
             <div className="absolute -bottom-48 -left-20 h-[380px] w-[380px] rounded-full bg-brand-orange/30 blur-3xl" />
+            {/* Subtle logo watermark */}
+            <div className="pointer-events-none absolute -right-16 -bottom-16 w-80 sm:w-96 lg:w-[460px] opacity-[0.07] select-none">
+              <Image
+                src="/ieeextreme/xtreme-logo-dark.png"
+                alt=""
+                width={826}
+                height={439}
+                className="h-auto w-full object-contain"
+              />
+            </div>
           </div>
 
           <div className="relative grid items-center gap-12 lg:grid-cols-12">
             <Reveal className="lg:col-span-7">
-              <p className="text-sm font-semibold tracking-[0.16em] text-white/80 uppercase">IEEEXtreme 20.0 · 31 October 2026</p>
-              <h2 className="display mt-4 text-5xl sm:text-6xl lg:text-7xl">24 hours. One leaderboard.</h2>
+              <div className="mb-4 inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 backdrop-blur-md">
+                <Image
+                  src="/ieeextreme/xtreme-logo-dark.png"
+                  alt="IEEEXtreme Region 10"
+                  width={80}
+                  height={42}
+                  className="h-4.5 w-auto object-contain"
+                />
+                <span className="h-3 w-px bg-white/20" aria-hidden="true" />
+                <span className="text-xs font-semibold tracking-wider text-white/90 uppercase">
+                  Region 10 · 31 October 2026
+                </span>
+              </div>
+              <h2 className="display mt-2 text-5xl sm:text-6xl lg:text-7xl">24 hours. One leaderboard.</h2>
               <p className="mt-4 max-w-xl text-lg text-white/90">
                 Join IEEE&apos;s flagship global programming competition. Form your squad of 1–3, get a campus proctor, and compete with thousands of teams worldwide.
               </p>

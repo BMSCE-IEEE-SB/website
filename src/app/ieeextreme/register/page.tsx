@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -645,10 +646,18 @@ export default function XtremeRegisterPage() {
 
       {/* Stepper Header */}
       <div className="mb-10 text-center">
-        <span className="badge bg-brand-orange/15 text-brand-orange mb-2">
-          IEEEXtreme 20.0
-        </span>
-        <h1 className="text-3xl font-extrabold text-ink sm:text-4xl">Team Registration</h1>
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-line bg-white/90 px-3.5 py-1.5 shadow-sm backdrop-blur-md">
+          <Image
+            src="/ieeextreme/xtreme-logo-light.png"
+            alt="IEEEXtreme Region 10"
+            width={75}
+            height={40}
+            className="h-4 w-auto object-contain"
+          />
+          <span className="h-3 w-px bg-line" aria-hidden="true" />
+          <span className="text-xs font-semibold text-brand-orange">Team Registration</span>
+        </div>
+        <h1 className="text-3xl font-extrabold text-ink sm:text-4xl">Register Your Squad</h1>
         <p className="mt-1 text-sm text-ink-soft">
           Complete the 4 steps below to register your squad on the BMSCE gateway.
         </p>

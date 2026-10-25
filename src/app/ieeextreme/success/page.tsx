@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Check, CheckCircle, ExternalLink, ShieldCheck, Sparkles, UserCheck } from 'lucide-react';
 import { confetti } from '@/lib/confetti';
@@ -92,10 +93,22 @@ function SuccessContent() {
         <Check className="h-10 w-10" strokeWidth={3} />
       </div>
 
-      <span className="mt-8 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3.5 py-1 text-xs font-bold text-emerald-800">
-        <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
-        Gateway Registration Complete
-      </span>
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3.5 py-1 text-xs font-bold text-emerald-800">
+          <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+          Gateway Registration Complete
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-white/90 px-3 py-1 text-xs font-medium text-ink shadow-sm">
+          <Image
+            src="/ieeextreme/xtreme-logo-light.png"
+            alt="IEEEXtreme Region 10"
+            width={70}
+            height={37}
+            className="h-4 w-auto object-contain opacity-80"
+          />
+          <span className="text-muted text-[11px]">Region 10</span>
+        </span>
+      </div>
 
       <h1 className="display mt-4 text-3xl text-ink sm:text-5xl">
         Team <span className="text-brand-orange">{teamNameParam}</span> Registered!

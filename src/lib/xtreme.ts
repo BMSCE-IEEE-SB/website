@@ -323,7 +323,32 @@ export function saveLocalXtremeTeam(team: XtremeTeam) {
 
 export function updateLocalXtremeTeam(id: string, patch: Partial<XtremeTeam>) {
   const teams = getLocalXtremeTeams();
-  const updated = teams.map((t) => (t.id === id ? { ...t, ...patch, updated_at: new Date().toISOString() } : t));
+  const updated = teams.map((t) => {
+    if (t.id !== id) return t;
+    const merged: XtremeTeam = {
+      ...t,
+      ...patch,
+      updated_at: new Date().toISOString(),
+    };
+    if (patch.members) {
+      const lead = patch.members.find((m) => m.is_lead) || patch.members[0];
+      if (lead) {
+        const leadEmail = lead.email.trim().toLowerCase();
+        if (t.leader_email && t.leader_email.toLowerCase() !== leadEmail) {
+          merged.leader_email = leadEmail;
+          merged.lead_user_id = null;
+        } else if (!t.leader_email) {
+          merged.leader_email = leadEmail;
+        }
+      }
+      merged.members = patch.members.map((m, idx) => ({
+        ...m,
+        id: m.id || `mem-${id}-${idx}-${Date.now().toString(36)}`,
+        team_id: id,
+      }));
+    }
+    return merged;
+  });
   writeJson(DUMMY_TEAMS_KEY, updated);
   return updated.find((t) => t.id === id) ?? null;
 }

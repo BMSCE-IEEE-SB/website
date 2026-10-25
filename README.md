@@ -55,6 +55,9 @@ All landing-page text, chapters, testimonials, FAQs and ExeCom members are in `s
 - **Member Dashboard** (`/account`):
   - Real-time status tracking (`Pending Verification`, `Verified`, or `Rejected`).
   - **Interactive Resubmission** (`/api/checkout/resubmit`): If an application is rejected with admin feedback, students can resubmit a clear screenshot and correct their UTR directly without re-ordering.
+- **Dynamic Drive Gating & Route Protection**:
+  - Live drive state fetched via `loadDriveStatus()` from `membership_config.is_drive_open` (and demo storage).
+  - When closed, all CTAs across the site adapt automatically to point to IEEEXtreme 20.0, and applicants navigating to `/membership/register`, `/membership/profile`, or `/membership/chapters` are protected by route guards displaying an official closure notice with instant pathways to the Member Portal and IEEEXtreme.
 
 ---
 
@@ -118,15 +121,21 @@ A state-driven portal for the global 24-hour programming competition hosted on c
   1. *Stage 1 (Local Gateway)*: Team Lead registers the team on BMSCE IEEE (`/ieeextreme/register`), or organizers pre-create/bulk import the squad.
   2. *Stage 2 (Proctor Assignment)*: System automatically or administrators manually assign an authorized faculty proctor from the directory.
   3. *Stage 3 (Official IEEE vTools)*: Team registers on `https://xtreme.vtools.ieee.org/` using their proctor credentials and confirms on `/ieeextreme/team`, permanently locking their squad.
+- **Official Region 10 20.0 Edition Visuals**:
+  - High-resolution logos (`public/ieeextreme/xtreme-logo-light.png`, `xtreme-logo-dark.png`, webp formats, and glow variants).
+  - Ambient watermarks, official Region 10 badges, and branding integrated across the landing page (`/ieeextreme`), registration wizard (`/ieeextreme/register`), gateway confirmation (`/ieeextreme/success`), team lead dashboard (`/ieeextreme/team`), and homepage spotlight.
 - **Executive Administration** (`/admin/xtreme`):
-  - **Managed Faculty Proctors**: Register faculty proctors with per-proctor squad limits, filled strictly in queue order and enforced concurrently at the database level.
+  - **Managed Faculty Proctors**: Register faculty proctors with per-proctor squad limits, filled in queue order and enforced concurrently at the database level.
   - **Single Squad Creation & Wide-Format Bulk CSV Import**: Organizers can pre-register teams with or without teammates. Organizer-created teams start in an unclaimed state and auto-claim seamlessly when the lead logs in with their verified email.
+  - **Full Squad Roster Editing**: Dynamically edit team names, add or remove members (1–3 members), reassign the squad lead with automatic ownership reset, edit member credentials, and copy all squad emails with one click.
   - **Proctor Reassignment & Unassignment**: Reassign teams between eligible proctors or safely unassign back to `Pending Proctor`.
   - **CSV Upload & Full Data Export**: Pre-populate legacy member records (`ieee_member_2026`) and export complete team rosters with logistics for lab seating, campus security permissions, and meals.
 - **Safe Database Migrations**:
   - `supabase/migrations/20261016140000_ieeextreme_tables.sql`: Base tables (`ieee_member_2026`, `xtreme_teams`, `xtreme_members`), RLS policies, and team registration RPC.
   - `supabase/migrations/20261019120000_xtreme_proctors_and_ownership.sql`: Managed proctors table (`xtreme_proctors`), nullable team ownership with auto-claim by verified email, and concurrency-safe proctor capacity enforcement procedures (`assign_proctor_to_team`, `auto_assign_proctor`).
+  - `supabase/migrations/20261019160000_harden_sac_rls.sql`: Row-Level Security hardening ensuring SAC roles have full admin ownership on `xtreme_*` tables while keeping membership and financial tables read-only.
   - `supabase/migrations/20261019170000_xtreme_proctor_capacity_queue.sql`: Per-proctor squad caps, sequential fill queue, and the live proctor seeds.
+  - `supabase/migrations/20261024194500_import_squads_and_namratha_proctor.sql`: Registration of Dr. Namratha M in proctor queue and idempotent squads roster import.
   - Additive tables only; zero modifications to existing membership or payment tables. Full demo-mode localStorage fallback supported when Supabase tables are pending.
 
 ---
@@ -146,6 +155,18 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 3. Run Automated Tests
+```bash
+npm test
+```
+Runs the full Vitest suite (49 unit and integration tests covering proctors, teams API, SAC role permissions, and membership configuration).
+
+### 4. Database Backups
+```bash
+node scripts/backup_database.mjs
+```
+Dumps a full JSON snapshot of all 17 public database tables to `backups/backup_<timestamp>/`.
 
 ---
 

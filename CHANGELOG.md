@@ -7,6 +7,17 @@ All notable changes to the **BMSCE IEEE Student Branch Website** will be documen
 ## [Unreleased]
 
 ### Added
+- **Dynamic Membership Drive Status & Guarded Intake**:
+  - Dynamic Drive State helper (`loadDriveStatus()` in `src/lib/pricing.ts`) querying Supabase `membership_config.is_drive_open` with fallback to demo settings and build-time flag.
+  - Closed Drive Protective Route Guards: When the drive is inactive, `/membership/profile` and `/membership/chapters` automatically redirect to `/membership/register`, which renders a dedicated "Drive has ended / Applications Closed" screen with clear guidance directing applicants to Member Portal or `/ieeextreme`.
+  - Reactive Front-End CTA Updates: Dynamic status synchronization across `Header`, `Hero`, `Footer`, `PricingBreakdown`, and `login` views reflecting live open/closed states.
+  - Admin Drive Status Feedback: Real-time visual status badges in `/admin/settings` clarifying front-end behavior and application acceptance when toggling between "Active / Open" and "Closed".
+- **Official IEEEXtreme Region 10 20.0 Branding & Assets**:
+  - High-resolution visual assets (`xtreme-logo-light.png`, `xtreme-logo-dark.png`, webp formats, and glow effects) in `public/ieeextreme/`.
+  - Ambient watermarks, official Region 10 edition badges, and branding embedded across `/ieeextreme` landing hero, 20.0 at a Glance card, registration wizard stepper header (`/ieeextreme/register`), gateway confirmation screen (`/ieeextreme/success`), team lead dashboard (`/ieeextreme/team`), and homepage spotlight (`XtremeSpotlight.tsx`).
+- **Header Navigation & Mobile Menu UX Hardening**:
+  - Dynamic top-offset calculation on open and resize: tracks header bounding rectangle bottom coordinate to ensure the mobile menu docks accurately without gaps or overlaps.
+  - Route change auto-closing and Escape key dismissal across all mobile navigation drawers and desktop dropdown menus.
 - **IEEEXtreme 20.0 Registration & Proctor Gateway**: Complete lead-delegated portal for the global 24-hour virtual programming competition:
   - **Public Landing Page** (`/ieeextreme`): Beginner-friendly introduction to IEEEXtreme, event guidelines, on-campus overnight stay information, eligibility prerequisites, live countdown timer to October 31, 2026, and FAQs.
   - **Multi-Step Lead Registration Portal** (`/ieeextreme/register`): 4-step wizard (Team Info, Lead Details, Teammates, Review & Submit) supporting 1 to 3 members with live IEEE member ID lookup and "Email (Associated with IEEE)" leader address. Allows edits before vTools registration and locks after confirmation.
@@ -14,11 +25,21 @@ All notable changes to the **BMSCE IEEE Student Branch Website** will be documen
   - **Success & Confirmation Screen** (`/ieeextreme/success`): Post-registration gateway with proctor assignment viewer, confetti burst, and one-click "Confirm vTools Registration" button.
   - **Managed Faculty Proctors & Squad Limits**: Registered faculty proctor directory with per-proctor squad limits filled in queue order, enforced atomically with concurrency locks at the database level (`assign_proctor_to_team`, `auto_assign_proctor`).
   - **Organizer Squad Creation & Bulk CSV Import**: Organizers can pre-register squads singly or via wide-format CSV (`/api/xtreme/admin/teams/bulk`). Organizer-created teams start unlinked and seamlessly auto-claim when the leader logs in with their matching verified email address.
-  - **Executive Admin Management** (`/admin/xtreme`): Dedicated dashboard for proctor capacity monitoring, squad reassignment/unassignment, editing team details, bulk legacy member CSV upload, and full data export to CSV.
-  - **Backend API Endpoints**: `/api/xtreme/validate-member`, `/api/xtreme/register`, `/api/xtreme/my-team`, `/api/xtreme/verify-vtools`, `/api/xtreme/admin/proctors`, `/api/xtreme/admin/proctors/[id]`, `/api/xtreme/admin/teams`, `/api/xtreme/admin/teams/[id]`, `/api/xtreme/admin/teams/bulk`, `/api/xtreme/admin/upload-members`, and `/api/xtreme/admin/export`.
+  - **Executive Admin Management** (`/admin/xtreme`): Dedicated dashboard for proctor capacity monitoring, squad reassignment/unassignment, full squad roster editing, one-click email copying, bulk legacy member CSV upload, and full data export to CSV.
+  - **Full Squad Roster Editing**: Interactive modal supporting squad renaming (with duplicate checking), modifying participant details, adding and removing members (1–3 members), and one-click Team Lead designation with automatic ownership reset.
+  - **One-Click Squad Email Copy**: Direct copy button to copy all squad members' emails to the clipboard for communications.
+  - **Backend API Endpoints**: `/api/xtreme/validate-member`, `/api/xtreme/register`, `/api/xtreme/my-team`, `/api/xtreme/verify-vtools`, `/api/xtreme/admin/proctors`, `/api/xtreme/admin/proctors/[id]`, `/api/xtreme/admin/teams`, `/api/xtreme/admin/teams/[id]` (GET & PATCH), `/api/xtreme/admin/teams/bulk`, `/api/xtreme/admin/upload-members`, and `/api/xtreme/admin/export`.
   - **Database Migrations**:
     - `supabase/migrations/20261016140000_ieeextreme_tables.sql`: Isolated `ieee_member_2026`, `xtreme_teams`, and `xtreme_members` tables.
     - `supabase/migrations/20261019120000_xtreme_proctors_and_ownership.sql`: Managed `xtreme_proctors` table, nullable team ownership for auto-claim, and proctor capacity enforcement RPCs.
+    - `supabase/migrations/20261019160000_harden_sac_rls.sql`: Hardened RLS policies granting SAC role full ownership on `xtreme_*` tables while keeping membership and financial tables read-only.
+    - `supabase/migrations/20261019170000_xtreme_proctor_capacity_queue.sql`: Per-proctor squad caps, sequential fill queue, and live proctor seeds.
+    - `supabase/migrations/20261024194500_import_squads_and_namratha_proctor.sql`: Registration of Dr. Namratha M (capacity 15) and idempotent squad roster import.
+  - **Faculty Proctors Directory**: Registered Dr. D N Sujatha (capacity 15) and Dr. Namratha M (capacity 15) alongside Swaroop BM and Nethravathi S in the proctors queue.
+  - **Automated Database Backup Tool** (`scripts/backup_database.mjs`): Automated script to dump full JSON snapshots of 17 public tables into timestamped directories under `backups/`.
+  - **Automated Test Suite**: Added Vitest test suite with 49 unit and integration tests covering proctor queue allocation, teams API, SAC role permissions, and membership configuration (`npm test`).
+  - **Testing & QA Bypass**: Support for test member ID `999` in member validation and squad creation.
+  - **Verified Member Seed Expansion**: Added 220+ verified IEEE members from the latest drive roster to `supabase/seeds/xtreme_known_members_2026.sql`.
   - **Route Redirects**: Configured permanent 308 redirects in `next.config.ts` from legacy `/xtreme` and `/xtreme/:path*` to `/ieeextreme` and `/ieeextreme/:path*`.
 - **Official Treasurer Signature**: Configured authorized high-resolution treasurer signature asset (`public/brand/signature.png`) automatically stamped on official generated PDF receipts.
 - **Comprehensive Branch Options**: Expanded department selection across registration and admin portal to 19 standardized engineering and postgraduate branches.

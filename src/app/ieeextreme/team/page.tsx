@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowLeft,
   Check,
@@ -220,7 +221,17 @@ export default function XtremeTeamPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
+          <div className="hidden sm:inline-flex items-center gap-2 rounded-xl border border-line bg-white/80 px-2.5 py-1.5 shadow-xs">
+            <Image
+              src="/ieeextreme/xtreme-logo-light.png"
+              alt="IEEEXtreme Region 10"
+              width={70}
+              height={37}
+              className="h-4 w-auto object-contain opacity-80"
+            />
+            <span className="text-[11px] font-semibold text-ink-soft">Region 10</span>
+          </div>
           {!team.vtools_verified && (
             <Link
               href="/ieeextreme/register"

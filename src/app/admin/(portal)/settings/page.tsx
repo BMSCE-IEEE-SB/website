@@ -119,6 +119,15 @@ export default function SettingsPage() {
                   <option value="open">Active / Open (Registrations accepted)</option>
                   <option value="closed">Closed (Public message shown)</option>
                 </select>
+                {draft.isDriveOpen ? (
+                  <p className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 p-2 text-xs text-emerald-800">
+                    Drive is <strong>Active & Open</strong>. Students can submit new membership applications.
+                  </p>
+                ) : (
+                  <p className="mt-2 rounded-xl border border-amber-200 bg-amber-50 p-2 text-xs text-amber-900">
+                    Drive is <strong>Closed</strong>. Front-end CTAs point to IEEEXtreme and new applications are blocked.
+                  </p>
+                )}
               </div>
               <div>
                 <label htmlFor="drive-year" className="field-label">Drive year</label>

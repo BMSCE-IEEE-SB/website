@@ -3,11 +3,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Check,
+  CheckCheck,
   ChevronDown,
   ChevronUp,
+  Copy,
+  Crown,
   Download,
   Edit2,
   FileSpreadsheet,
+  Info,
   Plus,
   RefreshCw,
   Search,
@@ -17,7 +21,7 @@ import {
   UserCheck,
   Users,
 } from 'lucide-react';
-import { Alert, Field, FileDrop, Input, Modal, PageLoader, Spinner } from '@/components/ui/form';
+import { Alert, Field, FileDrop, Input, Modal, PageLoader, Select, Spinner } from '@/components/ui/form';
 import { isDemoMode, supabase } from '@/lib/supabase';
 import {
   addLocalKnownMembers,
@@ -74,6 +78,73 @@ export default function AdminXtremePage() {
   const [editingTeam, setEditingTeam] = useState<XtremeTeam | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
   const [editError, setEditError] = useState('');
+  const [copiedEmails, setCopiedEmails] = useState(false);
+  const [deletingTeamId, setDeletingTeamId] = useState<string | null>(null);
+
+  function handleCopyEmails(emails: (string | undefined)[]) {
+    const list = emails.map((e) => e?.trim()).filter(Boolean);
+    if (list.length === 0) return;
+    navigator.clipboard.writeText(list.join(', '));
+    setCopiedEmails(true);
+    setTimeout(() => setCopiedEmails(false), 2000);
+  }
+
+  function handleMemberChange(index: number, field: keyof XtremeMember, value: unknown) {
+    if (!editingTeam) return;
+    const updated = [...editingTeam.members];
+    updated[index] = {
+      ...updated[index],
+      [field]: value,
+    };
+    setEditingTeam({
+      ...editingTeam,
+      members: updated,
+    });
+  }
+
+  function handleSetLead(index: number) {
+    if (!editingTeam) return;
+    const updated = editingTeam.members.map((m, i) => ({
+      ...m,
+      is_lead: i === index,
+    }));
+    setEditingTeam({
+      ...editingTeam,
+      members: updated,
+    });
+  }
+
+  function handleAddMember() {
+    if (!editingTeam || editingTeam.members.length >= 3) return;
+    const newMember: XtremeMember = {
+      first_name: '',
+      last_name: '',
+      email: '',
+      phone: '',
+      ieee_member_id: '',
+      usn: '',
+      department: 'CSE',
+      year_of_study: '3rd Year',
+      is_lead: editingTeam.members.length === 0,
+    };
+    setEditingTeam({
+      ...editingTeam,
+      members: [...editingTeam.members, newMember],
+    });
+  }
+
+  function handleRemoveMember(index: number) {
+    if (!editingTeam || editingTeam.members.length <= 1) return;
+    const isRemovingLead = editingTeam.members[index]?.is_lead;
+    const updated = editingTeam.members.filter((_, i) => i !== index);
+    if (isRemovingLead && updated.length > 0) {
+      updated[0] = { ...updated[0], is_lead: true };
+    }
+    setEditingTeam({
+      ...editingTeam,
+      members: updated,
+    });
+  }
 
   // Add Team Modal
   const [showAddTeamModal, setShowAddTeamModal] = useState(false);
@@ -376,6 +447,49 @@ export default function AdminXtremePage() {
     e.preventDefault();
     if (!editingTeam) return;
 
+    const cleanName = editingTeam.team_name.trim();
+    if (!cleanName || !/^[a-zA-Z0-9]{3,20}$/.test(cleanName)) {
+      setEditError('Team name must be 3-20 characters and contain only letters and numbers (no spaces).');
+      return;
+    }
+
+    if (!editingTeam.members || editingTeam.members.length < 1 || editingTeam.members.length > 3) {
+      setEditError('Squad must have between 1 and 3 members.');
+      return;
+    }
+
+    const leadCount = editingTeam.members.filter((m) => m.is_lead).length;
+    if (leadCount !== 1) {
+      setEditError('Exactly one member must be designated as the team lead.');
+      return;
+    }
+
+    const seenIeee = new Set<string>();
+    for (let i = 0; i < editingTeam.members.length; i++) {
+      const m = editingTeam.members[i];
+      const fn = (m.first_name || '').trim();
+      const em = (m.email || '').trim().toLowerCase();
+      const id = (m.ieee_member_id || '').trim();
+
+      if (!fn) {
+        setEditError(`Member #${i + 1}: First name is required.`);
+        return;
+      }
+      if (!em || !em.includes('@')) {
+        setEditError(`Member #${i + 1} (${fn}): A valid email address is required.`);
+        return;
+      }
+      if (!id || (!/^\d{5,15}$/.test(id) && id !== '999')) {
+        setEditError(`Member #${i + 1} (${fn}): A valid IEEE Member ID (5-15 digits) is required.`);
+        return;
+      }
+      if (seenIeee.has(id)) {
+        setEditError(`Duplicate IEEE Member ID "${id}" in squad roster.`);
+        return;
+      }
+      seenIeee.add(id);
+    }
+
     setSavingEdit(true);
     setEditError('');
 
@@ -392,6 +506,7 @@ export default function AdminXtremePage() {
         }
         const updated: XtremeTeam = {
           ...editingTeam,
+          team_name: cleanName,
           proctor_name: proctorName,
           proctor_ieee_id: proctorIeee,
           updated_at: new Date().toISOString(),
@@ -410,10 +525,11 @@ export default function AdminXtremePage() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            team_name: editingTeam.team_name,
+            team_name: cleanName,
             proctor_id: editingTeam.proctor_id || null,
             admin_note: editingTeam.admin_note,
             vtools_verified: editingTeam.vtools_verified,
+            members: editingTeam.members,
           }),
         });
 
@@ -438,10 +554,14 @@ export default function AdminXtremePage() {
       return;
     }
 
+    setDeletingTeamId(teamId);
     try {
       if (isDemoMode()) {
         deleteLocalXtremeTeam(teamId);
         setTeams((prev) => prev.filter((t) => t.id !== teamId));
+        if (editingTeam?.id === teamId) {
+          setEditingTeam(null);
+        }
         await loadData();
       } else {
         const { data: session } = await supabase.auth.getSession();
@@ -456,10 +576,15 @@ export default function AdminXtremePage() {
           throw new Error(err?.error || 'Failed to delete team.');
         }
 
+        if (editingTeam?.id === teamId) {
+          setEditingTeam(null);
+        }
         await loadData();
       }
     } catch (err: unknown) {
       alert((err as Error).message || 'Delete failed.');
+    } finally {
+      setDeletingTeamId(null);
     }
   }
 
@@ -1190,10 +1315,16 @@ export default function AdminXtremePage() {
                   const otherMembers = team.members.filter((m) => !m.is_lead);
 
                   return (
-                    <tr key={team.id} className="hover:bg-paper/40 transition">
+                    <tr
+                      key={team.id}
+                      onClick={() => setEditingTeam(team)}
+                      className="hover:bg-paper/60 transition cursor-pointer group"
+                    >
                       {/* Team Name & Claim Status */}
                       <td className="px-5 py-4 font-bold text-ink">
-                        <div className="text-sm">{team.team_name}</div>
+                        <div className="text-sm group-hover:text-brand-navy transition underline-offset-2 group-hover:underline">
+                          {team.team_name}
+                        </div>
                         <div className="mt-1 flex items-center gap-1.5">
                           {team.lead_user_id ? (
                             <span className="badge bg-emerald-50 text-emerald-800 text-[10px] py-0 px-1.5">
@@ -1273,22 +1404,27 @@ export default function AdminXtremePage() {
                       </td>
 
                       {/* Actions */}
-                      <td className="px-5 py-4 text-right whitespace-nowrap">
+                      <td className="px-5 py-4 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-end gap-2">
                           <button
                             type="button"
                             onClick={() => setEditingTeam(team)}
-                            className="btn btn-ghost bg-paper py-1 px-2.5 text-xs font-semibold"
+                            className="btn btn-ghost bg-paper py-1 px-2.5 text-xs font-semibold hover:border-brand-navy"
                           >
-                            <Edit2 className="h-3.5 w-3.5" /> Edit / Proctor
+                            <Edit2 className="h-3.5 w-3.5" /> Manage Squad
                           </button>
                           <button
                             type="button"
+                            disabled={deletingTeamId === team.id}
                             onClick={() => handleDeleteTeam(team.id, team.team_name)}
-                            className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition"
+                            className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition disabled:opacity-50"
                             title="Delete Team"
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            {deletingTeamId === team.id ? (
+                              <Spinner className="h-3.5 w-3.5" />
+                            ) : (
+                              <Trash2 className="h-3.5 w-3.5" />
+                            )}
                           </button>
                         </div>
                       </td>
@@ -1308,12 +1444,68 @@ export default function AdminXtremePage() {
           onClose={() => setEditingTeam(null)}
           wide
         >
-          <form onSubmit={handleSaveEdit} className="space-y-5 text-xs">
+          <form onSubmit={handleSaveEdit} className="space-y-6 text-xs">
             {editError && <Alert tone="error">{editError}</Alert>}
 
-            {/* Team details */}
+            {/* Quick Status & Utility Banner */}
+            <div className="rounded-2xl border border-line bg-paper/60 p-4 space-y-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-semibold text-muted uppercase tracking-wider">Account Claim:</span>
+                    {editingTeam.lead_user_id ? (
+                      <span className="badge bg-emerald-50 text-emerald-800 text-[11px] font-medium py-0.5 px-2 flex items-center gap-1">
+                        <Check className="h-3 w-3 text-emerald-600" />
+                        Claimed (User ID: {editingTeam.lead_user_id.slice(0, 8)}...)
+                      </span>
+                    ) : (
+                      <span className="badge bg-amber-50 text-amber-800 text-[11px] font-medium py-0.5 px-2 flex items-center gap-1">
+                        <Info className="h-3 w-3 text-amber-600" />
+                        Unclaimed — will link to {editingTeam.leader_email || editingTeam.members.find((m) => m.is_lead)?.email || 'leader'} upon sign-in
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-muted">
+                    Squad registered on {new Date(editingTeam.created_at).toLocaleDateString()}
+                    {editingTeam.updated_at ? ` · Last updated ${new Date(editingTeam.updated_at).toLocaleDateString()}` : ''}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleCopyEmails(editingTeam.members.map((m) => m.email))}
+                    className="btn btn-ghost bg-white border border-line py-1.5 px-3 text-xs font-semibold flex items-center gap-1.5 hover:bg-paper"
+                    title="Copy all squad member emails to clipboard"
+                  >
+                    {copiedEmails ? (
+                      <>
+                        <CheckCheck className="h-3.5 w-3.5 text-emerald-600" />
+                        <span className="text-emerald-700">Copied Emails!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3.5 w-3.5 text-muted" />
+                        <span>Copy Member Emails</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {editingTeam.vtools_verified && (
+                <div className="rounded-xl bg-amber-50/80 border border-amber-200/60 p-2.5 text-[11px] text-amber-900 flex items-start gap-2">
+                  <Info className="h-4 w-4 shrink-0 text-amber-700 mt-0.5" />
+                  <span>
+                    <strong>vTools Verified:</strong> This squad is verified and locked on the student portal. As an organizer/admin, you can still modify details below.
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Team Attributes */}
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Team Name" htmlFor="modal_team_name" required>
+              <Field label="Team Name" htmlFor="modal_team_name" required hint="3-20 characters, alphanumeric only">
                 <Input
                   id="modal_team_name"
                   value={editingTeam.team_name}
@@ -1341,7 +1533,7 @@ export default function AdminXtremePage() {
                       }
                       className="h-4 w-4 rounded text-brand-orange focus:ring-brand-orange"
                     />
-                    <span>Mark as Verified on IEEE vTools (Locks Team)</span>
+                    <span>Mark as Verified on IEEE vTools (Locks Squad)</span>
                   </label>
                 </div>
               </Field>
@@ -1385,11 +1577,11 @@ export default function AdminXtremePage() {
             </div>
 
             {/* Admin notes */}
-            <Field label="Admin Notes (Internal)" htmlFor="modal_notes">
+            <Field label="Admin Notes (Internal Organizer Notes)" htmlFor="modal_notes">
               <textarea
                 id="modal_notes"
                 rows={2}
-                placeholder="Internal notes about campus lab seating, attendance, etc."
+                placeholder="Internal notes about campus lab seating, attendance, offline registration, etc."
                 value={editingTeam.admin_note || ''}
                 onChange={(e) =>
                   setEditingTeam({
@@ -1401,54 +1593,200 @@ export default function AdminXtremePage() {
               />
             </Field>
 
-            {/* Team Members List */}
-            <div className="rounded-2xl border border-line bg-paper/40 p-4">
-              <span className="font-semibold text-ink uppercase text-[11px] tracking-wider block mb-2">
-                Registered Participants ({editingTeam.members.length})
-              </span>
-              <div className="space-y-2">
+            {/* Team Members List (Fully Editable) */}
+            <div className="rounded-2xl border border-line bg-paper/30 p-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-ink uppercase text-[11px] tracking-wider block">
+                    Squad Members ({editingTeam.members.length} / 3 max)
+                  </span>
+                  <p className="text-[11px] text-muted mt-0.5">
+                    Every squad must have between 1 and 3 participants with exactly one leader.
+                  </p>
+                </div>
+                {editingTeam.members.length < 3 && (
+                  <button
+                    type="button"
+                    onClick={handleAddMember}
+                    className="btn btn-ghost bg-white border border-line text-xs font-semibold py-1 px-3 flex items-center gap-1.5 hover:bg-paper"
+                  >
+                    <Plus className="h-3.5 w-3.5 text-brand-orange" />
+                    <span>Add Teammate</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="space-y-3">
                 {editingTeam.members.map((m, i) => (
                   <div
-                    key={i}
-                    className="flex justify-between items-center bg-white p-2.5 rounded-xl border border-line"
+                    key={m.id || i}
+                    className="bg-white p-3.5 rounded-2xl border border-line shadow-2xs space-y-3"
                   >
-                    <div>
-                      <p className="font-bold text-ink">
-                        {m.first_name} {m.last_name}{' '}
-                        {m.is_lead && (
-                          <span className="badge bg-brand-navy text-white text-[10px] py-0 px-1 ml-1">
-                            Lead
+                    <div className="flex items-center justify-between border-b border-line/60 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-ink text-xs">
+                          Participant #{i + 1}
+                        </span>
+                        {m.is_lead ? (
+                          <span className="badge bg-brand-navy text-white text-[10px] font-semibold py-0.5 px-2 flex items-center gap-1">
+                            <Crown className="h-3 w-3 text-brand-orange" />
+                            Team Leader
                           </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleSetLead(i)}
+                            className="btn btn-ghost py-0.5 px-2 text-[10px] font-semibold text-brand-navy hover:bg-brand-navy/5 border border-brand-navy/20"
+                          >
+                            Designate as Leader
+                          </button>
                         )}
-                      </p>
-                      <p className="text-[11px] text-muted">
-                        IEEE ID: {m.ieee_member_id} {m.usn ? `· USN: ${m.usn}` : ''} {m.department ? `· ${m.department}` : ''}
-                      </p>
+                      </div>
+
+                      {editingTeam.members.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveMember(i)}
+                          className="p-1 text-red-600 hover:bg-red-50 rounded-lg transition"
+                          title="Remove teammate"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
                     </div>
-                    <div className="text-right text-[11px] text-ink-soft">
-                      <p>{m.email}</p>
-                      <p>{m.phone}</p>
+
+                    <div className="grid gap-2.5 sm:grid-cols-2">
+                      <Field label="First Name" htmlFor={`m_${i}_fn`} required>
+                        <Input
+                          id={`m_${i}_fn`}
+                          value={m.first_name}
+                          onChange={(e) => handleMemberChange(i, 'first_name', e.target.value)}
+                          placeholder="First Name"
+                          className="text-xs py-1.5"
+                        />
+                      </Field>
+
+                      <Field label="Last Name" htmlFor={`m_${i}_ln`}>
+                        <Input
+                          id={`m_${i}_ln`}
+                          value={m.last_name || ''}
+                          onChange={(e) => handleMemberChange(i, 'last_name', e.target.value)}
+                          placeholder="Last Name"
+                          className="text-xs py-1.5"
+                        />
+                      </Field>
+
+                      <Field label="Email Address" htmlFor={`m_${i}_email`} required>
+                        <Input
+                          id={`m_${i}_email`}
+                          type="email"
+                          value={m.email}
+                          onChange={(e) => handleMemberChange(i, 'email', e.target.value)}
+                          placeholder="student.dept@bmsce.ac.in"
+                          className="text-xs py-1.5"
+                        />
+                      </Field>
+
+                      <Field label="Phone Number" htmlFor={`m_${i}_phone`}>
+                        <Input
+                          id={`m_${i}_phone`}
+                          value={m.phone || ''}
+                          onChange={(e) => handleMemberChange(i, 'phone', e.target.value)}
+                          placeholder="+91 9876543210"
+                          className="text-xs py-1.5"
+                        />
+                      </Field>
+
+                      <Field label="IEEE Member ID" htmlFor={`m_${i}_ieee`} required hint="5-15 digits">
+                        <Input
+                          id={`m_${i}_ieee`}
+                          value={m.ieee_member_id}
+                          onChange={(e) =>
+                            handleMemberChange(i, 'ieee_member_id', e.target.value.replace(/[^0-9]/g, ''))
+                          }
+                          placeholder="98451234"
+                          className="text-xs py-1.5 font-mono"
+                        />
+                      </Field>
+
+                      <Field label="College USN" htmlFor={`m_${i}_usn`}>
+                        <Input
+                          id={`m_${i}_usn`}
+                          value={m.usn || ''}
+                          onChange={(e) =>
+                            handleMemberChange(i, 'usn', e.target.value.toUpperCase())
+                          }
+                          placeholder="1BM23CS001"
+                          className="text-xs py-1.5 uppercase font-mono"
+                        />
+                      </Field>
+
+                      <Field label="Department" htmlFor={`m_${i}_dept`}>
+                        <Select
+                          id={`m_${i}_dept`}
+                          value={m.department || 'CSE'}
+                          onChange={(e) => handleMemberChange(i, 'department', e.target.value)}
+                          className="text-xs py-1.5"
+                        >
+                          {DEPARTMENTS.map((dept) => (
+                            <option key={dept} value={dept}>
+                              {dept}
+                            </option>
+                          ))}
+                        </Select>
+                      </Field>
+
+                      <Field label="Year of Study" htmlFor={`m_${i}_year`}>
+                        <Select
+                          id={`m_${i}_year`}
+                          value={m.year_of_study || '3rd Year'}
+                          onChange={(e) => handleMemberChange(i, 'year_of_study', e.target.value)}
+                          className="text-xs py-1.5"
+                        >
+                          {YEARS.map((yr) => (
+                            <option key={yr} value={yr}>
+                              {yr}
+                            </option>
+                          ))}
+                        </Select>
+                      </Field>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-line">
+            <div className="flex items-center justify-between pt-3 border-t border-line">
               <button
                 type="button"
-                onClick={() => setEditingTeam(null)}
-                className="btn btn-ghost text-xs"
+                disabled={deletingTeamId === editingTeam.id || savingEdit}
+                onClick={() => handleDeleteTeam(editingTeam.id, editingTeam.team_name)}
+                className="btn btn-ghost text-red-600 hover:bg-red-50 text-xs flex items-center gap-1.5"
               >
-                Cancel
+                {deletingTeamId === editingTeam.id ? (
+                  <Spinner className="h-3.5 w-3.5" />
+                ) : (
+                  <Trash2 className="h-3.5 w-3.5" />
+                )}
+                <span>Delete Squad</span>
               </button>
-              <button
-                type="submit"
-                disabled={savingEdit}
-                className="btn btn-primary text-xs font-bold"
-              >
-                {savingEdit ? <Spinner className="h-3.5 w-3.5" /> : 'Save Changes'}
-              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingTeam(null)}
+                  className="btn btn-ghost text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingEdit || deletingTeamId === editingTeam.id}
+                  className="btn btn-primary text-xs font-bold"
+                >
+                  {savingEdit ? <Spinner className="h-3.5 w-3.5" /> : 'Save Changes'}
+                </button>
+              </div>
             </div>
           </form>
         </Modal>

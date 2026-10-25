@@ -10,7 +10,7 @@ import DemoNotice from '@/components/membership/DemoNotice';
 import { errorMessage } from '@/lib/utils';
 import { departments, pgDepartments } from '@/data/site';
 import { CART_KEYS } from '@/lib/cart';
-import { PROGRAM_LABELS, type Program } from '@/lib/pricing';
+import { PROGRAM_LABELS, loadDriveStatus, type Program } from '@/lib/pricing';
 import { cn } from '@/lib/utils';
 
 type Form = Omit<UserProfile, 'id' | 'email'>;
@@ -52,6 +52,13 @@ export default function ProfilePage() {
     window.addEventListener('pageshow', onPageShow);
 
     (async () => {
+      const open = await loadDriveStatus().catch(() => true);
+      if (!alive) return;
+      if (!open) {
+        router.replace('/membership/register');
+        return;
+      }
+
       const paid = await hasUserSubmittedPayment();
       if (!alive) return;
       if (paid) {

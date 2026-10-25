@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { BRANCH, chapters, contactInfo, socialLinks } from '@/data/site';
@@ -8,13 +8,27 @@ import SocialIcon from './SocialIcon';
 import { BrandDots } from './BrandShapes';
 import { REGISTRATION_ONLY_MODE } from '@/config/temporary-launch';
 import { MEMBERSHIP_DRIVE_OPEN, primaryJoinCta } from '@/config/membership';
+import { loadDriveStatus } from '@/lib/pricing';
 
 export default function Footer() {
+  const [driveOpen, setDriveOpen] = useState(MEMBERSHIP_DRIVE_OPEN);
   const [isLocalhost] = useState(() => {
     if (typeof window === 'undefined') return false;
     const h = window.location.hostname;
     return h === 'localhost' || h === '127.0.0.1' || h === '::1';
   });
+
+  useEffect(() => {
+    let alive = true;
+    loadDriveStatus()
+      .then((status) => {
+        if (alive) setDriveOpen(status);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const isRestricted = REGISTRATION_ONLY_MODE && !isLocalhost;
 
@@ -38,9 +52,9 @@ export default function Footer() {
     {
       title: 'Membership',
       links: [
-        MEMBERSHIP_DRIVE_OPEN
+        driveOpen
           ? { label: 'Become a member', href: '/membership/register' }
-          : { label: primaryJoinCta().label, href: primaryJoinCta().href },
+          : { label: primaryJoinCta(driveOpen).label, href: primaryJoinCta(driveOpen).href },
         { label: 'Member portal', href: '/login' },
         { label: 'Privacy policy', href: '/privacy' },
         { label: 'Terms of use', href: '/terms' },

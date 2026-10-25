@@ -1,6 +1,6 @@
 import { chapterCode } from '@/data/site';
 import { getLocalOrders, writeLocalOrders, type Order } from './auth';
-import { DEMO_SETTINGS_KEY, loadPayee, loadPricing, programChapterPrice, type DemoSettings, type Pricing } from './pricing';
+import { DEMO_SETTINGS_KEY, loadPayee, loadPricing, programChapterPrice, readDemoSettings, type DemoSettings, type Pricing } from './pricing';
 import { isDemoMode, supabase } from './supabase';
 import { adminFetch } from './admin-api';
 
@@ -269,13 +269,14 @@ export type Settings = {
 export async function loadSettings(): Promise<Settings> {
   if (isDemoMode()) {
     const [pricing, payee] = await Promise.all([loadPricing(), loadPayee()]);
+    const demo = readDemoSettings();
     return {
       baseFee: pricing.baseFee,
       pgBaseFee: pricing.pgBaseFee,
       vpa: payee.vpa,
       payeeName: payee.name,
       driveYear: new Date().getFullYear(),
-      isDriveOpen: true,
+      isDriveOpen: demo?.isDriveOpen ?? pricing.isDriveOpen ?? false,
       treasurerName: 'Branch Treasurer',
       treasurerRole: 'Treasurer',
       treasurerPhone: '+91 98765 43210',
@@ -293,7 +294,7 @@ export async function loadSettings(): Promise<Settings> {
     vpa: settings.payee_vpa ?? '',
     payeeName: settings.payee_name ?? '',
     driveYear: Number(settings.drive_year ?? new Date().getFullYear()),
-    isDriveOpen: settings.is_drive_open ?? true,
+    isDriveOpen: settings.is_drive_open ?? false,
     treasurerName: settings.treasurer_name ?? 'Branch Treasurer',
     treasurerRole: settings.treasurer_role ?? 'Treasurer',
     treasurerPhone: settings.treasurer_phone ?? '',
@@ -315,7 +316,11 @@ export async function saveSettings(next: Settings, admin: AdminIdentity) {
   }
   if (isDemoMode()) {
     const demo: DemoSettings = {
-      baseFee: next.baseFee, pgBaseFee: next.pgBaseFee, vpa: next.vpa, payeeName: next.payeeName,
+      baseFee: next.baseFee,
+      pgBaseFee: next.pgBaseFee,
+      vpa: next.vpa,
+      payeeName: next.payeeName,
+      isDriveOpen: next.isDriveOpen ?? false,
       prices: Object.fromEntries(next.chapters.map((c) => [c.id, c.price])),
       pgPrices: Object.fromEntries(next.chapters.map((c) => [c.id, c.pgPrice])),
     };
@@ -331,7 +336,7 @@ export async function saveSettings(next: Settings, admin: AdminIdentity) {
           payee_vpa: next.vpa,
           payee_name: next.payeeName,
           drive_year: next.driveYear ?? new Date().getFullYear(),
-          is_drive_open: next.isDriveOpen ?? true,
+          is_drive_open: next.isDriveOpen ?? false,
           treasurer_name: next.treasurerName || 'Treasurer',
           treasurer_role: next.treasurerRole || 'Branch Treasurer',
           treasurer_phone: next.treasurerPhone || '',

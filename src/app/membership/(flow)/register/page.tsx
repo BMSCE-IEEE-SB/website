@@ -12,17 +12,38 @@ import AuthShell from '@/components/membership/AuthShell';
 import PasswordField from '@/components/membership/PasswordField';
 import DemoNotice from '@/components/membership/DemoNotice';
 import { errorMessage } from '@/lib/utils';
+import { MEMBERSHIP_DRIVE_OPEN, MEMBERSHIP_DRIVE_YEAR } from '@/config/membership';
+import { loadDriveStatus } from '@/lib/pricing';
 
 export default function RegisterPage() {
   const router = useRouter();
   const demo = isDemoMode();
   const { user } = useSession();
+  const [isDriveOpen, setIsDriveOpen] = useState(MEMBERSHIP_DRIVE_OPEN);
+  const [checkingDrive, setCheckingDrive] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<React.ReactNode>('');
   const [pendingEmail, setPendingEmail] = useState('');
+
+  useEffect(() => {
+    let alive = true;
+    loadDriveStatus()
+      .then((open) => {
+        if (alive) {
+          setIsDriveOpen(open);
+          setCheckingDrive(false);
+        }
+      })
+      .catch(() => {
+        if (alive) setCheckingDrive(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -147,7 +168,63 @@ export default function RegisterPage() {
     </ul>
   );
 
-  if (user === undefined) return <PageLoader />;
+  if (user === undefined || (checkingDrive && !MEMBERSHIP_DRIVE_OPEN)) return <PageLoader />;
+
+  if (!isDriveOpen) {
+    if (user) {
+      return (
+        <AuthShell title={<>Membership Closed</>} top={aside}>
+          <div className="flex h-full flex-col justify-center py-6">
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-paper px-3 py-1 text-xs font-semibold text-muted">
+              <span className="h-2 w-2 rounded-full bg-gray-400" />
+              {MEMBERSHIP_DRIVE_YEAR} Applications Closed
+            </span>
+            <h1 className="mt-4 text-3xl font-bold">Drive has ended</h1>
+            <p className="mt-2 text-sm text-ink-soft">
+              You&apos;re signed in as <strong className="text-ink">{user.email}</strong>. New membership registrations are closed for now.
+            </p>
+            <div className="mt-8 flex flex-col gap-3">
+              <Link href="/account" className="btn btn-primary btn-lg w-full">
+                Go to member portal <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link href="/ieeextreme" className="btn btn-ghost btn-lg w-full">
+                Explore IEEEXtreme 20.0
+              </Link>
+              <button type="button" onClick={() => clearUserSession()} className="btn btn-lg w-full text-muted hover:text-ink">
+                <LogOut className="h-4 w-4" /> Sign out
+              </button>
+            </div>
+          </div>
+        </AuthShell>
+      );
+    }
+    return (
+      <AuthShell title={<>Membership Closed</>} top={aside}>
+        <div className="py-4">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-paper px-3 py-1 text-xs font-semibold text-muted">
+            <span className="h-2 w-2 rounded-full bg-gray-400" />
+            {MEMBERSHIP_DRIVE_YEAR} Applications Closed
+          </span>
+          <h1 className="mt-4 text-3xl font-bold sm:text-4xl">Membership drive has ended</h1>
+          <p className="mt-3 text-ink-soft leading-relaxed">
+            Registrations for the BMSCE IEEE Student Branch {MEMBERSHIP_DRIVE_YEAR} annual membership drive are currently closed.
+            New applications are not being accepted at this time.
+          </p>
+          <div className="mt-8 flex flex-col gap-3">
+            <Link href="/login" className="btn btn-primary btn-lg w-full">
+              Member portal sign in <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/ieeextreme" className="btn btn-ghost btn-lg w-full">
+              Explore IEEEXtreme 20.0
+            </Link>
+          </div>
+          <p className="mt-6 text-xs text-muted">
+            Already registered? Sign in above to check your application status, view digital credentials, or download receipts.
+          </p>
+        </div>
+      </AuthShell>
+    );
+  }
 
   if (pendingEmail) {
     return (

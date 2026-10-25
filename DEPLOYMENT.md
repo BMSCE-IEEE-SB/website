@@ -39,26 +39,43 @@ Before clicking Deploy, expand the **Environment Variables** section and add:
 ### Step 4: Deploy
 Click **"Deploy"**. Within ~60 seconds, Vercel will build all 32+ pages and API routes with Next.js Turbopack and assign a live URL (e.g. `https://sb-website-theta.vercel.app` or `https://sb-website-ratik.vercel.app`).
 
-### Database Setup & Security Remediation
+### Database Setup, Backups & Migrations
 
-1. **Database Provisioning**:
+1. **Pre-Deployment Verification & Snapshot**:
+   - Run the automated test suite locally:
+     ```bash
+     npm test
+     ```
+     Verify all 49 tests pass across SAC permissions, proctors queue, teams API, and cart logic.
+   - Snapshot existing database state:
+     ```bash
+     node scripts/backup_database.mjs
+     ```
+     Creates an offline JSON backup of all 17 database tables in `backups/backup_<timestamp>/`.
+
+2. **Database Provisioning**:
    - For a **fresh database**: Execute `supabase/schema.sql`, then apply `supabase/migrations/20260927003133_security_remediation.sql`.
    - For an **existing database**: Take a backup and apply `supabase/migrations/20260927003133_security_remediation.sql`. **Do not** re-run `schema.sql` over an existing live database.
    - For **IEEEXtreme 20.0 (Hackathon Gateway)**:
-     - When ready to enable hackathon registrations on the live Supabase project, execute `supabase/migrations/20261016140000_ieeextreme_tables.sql`, then `supabase/migrations/20261019120000_xtreme_proctors_and_ownership.sql`, then `supabase/migrations/20261019170000_xtreme_proctor_capacity_queue.sql`.
-     - This creates the isolated tables (`ieee_member_2026`, `xtreme_teams`, `xtreme_members`, `xtreme_proctors`), nullable team ownership with verified email auto-claim, and concurrency-safe proctor capacity enforcement procedures (`assign_proctor_to_team`, `auto_assign_proctor`). It does **not** alter or touch any existing membership or payment tables.
+     - When ready to enable hackathon registrations on the live Supabase project, execute the migration sequence in order:
+       1. `supabase/migrations/20261016140000_ieeextreme_tables.sql` (base tables: `ieee_member_2026`, `xtreme_teams`, `xtreme_members`, RLS policies, registration RPC)
+       2. `supabase/migrations/20261019120000_xtreme_proctors_and_ownership.sql` (managed `xtreme_proctors`, auto-claim by email, capacity enforcement RPCs)
+       3. `supabase/migrations/20261019160000_harden_sac_rls.sql` (RLS policy hardening ensuring SAC role has full admin access to `xtreme_*` tables while keeping membership tables read-only)
+       4. `supabase/migrations/20261019170000_xtreme_proctor_capacity_queue.sql` (per-proctor squad caps and sequential proctor fill queue)
+       5. `supabase/migrations/20261024194500_import_squads_and_namratha_proctor.sql` (adds Dr. Namratha M with capacity 15 to proctors queue and imports squad rosters)
+     - This creates and configures the isolated tables (`ieee_member_2026`, `xtreme_teams`, `xtreme_members`, `xtreme_proctors`), nullable team ownership with verified email auto-claim, and concurrency-safe proctor capacity enforcement procedures (`assign_proctor_to_team`, `auto_assign_proctor`). It does **not** alter or touch any existing membership or payment tables.
      - Until applied, the Xtreme module gracefully falls back to browser localStorage.
-2. **Admin Provisioning**:
+3. **Admin Provisioning**:
    - Verify that your initial executive email is present in the `admin_whitelist` table (e.g. `ratikagrawal.ec24@bmsce.ac.in` or `bms.ieeesb@gmail.com`). Admin access is provisioned strictly through this whitelist.
-3. **Environment Security**:
+4. **Environment Security**:
    - Ensure `SUPABASE_SERVICE_ROLE_KEY` is saved in Vercel's Environment Variables (for Production and Preview). All server checkout APIs (`/api/checkout/*`) and admin tools (`/api/admin/*`) require this key to execute secure mutations.
-4. **Post-Deployment Verification**:
+5. **Post-Deployment Verification**:
    - **Student Flow**: Test account creation (`/membership/register`), profile (`/membership/profile`), chapter and T-shirt size selection (`/membership/chapters`), UPI QR generation, proof screenshot upload, and order submission (`/membership/checkout`).
    - **Member Portal**: Verify application status tracking at `/account` and test the payment resubmission modal on rejected orders.
    - **Admin Verification**: Sign into `/admin/login`, review orders on `/admin/orders`, test signed URL payment proof viewing, approve an order, and test on-demand receipt delivery (`/api/send-receipt`) with PDF attachment.
    - **Manual Receipts**: Test issuing an offline receipt via the "Issue Manual Receipt" modal and verify entry in `issued_receipts` and `admin_audit_log`.
-   - **Admin Management**: Test the Announcement Bar toggle (`/admin/announcement`), Team Whitelist (`/admin/team`), and Drive Settings (`/admin/settings`).
-   - **IEEEXtreme Gateway**: Verify public landing page at `/ieeextreme`, test multi-step team lead registration at `/ieeextreme/register`, team dashboard at `/ieeextreme/team`, vTools registration confirmation, and executive squad management at `/admin/xtreme` (proctor capacity tracking, squad creation, bulk import, and roster exports).
+   - **Admin Management**: Test the Announcement Bar toggle (`/admin/announcement`), Team Whitelist (`/admin/team`), and Drive Settings (`/admin/settings`). Test toggling the Drive Status between Open and Closed in settings to confirm public CTAs dynamically update and that applicant route guards (`/membership/register`, `/membership/profile`, `/membership/chapters`) trigger the closed screen as expected.
+   - **IEEEXtreme Gateway & Branding**: Verify public landing page at `/ieeextreme`, confirming official Region 10 20.0 logos, watermarks, and badges render cleanly. Test multi-step team lead registration at `/ieeextreme/register`, team dashboard at `/ieeextreme/team`, vTools registration confirmation, and executive squad management at `/admin/xtreme` (proctor capacity tracking, squad creation, full roster editing, email copying, bulk import, and roster exports).
    - **Security Check**: Confirm direct anonymous or authenticated client writes to `orders`, `membership_config`, and `admin_whitelist` are rejected by Row-Level Security.
 
 ---
